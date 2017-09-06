@@ -53,6 +53,7 @@ $arch_interval = 60; // this only reads the last record for the interval, if mat
 * By editing the above section in wxobs.php.html, make a choice...
 * If using the weewx default database of sdb - sqlite: configure the sqlite database location and comment out __//$dbase='mysql';__ then uncomment __$dbase='sqlite';__ 
 * __OR__, if it's mysql archive then configure the mysql variables and check that the mysql flag is uncommented __$dbase='mysql';__
+* If you went with the sqlite option, you may need to install php-sqlite3, hopefully __apt-get install php-sqlite3__ will do that for you.
 * The template is configured to give half-hourly values - change __$ext interval__ if you want something else. 
 * The template is also pre-configured to return "snapshot" values; as if you had pen and paper and took a note of the readings at that time. 
   Alternatively, it can be configured to give average values over the selected time span by commenting out (__//$arch_interval = 60;__) and uncommenting $arch_interval (__$arch_interval = $ext_interval;__)
