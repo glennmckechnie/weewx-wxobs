@@ -72,7 +72,7 @@ $arch_interval = 60; // this only reads the last record for the interval, if mat
     
        copy_once = (leave existing values) , datepicker.css, wxobs.css, datepicker.js, links.inc
        
-* links.inc is an optional include file for the seasons skin. As an example, it is referenced within wxobs.php.html in the top #includes section, under <div id="widget_group">. It just generates a section with a link to this page, obviously it can include other links/information for the seasons side menu. It also shows the usage with a GET request to load wxobs.php with the current timestamp.       
+* links.inc is an optional include file for the seasons skin. As an example, it is referenced within wxobs.php.html in the top #includes section, under &lt;div id="widget group"&gt;. It just generates a section with a link to this page, obviously it can include other links/information for the seasons side menu. It also shows the usage with a GET request to load wxobs.php with the current timestamp.       
 
 And with that, you should be right to go.
 
