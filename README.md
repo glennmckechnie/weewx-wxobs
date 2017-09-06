@@ -1,15 +1,16 @@
 # weewx-wxobs
 An additional weewx report page that uses php to extract archival data (Daily climatological summaries) from the weewx database and present it as a series of snapshots (currently half-hourly) averaged throughout the chosen day. It includes delta-T ( primarily for agricultural purposes.)
 
-It is set out in the style of the _Latest Weather Observations_ pages that the Australian Weather Bureau - BOM provides. eg:- http://www.bom.gov.au/products/IDV60801/IDV60801.94852.shtml  I find those pages useful, that one especially when keeping an eye on the accuracy of my station.
+It is set out in the style of the _Latest Weather Observations_ pages that the Australian Weather Bureau - BOM provides. eg:- [Ballarat](http://www.bom.gov.au/products/IDV60801/IDV60801.94852.shtml)  I find those pages useful, that one especially when keeping an eye on the accuracy of my station.
 
 It integrates with the seasons skin, but should be easily modified for use within other skins. It uses the cheetah generator to some extent (unit labels) but these could be bypassed if it was used as a stand-alone page.
 It is configured to use either the sqlite or mysql databases that weewx uses. I don't currently use sqlite so that's a best guess (which appears to work with an archived conversion of my mysql) Feedback, corrections are welcomed on that - or anything here.
 
 It currently (initial upload) is __only configured for Metric Units,__ but that can be changed with some tweaks (contributions welcomed). Those tweaks would for the most part be simple, except for the delta-T calculations, where a tad more work would be involved.
 
-Thanks to Powerin (weewx-users) for the initial starting point, search the group for the thread titled "Daily climatological summaries"
-Thanks to weewx-wd (ozgreg) for the delta-T calcs, that are also referenced by Powerin under "Wet bulb and DeltaT temperatures"
+Thanks to:
+* Powerin (weewx-users) for the initial starting point, search the group for the thread titled [Daily climatological summaries](https://groups.google.com/d/topic/weewx-user/cEAzvxv3T6Q/discussion)
+* [weewx-wd](https://bitbucket.org/ozgreg/weewx-wd/wiki/Home) (by ozgreg) for the delta-T calcs in wdSearchX3.py, these are also referenced by Powerin under the weewx-users [Wet bulb and DeltaT temperatures](https://groups.google.com/d/topic/weewx-user/IoBrtQ-OL3I/discussion) post.
 
 ***Instructions:***
 * Copy  the files -- datepicker.css, datepicker.js, wxobs.css -- to your weewx HTML ROOT directory. 
@@ -21,7 +22,7 @@ Thanks to weewx-wd (ozgreg) for the delta-T calcs, that are also referenced by P
 //
 
 // Not used?
-date_default_timezone_set('Australia/Melbourne');
+//date_default_timezone_set('Australia/Melbourne');
 
 // Define one database type only (mysql OR sqlite)
 // Choice of sqlite (weewx default) or mysql (a weewx option)
@@ -76,5 +77,5 @@ __One warning:__  datepicker.js doesn't (didn't) play well with the seasons java
 
 Nothing seems to have broken (for me). It fixed the problem but I'm not knowledgable enough to know what side-effects I've invoked. YMMV. Expert knowledge and/or fixes welcomed.
 
-p.s. datepicker's origins are unknown but a search of github will turn up many versions. I'll find one that matches this one and give a link - later.
+p.s. datepicker's origins are unknown but a search of github will turn up many versions. I'll find one that matches this one and give a link - [This one](https://github.com/chrishulbert/datepicker) is very close to it.
 
