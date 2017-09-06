@@ -9,8 +9,8 @@ It is configured to use either the sqlite or mysql databases that weewx uses. I 
 It currently (initial upload) is __only configured for Metric Units,__ but that can be changed with some tweaks (contributions welcomed). Those tweaks would for the most part be simple, except for the delta-T calculations, where a tad more work would be involved.
 
 Thanks to:
-* Powerin (weewx-users) for the initial starting point, search the group for the thread titled [Daily climatological summaries](https://groups.google.com/d/topic/weewx-user/cEAzvxv3T6Q/discussion)
-* [weewx-wd](https://bitbucket.org/ozgreg/weewx-wd/wiki/Home) (by ozgreg) for the delta-T calcs in wdSearchX3.py, these are also referenced by Powerin under the weewx-users [Wet bulb and DeltaT temperatures](https://groups.google.com/d/topic/weewx-user/IoBrtQ-OL3I/discussion) post.
+* Powerin (weewx-users) for the initial starting point, from the thread titled [Daily climatological summaries](https://groups.google.com/d/topic/weewx-user/cEAzvxv3T6Q/discussion)
+* [weewx-wd](https://bitbucket.org/ozgreg/weewx-wd/wiki/Home) (by ozgreg) for the delta-T calcs in wdSearchX3.py, these are also referenced by Powerin under the post [Wet bulb and DeltaT temperatures](https://groups.google.com/d/topic/weewx-user/IoBrtQ-OL3I/discussion) post.
 
 ***Instructions:***
 * Copy  the files -- datepicker.css, datepicker.js, wxobs.css -- to your weewx HTML ROOT directory. 
@@ -57,7 +57,7 @@ $arch_interval = 60; // this only reads the last record for the interval, if mat
 * The template is also pre-configured to return "snapshot" values; as if you had pen and paper and took a note of the readings at that time. 
   Alternatively, it can be configured to give average values over the selected time span by commenting out (__//$arch_interval = 60;__) and uncommenting $arch_interval (__$arch_interval = $ext_interval;__)
 * It's intended that _$arch interval_ matches your weewx archive interval. If you have an archive interval of, say, 300 (5 minutes) then set this, to that! This is already a kludge (that does seem to work quite well)  but best not push it too far. We are aiming to look for a valid value within that time period, we'll supply 1 (not 0 or 2?).
-* Modify the seasons/skin.conf by adding the __wxobs section, etc.__ to CheetahGenerator, and __, datepicker.css, wxobs.css, datepicker.js__
+* Modify the seasons/skin.conf by adding the __wxobs section, etc.__ to CheetahGenerator, and __, datepicker.css, wxobs.css, datepicker.js, links.inc__
 
 
     [CheetahGenerator]
@@ -69,9 +69,11 @@ $arch_interval = 60; // this only reads the last record for the interval, if mat
 
     [CopyGenerator]
     
-       copy_once = (leave existing values) , datepicker.css, wxobs.css, datepicker.js
+       copy_once = (leave existing values) , datepicker.css, wxobs.css, datepicker.js, links.inc
        
-You should be right to go.
+* links.inc is an optional include file for the seasons skin. As an example, it is referenced within wxobs.php.html in the top #includes section, under <div id="widget_group">. It just generates a section with a link to this page, obviously it can include other links/information for the seasons side menu. It also shows the usage with a GET request to load wxobs.php with the current timestamp.       
+
+And with that, you should be right to go.
 
 __One warning:__  datepicker.js doesn't (didn't) play well with the seasons javascript file (seasons.js). The toggle feature on the #includes was disrupted and didn't behave as it should. I've edited datepicker.js and removed __window.onload=null;__ from the  _function onDOMReady_
 
