@@ -13,7 +13,7 @@ import syslog
 
 from weewx.cheetahgenerator import SearchList
 
-wxobs_version = "0.01"
+wxobs_version = "0.03"
 
 def logmsg(level, msg):
     syslog.syslog(level, '%s' % msg)
@@ -58,7 +58,7 @@ class wxobs(SearchList):
         self.sql_debug ='0'
 
         self.ext_interval = self.generator.skin_dict['wxobs'].get('ext_interval', '1800')
-        self.arch_interval = self.generator.skin_dict['wxobs'].get('arch_interval', '1800')
+        self.arch_interval = self.generator.skin_dict['wxobs'].get('arch_interval')
         if not self.arch_interval:
             self.arch_interval = self.generator.config_dict['StdArchive'] \
                 .get('archive_interval')
