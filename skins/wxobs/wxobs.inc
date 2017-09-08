@@ -9,7 +9,8 @@
 ## available at https://github.com/glennmckechnie/weewx-wxobs
 ## 06-09-2017 initial releas @0.01
 ## 08-09-2017 convert to installable skin
-## Version 0.02
+## 08-09-2017 add unit check and conversion for deltaT
+## Version 0.03
 
    <div>
       <p class="contents">
@@ -92,7 +93,7 @@ $default_ordinate_names = array ('N', 'NNE','NE', 'ENE', 'E', 'ESE', 'SE', 'SSE'
 }
 
 function deltaT ($units, $Tc,$RH,$P) {
-    global $dT;
+ global $dT;
  // DeltaT calculations
  // sourced from wdSearchX3.py, part of the weewx-wd package by oz greg
  // available at https://bitbucket.org/ozgreg/weewx-wd/wiki/Home
@@ -102,18 +103,21 @@ function deltaT ($units, $Tc,$RH,$P) {
  // The following is an AND statement. It assumes your database, and your
  // assigned units are in agreeance. Perhaps it should ignore the database
  // and trust the user?
-if ('$units' === "1") {
- $Tc=($Tc-32)*5/9; // assuming degF - return degC
-  if ('$unit.label.barometer' === 'inHg') {
+if ('$unit.label.outTemp' === "&#176;F") {
+  $Tc=($Tc-32)*5/9; // assuming degF - return degC
+}
+if ('$unit.label.barometer' === ' hPa') { //leading space is critical!
+    $P=$P;
+}elseif ('$unit.label.barometer' === ' inHg') { //leading space is critical!
     $P=($P*33.86389); //assuming inHg - return hPa
-  }elseif ('$unit.label.barometer' === 'mmHg') {
+}elseif ('$unit.label.barometer' === ' mmHg') { //leading space is critical!
     $P=($P/0.75006168); //assuming mmHg - return hPa
-  }else{
+}else{
     //echo "Unrecognized pressure units - conversion code is not present";
     $dT="?units?";
     return;
-  }
- }
+}
+
 
  $Tdc = (($Tc - (14.55 + 0.114 * $Tc) * (1 - (0.01 * $RH)) - ((2.5 + 0.007 * $Tc) * (1 - (0.01 * $RH))) ** 3 - (15.9 + 0.117 * $Tc) * (1 - (0.01 * $RH)) ** 14));
  $E = (6.11 * 10 ** (7.5 * $Tdc / (237.7 + $Tdc)));
@@ -144,8 +148,11 @@ if ('$dbase' === 'mysql') {
 }
    $units = $unit_check[0];
    if ($units === "1") {
+   //return; // uncomment the start of this line if the next message is to be ignored.
     echo "<p>The database appears to be in imperial (US) units.<br>
-          The deltaT calc requires Metric units and  will need modding!<br><br>
+          The deltaT calc requires Metric units. If the weewx labels also<br>
+          report Imperial units then adjustments will be made accordingly.<br>
+          <br>
           Look for // FIXME_UNITS in the wxobs.inc file.
           </p>";
     // FIXME_UNITS
@@ -229,6 +236,8 @@ echo "<!-- start data tables -->\n
 
 // Min Max summaries
 // Shows the min and max values, averages and rainfall total
+   //    $unixtime =  strtotime($_REQUEST['datepicker']);
+
    if ( isset( $_REQUEST['datepicker'])) {
        $unixtime =  strtotime($_REQUEST['datepicker']);
        }else{
@@ -271,12 +280,7 @@ if ('$dbase' === 'mysql') {
    echo "No data for this date.<br>";
     return;
    }
-   //$this_day =  $_REQUEST['datepicker'];
-   if ( isset( $_REQUEST['datepicker'])) {
-       $this_day =  strtotime($_REQUEST['datepicker']);
-       }else{
-       $this_day = $nowtime;
-       }
+   $this_day =  $_REQUEST['datepicker'];
 
   echo "<!-- start snapshot summary observations -->
 
@@ -333,7 +337,7 @@ if ('$dbase' === 'mysql') {
 // Half-hourly, daily stats
 // Shows the average half-hourly values for a given (arch_interval) snapshot, averages and rainfall total for that period.
   echo "<!-- start snapshot observations -->
- <h2>Half-hourly Stats $iflag</h2>
+ <h2>Periodic Stats $iflag</h2>
  <table class=\"wxdata\">
  <thead>
   <tr>
