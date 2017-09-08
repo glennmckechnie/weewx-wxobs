@@ -36,16 +36,16 @@ $debug=0;
 // Argh! Another FIXME?
 // Unit adjustment for my wind. Database is in m/s but I need km/h
 // 0.277778 is needed.
-$kludge='1';
+$wind_adjust='1';
 //
 // END USER CONFIG AREA
 //
 
 //Note; double quoted variables are values that will be passed from the SLE,
-// via cheetahGenerator.
+// via cheetahGenerator. They are required after substitution.
 
-if ('$dbase' == 'mysql') {
-  if ($debug=='1'){
+if ('$dbase' === 'mysql') {
+  if ($debug==='1'){
     echo "database = $dbase<br>";
    }
    $db = new mysqli('$mysql_host', '$mysql_user', '$mysql_pass', '$mysql_base');
@@ -55,8 +55,8 @@ if ('$dbase' == 'mysql') {
      $db->connect_error</p>");
      return;
     }
-   }elseif ('$dbase' == 'sqlite'){
-    if ($debug=='1'){
+   }elseif ('$dbase' === 'sqlite'){
+    if ($debug==='1'){
      echo "database = $dbase<br>";
     }
     $db = new SQLite3('$sqlite_db');
@@ -64,7 +64,7 @@ if ('$dbase' == 'mysql') {
    echo "Define a database with the template - wxobs.inc<br>";
 }
 // Attempt to get some meaingful table headings, if we change above options
-if ( '$arch_interval' == '$ext_interval' ) {
+if ( '$arch_interval' === '$ext_interval' ) {
  $tflag="Total";
  $avflag="(Average)";
  $iflag=" (averaged over each interval)";
@@ -80,7 +80,7 @@ global $compass;
 $default_ordinate_names = array ('N', 'NNE','NE', 'ENE', 'E', 'ESE', 'SE', 'SSE',
                           'S', 'SSW','SW', 'WSW', 'W', 'WNW', 'NW', 'NNW',
                             'N/A'); //17 objects
- if ( $degr == 0 ) {
+ if ( $degr === 0 ) {
   $compass = "CALM";
   return $compass;
  }
@@ -91,17 +91,30 @@ $default_ordinate_names = array ('N', 'NNE','NE', 'ENE', 'E', 'ESE', 'SE', 'SSE'
  $compass = $default_ordinate_names[$sector];
 }
 
-function deltaT ($Tc,$RH,$P) {
+function deltaT ($units, $Tc,$RH,$P) {
+    global $dT;
  // DeltaT calculations
  // sourced from wdSearchX3.py, part of the weewx-wd package by oz greg
  // available at https://bitbucket.org/ozgreg/weewx-wd/wiki/Home
  //$Tc = outTemp.degree_C
  //$RH = outHumidity
  //$P = pressure.hPa
- //$P="";
- //$RH="";
- //$Tc="";
- global $dT;
+ // The following is an AND statement. It assumes your database, and your
+ // assigned units are in agreeance. Perhaps it should ignore the database
+ // and trust the user?
+if ('$units' === "1") {
+ $Tc=($Tc-32)*5/9; // assuming degF - return degC
+  if ('$unit.label.barometer' === 'inHg') {
+    $P=($P*33.86389); //assuming inHg - return hPa
+  }elseif ('$unit.label.barometer' === 'mmHg') {
+    $P=($P/0.75006168); //assuming mmHg - return hPa
+  }else{
+    //echo "Unrecognized pressure units - conversion code is not present";
+    $dT="?units?";
+    return;
+  }
+ }
+
  $Tdc = (($Tc - (14.55 + 0.114 * $Tc) * (1 - (0.01 * $RH)) - ((2.5 + 0.007 * $Tc) * (1 - (0.01 * $RH))) ** 3 - (15.9 + 0.117 * $Tc) * (1 - (0.01 * $RH)) ** 14));
  $E = (6.11 * 10 ** (7.5 * $Tdc / (237.7 + $Tdc)));
  $WBc = (((0.00066 * $P) * $Tc) + ((4098 * $E) / (($Tdc + 237.7) ** 2) * $Tdc)) / ((0.00066 * $P) + (4098 * $E) / (($Tdc + 237.7) ** 2));
@@ -124,33 +137,30 @@ $tr_bgrnd="";
 // A quick check, with warning, re units. Currently it's metric only.
    $unit_check = $db->query("SELECT usUnits FROM archive WHERE dateTime = $nowtime ");
 
-if ('$dbase' == 'mysql') {
+if ('$dbase' === 'mysql') {
    $unit_check = $unit_check->fetch_array();
    }else{
    $unit_check = $unit_check->fetchArray();
 }
    $units = $unit_check[0];
-   if ($units == "1") {
-    echo "<p>The  database appears to be in imperial (US) units.<br>
-          This script currently only handles Metric units.<br>
-          Conversions will need to be added. <br>Headings tweaked.<br>
-          deltaT calc will need heavy duty modding!<br><br>
-          Look for // FIXME_UNITS in the wxobs.php.html file.
+   if ($units === "1") {
+    echo "<p>The database appears to be in imperial (US) units.<br>
+          The deltaT calc requires Metric units and  will need modding!<br><br>
+          Look for // FIXME_UNITS in the wxobs.inc file.
           </p>";
-    return; //abort. Remove (comment) this statement to continue with the wrong units!
     // FIXME_UNITS
    }
 
 
    $last_entry = $db->query("SELECT dateTime FROM archive ORDER BY datetime DESC LIMIT 1");
-if ('$dbase' == 'mysql') {
+if ('$dbase' === 'mysql') {
    $last_entry = $last_entry->fetch_array();
    }else{
    $last_entry = $last_entry->fetchArray();
 }
    $latest_date = $last_entry[0];
 
-if ('$dbase' == 'mysql') {
+if ('$dbase' === 'mysql') {
    $last_values = $db->query("SELECT FROM_UNIXTIME(datetime, '%Y-%m-%d %H:%i'), outTemp, appTemp, dewPoint, outHumidity, windSpeed, windGust, windDir, barometer, rain FROM archive WHERE dateTime >= $nowtime");
    $latest_row = $last_values->fetch_array();
    }else{
@@ -158,14 +168,14 @@ if ('$dbase' == 'mysql') {
    $latest_row = $last_values->fetchArray();
 }
 
-if ('$dbase' == 'mysql') {
+if ('$dbase' === 'mysql') {
    $rain_total = $db->query("SELECT sum(rain) FROM archive WHERE dateTime >= $nowtime and dateTime < $endtime;");
    $rain_row = $rain_total->fetch_array();
    }else{
    $rain_total = $db->query("SELECT sum(rain) FROM archive WHERE dateTime >= $nowtime and dateTime < $endtime;");
    $rain_row = $rain_total->fetchArray();
    }
-   if ($debug=='1'){
+   if ($debug==='1'){
     echo "Nowtime = $nowtime : Endtime = $endtime<br>";
    }
 echo "<!-- start data tables -->\n
@@ -201,13 +211,13 @@ echo "<!-- start data tables -->\n
    echo "<td>$metdew</td>";
    $humid = round($latest_row[4], 1);
    echo "<td>$humid</td>";
-   deltaT ($latest_row[1], $latest_row[4], $latest_row[8]);
+   deltaT ($units, $latest_row[1], $latest_row[4], $latest_row[8]);
    echo "<td>$dT</td>";
    ordinalCompass ($latest_row[7]);
    echo "<td>$compass</td>"; //wind direction ordinal
-   $metWind = round(($latest_row[5]/$kludge), 1); //weewx database is METRICWX, value is stored as m/s
+   $metWind = round(($latest_row[5]/$wind_adjust), 1); //weewx database is METRICWX, value is stored as m/s
    echo "<td>$metWind</td>";
-   $metGust = round(($latest_row[6]/$kludge), 1);//weewx database is METRICWX, value is stored as m/s
+   $metGust = round(($latest_row[6]/$wind_adjust), 1);//weewx database is METRICWX, value is stored as m/s
    echo "<td>$metGust</td>";
    $windDir = round($latest_row[7], 0);
    echo "<td>$windDir</td>"; //wind direction degrees
@@ -225,30 +235,30 @@ echo "<!-- start data tables -->\n
        $unixtime = $nowtime;
        }
 
-   if ($debug=='1'){
+   if ($debug==='1'){
     echo "Datepicker returns = $unixtime : Request start = $nowtime<br>";
     }
 // sanity check because dates from the future are pointless (and untidy)
 // $nowtime holds the latest time from the first (above) observations.
    if ( $unixtime > $nowtime) {
-   if ($debug=='1'){
+   if ($debug==='1'){
     echo "test1: $unixtime > $nowtime <br>";
     }
   echo "<p>That is a future date; there are no records!<br> (Wait a while? or best try again. :)</p>";
 //// not work with backdated start time   return;
    return;
    }
-   if ($debug=='1'){
+   if ($debug==='1'){
     echo "test2: $unixtime > $nowtime <br>";
     }
    $starttime = $unixtime;
-   if ($debug=='1'){
+   if ($debug==='1'){
     echo "test3: $unixtime < $starttime <br>";
     }
    $endtime = $starttime + 79800;
 //   return;
 
-if ('$dbase' == 'mysql') {
+if ('$dbase' === 'mysql') {
 // error
    $stats_snap = $db->query("SELECT FROM_UNIXTIME(datetime, '%Y-%m-%d %H:%i'),min(outTemp), max(outTemp), min(appTemp), max(appTemp), min(dewPoint), max(dewPoint), min(outHumidity), max(outHumidity), avg(windSpeed), avg(windGust), avg(windDir), avg(barometer), sum(rain) FROM archive WHERE dateTime >= $starttime and dateTime < $endtime;");
    $stats_row = $stats_snap->fetch_array();
@@ -257,7 +267,7 @@ if ('$dbase' == 'mysql') {
    $stats_row = $stats_snap->fetchArray();
 }
    $hdate = $stats_row[0];
-   if ($hdate == '') {
+   if ($hdate === '') {
    echo "No data for this date.<br>";
     return;
    }
@@ -307,9 +317,9 @@ if ('$dbase' == 'mysql') {
    echo "<td>$minhumid ($maxhumid)</td>";
    ordinalCompass ($stats_row[11]);
    echo "<td> $compass</td>"; //wind direction ordinal
-   $metWind = round(($stats_row[9]/$kludge), 1);//weewx database is METRICWX, value is stored as m/s;
+   $metWind = round(($stats_row[9]/$wind_adjust), 1);//weewx database is METRICWX, value is stored as m/s;
    echo "<td>$metWind</td>";
-   $metGust = round(($stats_row[10]/$kludge), 1);//weewx database is METRICWX, value is stored as m/s
+   $metGust = round(($stats_row[10]/$wind_adjust), 1);//weewx database is METRICWX, value is stored as m/s
    echo "<td>$metGust</td>";
    $windDir = round($stats_row[11], 0);
    echo "<td>$windDir</td>"; //wind direction degrees
@@ -351,7 +361,7 @@ if ('$dbase' == 'mysql') {
    $starttime = $unixtime + ($t*'$ext_interval');
    $endtime = $starttime + '$arch_interval';
 
-if ('$dbase' == 'mysql') {
+if ('$dbase' === 'mysql') {
    $results = $db->query("SELECT FROM_UNIXTIME(datetime, '%Y-%m-%d %H:%i'), avg(outTemp), avg(appTemp), avg(dewPoint), avg(outHumidity), AVG(windSpeed), AVG(windGust), AVG(windDir), avg(barometer), sum(rain) FROM archive WHERE dateTime >= $starttime and dateTime < $endtime;");
    $row = $results->fetch_array();
    }else{
@@ -374,13 +384,13 @@ if ('$dbase' == 'mysql') {
    echo "<td>$metdew</td>";
    $humid = round($row[4], 1);
    echo "<td>$humid</td>";
-   deltaT ($row[1], $row[4], $row[8]);
+   deltaT ($units, $row[1], $row[4], $row[8]);
    echo "<td>$dT</td>";
    ordinalCompass ($row[7]);
    echo "<td>$compass</td>"; //wind direction ORDINAL
-   $metWind = round(($row[5]/$kludge), 1);//weewx database is METRICWX, value is stored as m/s
+   $metWind = round(($row[5]/$wind_adjust), 1);//weewx database is METRICWX, value is stored as m/s
    echo "<td>$metWind</td>";
-   $metGust = round(($row[6]/$kludge), 1);//weewx database is METRICWX, value is stored as m/s
+   $metGust = round(($row[6]/$wind_adjust), 1);//weewx database is METRICWX, value is stored as m/s
    echo "<td>$metGust</td>";
    $windDir = round($row[7], 0);
    echo "<td>$windDir</td>"; //wind direction degrees
