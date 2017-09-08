@@ -25,24 +25,27 @@
   </head>
 
   <body onload="setup();">
-    #include "../Seasons/titlebar.inc"
     <div id="contents">
+      <div id="title_bar">
+       <div id="title">
+        <h1 class="page_title">$station.location</h1>
+        <p class="lastupdate">$current.dateTime</p>
+        </div>
+      </div>
       <p><a href="../index.html">&#10096; Current Conditions</a></p>
 
       <div id="widget_group">
         #include "links.inc"
       </div>
    </div>
+
+      <!-- wxobs php code starts here -->
+
         #include "wxobs.inc"
 
+      <!-- wxobs php code finishes here -->
+
     <p class="footnote">
-      This station uses an $station.hardware to collect data from various one-wire sensors 
-      that are connected to a <a href="https://www.raspberrypi.org/help/faqs/">raspberry Pi 2</a> 
-      micro computer.<br>
-      This data is then collected and displayed by <a href="http://weewx.com/">weeWX</a>, an
-      experimental weather software system written in Python.<br>
-      This raspberry pi runs with <a href="https://github.com/glennmckechnie/rorpi-raspberrypi"> a read only filesystem</a><br>
-      The database is archived using <a href="https://github.com/glennmckechnie/weewx-sqlbackup">sqlbackup</a><br>
       This extension is available at github as <a href="https://github.com/glennmckechnie/weewx-wxobs">weewx-wxobs</a><br>
     </p>
 
