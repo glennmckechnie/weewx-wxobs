@@ -9,46 +9,6 @@
 ## available at https://github.com/glennmckechnie/weewx-wxobs
 ## 06-09-2017 # version 0.01
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta http-equiv="refresh" content="900">
-    <title>$station.location Weather Observations, archival by day</title>
-    <link rel="icon" type="image/png" href="favicon.ico" />
-    <link rel="stylesheet" type="text/css" href="seasons.css"/>
-    <link rel="stylesheet" href="wxobs.css"/>
-    <script type="text/javascript" src="seasons.js"></script>
-    <!-- Date picker -->
-    <link rel="stylesheet" type="text/css" href="datepicker.css"/>
-    <script type="text/javascript" src="datepicker.js"></script>
-  </head>
-
-  <body onload="setup();">
-    #include "titlebar.inc"
-    <div id="contents">
-      <p><a href="index.html">&#10096; Current Conditions</a></p>
-
-      <div id="widget_group">
-        ##if $current.UV.raw >= 2.5
-            ##include "sunsmart.inc"
-        ##end if
-        #include "about.inc"
-        #include "current.inc"
-        ##include "smforecast.inc"
-        ##include "cfaforecast.inc"
-        ##include "rainforecast.inc"
-        #include "links.inc"
-        #include "radar.inc"
-        #include "satellite.inc"
-        #include "sunmoon.inc"
-        #include "sensors.inc"
-        #include "hilo.inc"
-        #include "map.inc"
-        ##include "sqlbackup.inc"
-      </div>
-   </div>
-
    <div>
       <p class="contents">
 
@@ -62,6 +22,7 @@
       </form>
    </div>
 <?php
+//include('/tmp/wxobs_inc.php');
 $debug=0;
    if ($debug=='1'){
     echo "<p> <i>date -d @1503959460</i><br>";
@@ -84,11 +45,13 @@ $debug=0;
 //$dbase='sqlite';
 //$sqlite_db = "/var/lib/weewx/weewx.sdb";
 
-$dbase='mysql';
-$mysql_host = "localhost";
-$mysql_user = "your-mysql-username"; // CHANGE to suit yours
-$mysql_pass = "your-password";     // CHANGE to suit yours
-$mysql_base = "your-database-probably weewx"; // CHANGE to suit yours
+//$dbase='mysql';
+//$mysql_host = "localhost";
+//$mysql_user = "your-mysql-username"; // CHANGE to suit yours
+//$mysql_pass = "your-password";     // CHANGE to suit yours
+//$mysql_base = "your-database-probably weewx"; // CHANGE to suit yours
+
+//echo "$dbase ,$mysql_host, $mysql_user, $mysql_pass, $mysql_base";
 
 // Timings for displayed values in Historical section.
 // ext_interval is the spacing between records; 1800 is a half-hour.
@@ -107,18 +70,18 @@ $kludge='1';
 // END USER CONFIG AREA
 //
 
-if ($dbase == 'mysql') {
+if ('$dbase' == 'mysql') {
   if ($debug=='1'){
     echo "database = $dbase<br>";
    }
-   $db = new mysqli($mysql_host, $mysql_user, $mysql_pass, $mysql_base);
+   $db = new mysqli('$mysql_host', '$mysql_user', '$mysql_pass', '$mysql_base');
     if ($db->connect_errno) {
      echo ("<p>Connection to mysql database failed:<br>
             Has it been configured in wxobs.php.tmpl?<br>
      $db->connect_error</p>");
      return;
     }
-   }elseif ($dbase == 'sqlite'){
+   }elseif ('$dbase' == 'sqlite'){
     if ($debug=='1'){
      echo "database = $dbase<br>";
     }
@@ -187,7 +150,7 @@ $tr_bgrnd="";
 // A quick check, with warning, re units. Currently it's metric only.
    $unit_check = $db->query("SELECT usUnits FROM archive WHERE dateTime = $nowtime ");
 
-if ($dbase == 'mysql') {
+if ('$dbase' == 'mysql') {
    $unit_check = $unit_check->fetch_array();
    }else{
    $unit_check = $unit_check->fetchArray();
@@ -207,14 +170,14 @@ if ($dbase == 'mysql') {
 
    //$last_entry = $db->query("SELECT @last_dt := MAX(dateTime) FROM archive;");
    $last_entry = $db->query("SELECT dateTime FROM archive ORDER BY datetime DESC LIMIT 1");
-if ($dbase == 'mysql') {
+if ('$dbase' == 'mysql') {
    $last_entry = $last_entry->fetch_array();
    }else{
    $last_entry = $last_entry->fetchArray();
 }
    $latest_date = $last_entry[0];
 
-if ($dbase == 'mysql') {
+if ('$dbase' == 'mysql') {
    //$last_values = $db->query("SELECT FROM_UNIXTIME(datetime, '%Y-%m-%d %H:%i'), outTemp, appTemp, dewPoint, outHumidity, windSpeed, windGust, windDir, barometer, rain FROM archive WHERE dateTime = @last_dt");
    $last_values = $db->query("SELECT FROM_UNIXTIME(datetime, '%Y-%m-%d %H:%i'), outTemp, appTemp, dewPoint, outHumidity, windSpeed, windGust, windDir, barometer, rain FROM archive WHERE dateTime >= $nowtime");
    $latest_row = $last_values->fetch_array();
@@ -223,7 +186,7 @@ if ($dbase == 'mysql') {
    $latest_row = $last_values->fetchArray();
 }
 
-if ($dbase == 'mysql') {
+if ('$dbase' == 'mysql') {
    $rain_total = $db->query("SELECT sum(rain) FROM archive WHERE dateTime >= $nowtime and dateTime < $endtime;");
    $rain_row = $rain_total->fetch_array();
    }else{
@@ -308,7 +271,7 @@ echo "<!-- start data tables -->\n
    $endtime = $starttime + 79800;
 //   return;
 
-if ($dbase == 'mysql') {
+if ('$dbase' == 'mysql') {
 // error
    $stats_snap = $db->query("SELECT FROM_UNIXTIME(datetime, '%Y-%m-%d %H:%i'),min(outTemp), max(outTemp), min(appTemp), max(appTemp), min(dewPoint), max(dewPoint), min(outHumidity), max(outHumidity), avg(windSpeed), avg(windGust), avg(windDir), avg(barometer), sum(rain) FROM archive WHERE dateTime >= $starttime and dateTime < $endtime;");
    $stats_row = $stats_snap->fetch_array();
@@ -408,7 +371,7 @@ if ($dbase == 'mysql') {
    // https://www.electrictoolbox.com/mysql-unix-timestamp-to-datetime/
    // http://www.w3resource.com/mysql/date-and-time-functions/mysql-from_unixtime-function.php
    // http://www.java2s.com/Tutorial/MySQL/0280__Date-Time-Functions/YoucanoptionallygiveFROMUNIXTIMEfunctionaformatparameter.htm
-if ($dbase == 'mysql') {
+if ('$dbase' == 'mysql') {
    $results = $db->query("SELECT FROM_UNIXTIME(datetime, '%Y-%m-%d %H:%i'), avg(outTemp), avg(appTemp), avg(dewPoint), avg(outHumidity), AVG(windSpeed), AVG(windGust), AVG(windDir), avg(barometer), sum(rain) FROM archive WHERE dateTime >= $starttime and dateTime < $endtime;");
    $row = $results->fetch_array();
    }else{
@@ -451,16 +414,3 @@ if ($dbase == 'mysql') {
 
    ?>
    </div>
-
-    <p class="footnote">
-      This station uses an $station.hardware to collect data from various one-wire sensors 
-      that are connected to a <a href="https://www.raspberrypi.org/help/faqs/">raspberry Pi 2</a> 
-      micro computer.<br>
-      This data is then collected and displayed by <a href="http://weewx.com/">weeWX</a>, an
-      experimental weather software system written in Python.<br>
-      This raspberry pi runs with <a href="https://github.com/glennmckechnie/rorpi-raspberrypi"> a read only filesystem</a><br>
-      The database is archived using <a href="https://github.com/glennmckechnie/weewx-sqlbackup">sqlbackup</a>
-    </p>
-
-   </body>
-   </html>

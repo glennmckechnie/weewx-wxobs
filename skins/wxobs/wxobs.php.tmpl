@@ -1,0 +1,50 @@
+## Copyright 2009-2017 Tom Keffer, Matthew Wall
+## Distributed under terms of GPLv3.  See LICENSE.txt for your rights.
+#errorCatcher Echo
+## Specifying an encoding of UTF-8 is usually safe, but if the text is actually
+## in Latin-1, then you should replace the string "UTF-8" with "latin-1".  If
+## you do this, you should also change the charset in 'Content-Type' as well.
+#encoding UTF-8
+## php inclusion to create wxobs.php.tmpl by glenn.mckechnie@gmail.com
+## available at https://github.com/glennmckechnie/weewx-wxobs
+## 06-09-2017 # version 0.01
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="refresh" content="900">
+    <title>$station.location Weather Observations, archival by day</title>
+    <link rel="icon" type="image/png" href="favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="../seasons.css"/>
+    <link rel="stylesheet" href="wxobs.css"/>
+    <script type="text/javascript" src="../seasons.js"></script>
+    <!-- Date picker -->
+    <link rel="stylesheet" type="text/css" href="datepicker.css"/>
+    <script type="text/javascript" src="datepicker.js"></script>
+  </head>
+
+  <body onload="setup();">
+    #include "../Seasons/titlebar.inc"
+    <div id="contents">
+      <p><a href="../index.html">&#10096; Current Conditions</a></p>
+
+      <div id="widget_group">
+        #include "links.inc"
+      </div>
+   </div>
+        #include "wxobs.inc"
+
+    <p class="footnote">
+      This station uses an $station.hardware to collect data from various one-wire sensors 
+      that are connected to a <a href="https://www.raspberrypi.org/help/faqs/">raspberry Pi 2</a> 
+      micro computer.<br>
+      This data is then collected and displayed by <a href="http://weewx.com/">weeWX</a>, an
+      experimental weather software system written in Python.<br>
+      This raspberry pi runs with <a href="https://github.com/glennmckechnie/rorpi-raspberrypi"> a read only filesystem</a><br>
+      The database is archived using <a href="https://github.com/glennmckechnie/weewx-sqlbackup">sqlbackup</a><br>
+      This extension is available at github as <a href="https://github.com/glennmckechnie/weewx-wxobs">weewx-wxobs</a><br>
+    </p>
+
+   </body>
+   </html>

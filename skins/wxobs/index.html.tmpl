@@ -1,0 +1,151 @@
+## Copyright 2009-2017 Tom Keffer, Matthew Wall
+## Distributed under terms of GPLv3.  See LICENSE.txt for your rights.
+#errorCatcher Echo
+## Specifying an encoding of UTF-8 is usually safe, but if the text is actually
+## in Latin-1, then you should replace the string "UTF-8" with "latin-1".  If
+## you do this, you should also change the charset in 'Content-Type' as well.
+#encoding UTF-8
+## php inclusion to create wxobs.php.tmpl by glenn.mckechnie@gmail.com
+## available at https://github.com/glennmckechnie/weewx-wxobs
+## 06-09-2017 # version 0.01
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="refresh" content="900">
+    <title>$station.location Weather Observations, archival by day</title>
+    <link rel="icon" type="image/png" href="favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="seasons.css"/>
+    <link rel="stylesheet" href="wxobs.css"/>
+    <script type="text/javascript" src="seasons.js"></script>
+    <!-- Date picker -->
+    <link rel="stylesheet" type="text/css" href="datepicker.css"/>
+    <script type="text/javascript" src="datepicker.js"></script>
+  </head>
+
+  <body onload="setup();">
+    <div id="contents">
+      <p><a href="index.html">&#10096; Current Conditions</a></p>
+
+      <div id="widget_group">
+        #include "links.inc"
+      </div>
+   </div>
+
+<p>This skin provides an additional weewx report page that uses php to extract archival data (Daily climatological summaries) from the weewx database. It then presents it as a series of snapshots (currently half-hourly) averaged throughout the chosen day. It includes delta-T ( primarily for agricultural purposes.)</p>
+
+<p>It is set out in the style of the <b>Latest Weather Observations</b> pages that the Australian Weather Bureau - BOM provides. eg:- <a href="http://www.bom.gov.au/products/IDV60801/IDV60801.94852.shtml">Ballarat Observations</a> I find those pages useful, that one especially when keeping an eye on the accuracy of my station.</p>
+
+<p>It uses the seasons skin for its style, but can be easily modified for use within other skins by using wxobs.inc as the html &lt;body&gt; content. It uses the cheetah generator to some extent (unit labels) but these would need to be bypassed if it was used as a stand-alone page (run outside of weewx's control).</p>
+
+<p>It is configured to use either the sqlite or mysql databases that weewx uses. I don't currently use sqlite so that's a best guess (which appears to work with an archived conversion of my mysql) Feedback, corrections are welcomed on that - or anything here.</p>
+
+<p>It currently (initial upload) is __only configured for Metric Units,__ but that can be changed with some tweaks (contributions welcomed). Those tweaks would for the most part be simple, except for the delta-T calculations, where a tad more work would be involved.</p>
+
+Thanks to:
+* Powerin (weewx-users) for the initial starting point, from the thread titled [Daily climatological summaries](https://groups.google.com/d/topic/weewx-user/cEAzvxv3T6Q/discussion)
+* [weewx-wd](https://bitbucket.org/ozgreg/weewx-wd/wiki/Home) (by ozgreg) for the delta-T calcs in wdSearchX3.py, these are also referenced by Powerin under the post [Wet bulb and DeltaT temperatures](https://groups.google.com/d/topic/weewx-user/IoBrtQ-OL3I/discussion) post.
+
+<h2>Installation as a skin</h2>
+
+ 1. Run the weewx installer:
+
+  <b>wee_extension --install=weewx-wxobs-master.zip</b>
+
+ This will install under the <i>weewx/skins/wxobs</i> directory
+
+ 2. Configure the skin
+
+ 2. restart weewx:
+
+ <b>sudo /etc/init.d/weewx stop</b>
+
+ <b>sudo /etc/init.d/weewx start</b>
+
+ 3. Direct your browser to  http://&lt;Your_web_server_address&gt;weewx/wxobs/wxobs.php
+
+<!-- h2>Instructions:</h2 -->
+<!-- * Copy  the files -- datepicker.css, datepicker.js, wxobs.css -- to your weewx HTML ROOT directory. 
+* Add wxobs.php.html to the Seasons skin directory (or skin of your choosing - expect some tweaking to be needed.) -->
+* The configuration section within wxobs.php.html exists between the __USER CONFIG AREA__ tags...
+ <pre>
+//
+// START USER CONFIG AREA
+//
+
+// Not used?
+//date_default_timezone_set('Australia/Melbourne');
+
+// Define one database type only (mysql OR sqlite)
+// Choice of sqlite (weewx default) or mysql (a weewx option)
+// Uncomment grouped variables and change to suit
+// for sqlite3 -- apt-get install php-sqlite3
+//$dbase='sqlite';
+//$sqlite_db = "/var/lib/weewx/weewx.sdb";
+
+$dbase='mysql';
+$mysql_host = "localhost";
+$mysql_user = "your-mysql-username"; // CHANGE to suit yours
+$mysql_pass = "your-password";     // CHANGE to suit yours
+$mysql_base = "your-database-probably weewx"; // CHANGE to suit yours
+
+// Timings for displayed values in Historical section.
+// ext_interval is the spacing between records; 1800 is a half-hour.
+$ext_interval = 1800;
+// arch_interval is the number of records to averge over; choose a value that suits you.
+//$arch_interval = $ext_interval; // this means all records for the day are involved in calcs.
+$arch_interval = 60; // this only reads the last record for the interval, if matched to weewx.conf
+                     // archive_interval (mine happens to be 60 seconds - change to suit yours)
+                     // this becomes the equivalent of: one observation taken at that archive time.
+//
+// END USER CONFIG AREA
+//
+</pre>
+
+* By editing the above section in wxobs.php.html, make a choice...
+* If using the weewx default database of sdb - sqlite: configure the sqlite database location and comment out __//$dbase='mysql';__ then uncomment __$dbase='sqlite';__ 
+* __OR__, if it's mysql archive then configure the mysql variables and check that the mysql flag is uncommented __$dbase='mysql';__
+* If you went with the sqlite option, you may need to install php-sqlite3, hopefully __apt-get install php-sqlite3__ will do that for you.
+* The template is configured to give half-hourly values - change __$ext interval__ if you want something else. 
+* The template is also pre-configured to return "snapshot" values; as if you had pen and paper and took a note of the readings at that time. 
+  Alternatively, it can be configured to give average values over the selected time span by commenting out (__//$arch_interval = 60;__) and uncommenting $arch_interval (__$arch_interval = $ext_interval;__)
+* It's intended that _$arch interval_ matches your weewx archive interval. If you have an archive interval of, say, 300 (5 minutes) then set this, to that! This is already a kludge (that does seem to work quite well)  but best not push it too far. We are aiming to look for a valid value within that time period, we'll supply 1 (not 0 or 2?).
+* Modify the seasons/skin.conf by adding the __wxobs section, etc.__ to CheetahGenerator, and __, datepicker.css, wxobs.css, datepicker.js, links.inc__
+
+<pre>
+    [CheetahGenerator]
+
+        [[ToDate]]
+
+              [[[wxobs]]]
+                template = wxobs.php.tmpl
+
+    [CopyGenerator]
+
+       copy_once = (leave existing values) , datepicker.css, wxobs.css, datepicker.js, links.inc
+</pre>
+
+* links.inc is an optional include file for the seasons skin. As an example, it is referenced within wxobs.php.html in the top #includes section, under &lt;div id="widget group"&gt;. It just generates a section with a link to this page, obviously it can include other links/information for the seasons side menu. It also shows the usage with a GET request to load wxobs.php with the current timestamp.
+
+And with that, you should be right to go.
+
+<p>__One warning:__  datepicker.js doesn't (didn't) play well with the seasons javascript file (seasons.js). The toggle feature on the #includes was disrupted and didn't behave as it should. I've edited datepicker.js and removed __window.onload=null;__ from the  _function onDOMReady_</p>
+
+<p>Nothing seems to have broken (for me). It fixed the problem but I'm not knowledgable enough to know what side-effects I've invoked. YMMV. Expert knowledge and/or fixes welcomed.</p>
+
+<p>p.s. datepicker's origins are unknown but a search of github will turn up many versions. I'll find one that matches this one and give a link - [This one](https://github.com/chrishulbert/datepicker) is very close to it.</p>
+
+    <p class="footnote">
+      This station uses an $station.hardware to collect data from various one-wire sensors 
+      that are connected to a <a href="https://www.raspberrypi.org/help/faqs/">raspberry Pi 2</a> 
+      micro computer.<br>
+      This data is then collected and displayed by <a href="http://weewx.com/">weeWX</a>, an
+      experimental weather software system written in Python.<br>
+      This raspberry pi runs with <a href="https://github.com/glennmckechnie/rorpi-raspberrypi"> a read only filesystem</a><br>
+      The database is archived using <a href="https://github.com/glennmckechnie/weewx-sqlbackup">sqlbackup</a><br>
+      This extension is available at github as <a href="https://github.com/glennmckechnie/weewx-wxobs">weewx-wxobs</a><br>
+    </p>
+
+   </body>
+   </html>
