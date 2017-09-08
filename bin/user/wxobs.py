@@ -55,11 +55,6 @@ class wxobs(SearchList):
         seconds and is the default) this becomes the equivalent of: 
         one observation taken at that archive time.
         """
-
-
-#        global skin_name
-#        skin_name =  self.generator.skin_dict['skin']
-#        self.skin_name = skin_name # for export to the template / html
         self.sql_debug ='0'
 
         self.ext_interval = self.generator.skin_dict['wxobs'].get('ext_interval', '1800')
@@ -70,7 +65,6 @@ class wxobs(SearchList):
 
         def_dbase = self.generator.config_dict['DataBindings'] \
             ['wx_binding'].get('database')
-        # return archive_mysql or archive_sqlite
         if self.sql_debug >= 5 :
             logdbg("database is %s" %  def_dbase)
 
@@ -78,18 +72,12 @@ class wxobs(SearchList):
             self.dbase = 'mysql'
             self.mysql_base = self.generator.config_dict['Databases'] \
                 [def_dbase].get('database_name')
-            # weatherpi
             self.mysql_host = self.generator.config_dict['DatabaseTypes'] \
                 ['MySQL'].get('host')
-            # localhost
-            #self.mysql_user = self.generator.config_dict['DatabaseTypes'] \
             self.mysql_user = self.generator.config_dict['DatabaseTypes'] \
                 ['MySQL'].get('user')
-            # weatherpi
-            #self.mysql_pass = self.generator.config_dict['DatabaseTypes'] \
             self.mysql_pass = self.generator.config_dict['DatabaseTypes'] \
                 ['MySQL'].get('password')
-            # weewx
             if self.sql_debug >= 5 :
                 loginf("mysql database is %s, %s, %s, %s" % (
                     self.mysql_base, self.mysql_host, self.mysql_user, self.mysql_pass))
@@ -97,10 +85,8 @@ class wxobs(SearchList):
             self.dbase = 'sqlite'
             self.sq_dbase = self.generator.config_dict['Databases'] \
                 [def_dbase].get('database_name')
-            # weewx.sdb
             self.sq_root = self.generator.config_dict['DatabaseTypes'] \
                 ['SQLite'].get('SQLITE_ROOT')
-            # /var/lib/weewx
 
             self.sqlite_db = ("%s/%s" %(self.sq_root,self.sq_dbase))
 
