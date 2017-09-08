@@ -31,14 +31,10 @@ class wxobsInstaller(ExtensionInstaller):
                    ['skins/wxobs/skin.conf',
                     'skins/wxobs/datepicker.css',
                     'skins/wxobs/datepicker.js',
-                    'skins/wxobs/index.html.tmpl',
+                    'skins/wxobs/index.php.tmpl',
                     'skins/wxobs/links.inc',
                     'skins/wxobs/wxobs.css',
                     'skins/wxobs/wxobs.inc',
-                    'skins/wxobs/wxobsk.php.tmpl'
-                    ]),
-                   ('skins/wxobs/font',
-                   ['skins/wxobs/font/OpenSans.woff',
-                    'skins/wxobs/font/OpenSans.woff2'])
+                    ])
                   ]
         )

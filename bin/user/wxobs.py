@@ -9,22 +9,9 @@
 #
 #
 
-import os
-import errno
-import sys
-import shutil
-import gzip
-import subprocess
 import syslog
-import time
-import datetime
 
-import weewx.engine
-import weewx.manager
-import weewx.units
-from weewx.wxengine import StdService
 from weewx.cheetahgenerator import SearchList
-from weeutil.weeutil import to_bool
 
 wxobs_version = "0.01"
 
@@ -40,10 +27,6 @@ def logerr(msg):
 def logdbg(msg):
     logmsg(syslog.LOG_DEBUG, msg)
 
-def tlwrite(txt): # unused
-    tl = open(self.tail_file, 'w')
-    tl.write(txt)
-    tl.close()
 
 class wxobs(SearchList):
     """
@@ -56,14 +39,34 @@ class wxobs(SearchList):
         """
         All we want is the database configuration values from weewx.conf
         and perhaps the time.
+
+        Timings for displayed values in Historical section:
+
+        ext_interval is the spacing between records; 1800 is a half-hour.
+         and is the default
+
+        arch_interval is the number of records to averge over; choose a value
+         that suits you.
+
+        $arch_interval = $ext_interval:
+         this means all records for the day are involved in calcs.
+        Alternatively $arch_interval can be set for a single reading if matched
+        to the archive_interval value in weewx.conf (mine happens to be 60
+        seconds and is the default) this becomes the equivalent of: 
+        one observation taken at that archive time.
         """
 
 
 #        global skin_name
 #        skin_name =  self.generator.skin_dict['skin']
 #        self.skin_name = skin_name # for export to the template / html
+        self.sql_debug ='0'
 
-        self.sql_debug ='5'
+        self.ext_interval = self.generator.skin_dict['wxobs'].get('ext_interval', '1800')
+        self.arch_interval = self.generator.skin_dict['wxobs'].get('arch_interval', '1800')
+        if not self.arch_interval:
+            self.arch_interval = self.generator.config_dict['StdArchive'] \
+                .get('archive_interval')
 
         def_dbase = self.generator.config_dict['DataBindings'] \
             ['wx_binding'].get('database')
@@ -87,9 +90,6 @@ class wxobs(SearchList):
             self.mysql_pass = self.generator.config_dict['DatabaseTypes'] \
                 ['MySQL'].get('password')
             # weewx
-            v_alues = ["<?php\n $dbase = 'mysql';\n $mysql_base = '%s';\n"
-                " $mysql_host = '%s';\n $mysql_user = '%s';\n $mysql_pass = '%s';\n?>"
-                % (self.mysql_base, self.mysql_host, self.mysql_user, self.mysql_pass)]
             if self.sql_debug >= 5 :
                 loginf("mysql database is %s, %s, %s, %s" % (
                     self.mysql_base, self.mysql_host, self.mysql_user, self.mysql_pass))
@@ -102,19 +102,11 @@ class wxobs(SearchList):
                 ['SQLite'].get('SQLITE_ROOT')
             # /var/lib/weewx
 
-            self.sqlite_db = "self.sq_root/self.sq_dbase"
-            v_alues = ["<?php\n $dbase = 'sqlite';\n $sqlite_db = '%s';\n?>" % self.sqlite_db]
+            self.sqlite_db = ("%s/%s" %(self.sq_root,self.sq_dbase))
 
             if self.sql_debug >= 5 :
                 loginf("sqlite database is %s, %s, %s" % (
-                    self.sq_dbase, self.sq_root, sqlite_db))
-
-#        self.phpinc_file = '/tmp/wxobs_inc.php'
-#
-#        php_inc=open(self.phpinc_file, 'w')
-#        php_inc.writelines(v_alues)
-#        php_inc.close()
-
+                    self.sq_dbase, self.sq_root, self.sqlite_db))
 
 if __name__ == '__main__':
     # Hmmm!

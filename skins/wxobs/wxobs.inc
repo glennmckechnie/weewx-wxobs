@@ -7,29 +7,24 @@
 #encoding UTF-8
 ## php inclusion to create wxobs.php.tmpl by glenn.mckechnie@gmail.com
 ## available at https://github.com/glennmckechnie/weewx-wxobs
-## 06-09-2017 # version 0.01
+## 06-09-2017 initial releas @0.01
+## 08-09-2017 convert to installable skin
+## Version 0.02
 
    <div>
       <p class="contents">
-
       Use the following to select a date for archived records
       </p>
     <!-- insert the javascript date picker -->
-      <form name="form" method="POST" action="wxobs.php">
+      <form name="form" method="POST" action="index.php">
       Choose the date:
-      <input id='start_dt' name="datepicker" class='datepicker'>
+      <input id="start_dt" name="datepicker" class="datepicker">
       <input type="submit" name="submitDate" value="Show records">
       </form>
    </div>
 <?php
-//include('/tmp/wxobs_inc.php');
+
 $debug=0;
-   if ($debug=='1'){
-    echo "<p> <i>date -d @1503959460</i><br>";
-    echo "<b>Tue 29 Aug 08:31:00 AEST 2017</b></p>";
-    echo "<p><i>date -d @1504564980</i><br>";
-    echo "<b>Tue  5 Sep 08:43:00 AEST 2017</b></p>";
-   }
 
 //
 // START USER CONFIG AREA
@@ -38,30 +33,6 @@ $debug=0;
 // Not used?
 //date_default_timezone_set('Australia/Melbourne');
 
-// Define one database type only (mysql OR sqlite)
-// Choice of sqlite (weewx default) or mysql (a weewx option)
-// Uncomment grouped variables and change to suit
-// for sqlite3 -- apt-get install php-sqlite3
-//$dbase='sqlite';
-//$sqlite_db = "/var/lib/weewx/weewx.sdb";
-
-//$dbase='mysql';
-//$mysql_host = "localhost";
-//$mysql_user = "your-mysql-username"; // CHANGE to suit yours
-//$mysql_pass = "your-password";     // CHANGE to suit yours
-//$mysql_base = "your-database-probably weewx"; // CHANGE to suit yours
-
-//echo "$dbase ,$mysql_host, $mysql_user, $mysql_pass, $mysql_base";
-
-// Timings for displayed values in Historical section.
-// ext_interval is the spacing between records; 1800 is a half-hour.
-$ext_interval = 1800;
-// arch_interval is the number of records to averge over; choose a value that suits you.
-//$arch_interval = $ext_interval; // this means all records for the day are involved in calcs.
-$arch_interval = 60; // this only reads the last record for the interval, if matched to weewx.conf
-                     // archive_interval (mine happens to be 60 seconds - change to suit yours)
-                     // this becomes the equivalent of: one observation taken at that archive time.
-
 // Argh! Another FIXME?
 // Unit adjustment for my wind. Database is in m/s but I need km/h
 // 0.277778 is needed.
@@ -69,6 +40,9 @@ $kludge='1';
 //
 // END USER CONFIG AREA
 //
+
+//Note; double quoted variables are values that will be passed from the SLE,
+// via cheetahGenerator.
 
 if ('$dbase' == 'mysql') {
   if ($debug=='1'){
@@ -85,12 +59,12 @@ if ('$dbase' == 'mysql') {
     if ($debug=='1'){
      echo "database = $dbase<br>";
     }
-    $db = new SQLite3($sqlite_db);
+    $db = new SQLite3('$sqlite_db');
    }else{
-   echo "Define a database with the template - wxobs.php.tmpl<br>";
+   echo "Define a database with the template - wxobs.inc<br>";
 }
 // Attempt to get some meaingful table headings, if we change above options
-if ( $arch_interval == $ext_interval ) {
+if ( '$arch_interval' == '$ext_interval' ) {
  $tflag="Total";
  $avflag="(Average)";
  $iflag=" (averaged over each interval)";
@@ -168,7 +142,6 @@ if ('$dbase' == 'mysql') {
    }
 
 
-   //$last_entry = $db->query("SELECT @last_dt := MAX(dateTime) FROM archive;");
    $last_entry = $db->query("SELECT dateTime FROM archive ORDER BY datetime DESC LIMIT 1");
 if ('$dbase' == 'mysql') {
    $last_entry = $last_entry->fetch_array();
@@ -178,7 +151,6 @@ if ('$dbase' == 'mysql') {
    $latest_date = $last_entry[0];
 
 if ('$dbase' == 'mysql') {
-   //$last_values = $db->query("SELECT FROM_UNIXTIME(datetime, '%Y-%m-%d %H:%i'), outTemp, appTemp, dewPoint, outHumidity, windSpeed, windGust, windDir, barometer, rain FROM archive WHERE dateTime = @last_dt");
    $last_values = $db->query("SELECT FROM_UNIXTIME(datetime, '%Y-%m-%d %H:%i'), outTemp, appTemp, dewPoint, outHumidity, windSpeed, windGust, windDir, barometer, rain FROM archive WHERE dateTime >= $nowtime");
    $latest_row = $last_values->fetch_array();
    }else{
@@ -247,7 +219,12 @@ echo "<!-- start data tables -->\n
 
 // Min Max summaries
 // Shows the min and max values, averages and rainfall total
-   $unixtime =  strtotime($_REQUEST['datepicker']);
+   if ( isset( $_REQUEST['datepicker'])) {
+       $unixtime =  strtotime($_REQUEST['datepicker']);
+       }else{
+       $unixtime = $nowtime;
+       }
+
    if ($debug=='1'){
     echo "Datepicker returns = $unixtime : Request start = $nowtime<br>";
     }
@@ -284,7 +261,12 @@ if ('$dbase' == 'mysql') {
    echo "No data for this date.<br>";
     return;
    }
-   $this_day =  $_REQUEST['datepicker'];
+   //$this_day =  $_REQUEST['datepicker'];
+   if ( isset( $_REQUEST['datepicker'])) {
+       $this_day =  strtotime($_REQUEST['datepicker']);
+       }else{
+       $this_day = $nowtime;
+       }
 
   echo "<!-- start snapshot summary observations -->
 
@@ -366,11 +348,9 @@ if ('$dbase' == 'mysql') {
    // extract data for each half hour - reverse order (latest at top)
    for($t=47;$t>=0;$t--)
    {
-   $starttime = $unixtime + ($t*$ext_interval);
-   $endtime = $starttime + $arch_interval;
-   // https://www.electrictoolbox.com/mysql-unix-timestamp-to-datetime/
-   // http://www.w3resource.com/mysql/date-and-time-functions/mysql-from_unixtime-function.php
-   // http://www.java2s.com/Tutorial/MySQL/0280__Date-Time-Functions/YoucanoptionallygiveFROMUNIXTIMEfunctionaformatparameter.htm
+   $starttime = $unixtime + ($t*'$ext_interval');
+   $endtime = $starttime + '$arch_interval';
+
 if ('$dbase' == 'mysql') {
    $results = $db->query("SELECT FROM_UNIXTIME(datetime, '%Y-%m-%d %H:%i'), avg(outTemp), avg(appTemp), avg(dewPoint), avg(outHumidity), AVG(windSpeed), AVG(windGust), AVG(windDir), avg(barometer), sum(rain) FROM archive WHERE dateTime >= $starttime and dateTime < $endtime;");
    $row = $results->fetch_array();
