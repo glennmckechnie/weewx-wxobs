@@ -33,6 +33,7 @@ $debug=0;
 
 // Not used?
 //date_default_timezone_set('Australia/Melbourne');
+// only valid for date(); use mktime(); instead
 
 // Argh! Another FIXME?
 // Unit adjustment for my wind. Database is in m/s but I need km/h
@@ -149,13 +150,16 @@ $tr_bgrnd="";
 
 // Start of Latest observations
 // Shows the latest record and the rainfall total
-   $nowtime = mktime('0', '0', '0', date('n'), date('j'), date('Y'));
-//??   $endtime = $nowtime + 79800;
-   $endtime = $nowtime + 86400;
+   $day_start = mktime('0', '0', '0', date('n'), date('j'), date('Y'));
+   $now_time = mktime();
+//   echo " date = $day_start<br> mktime = $now_time<br>";
+//??   $endtime = $now_time + 79800;
+//   $endtime = $day_start + 86400;
+   $endtime = $now_time;
 
 // Now redundant use cheetahGen
 //// A quick check, with warning, re units. Currently it's metric only.
-//   $unit_check = $db->query("SELECT usUnits FROM archive WHERE dateTime = $nowtime ");
+//   $unit_check = $db->query("SELECT usUnits FROM archive WHERE dateTime = $now_time ");
 //
 //if ('$dbase' === 'mysql') {
 //   $unit_check = $unit_check->fetch_array();
@@ -170,10 +174,11 @@ $tr_bgrnd="";
           <br>????<br>
           Adjustments will be made depending on the weewx label returned by this skin.<br>
           The deltaT calc requires Metric units and an adjustment will be made.<br>
-	  &nbsp;&nbsp;&nbsp;<b>Check the results!</b><br>
+          &nbsp;&nbsp;&nbsp;<b>Check the results!</b><br>
           </p>";
+   }else{
+   $units = '0';
    }
-
 
    $last_entry = $db->query("SELECT dateTime FROM archive ORDER BY datetime DESC LIMIT 1");
 if ('$dbase' === 'mysql') {
@@ -184,22 +189,22 @@ if ('$dbase' === 'mysql') {
    $latest_date = $last_entry[0];
 
 if ('$dbase' === 'mysql') {
-   $last_values = $db->query("SELECT FROM_UNIXTIME(datetime, '%Y-%m-%d %H:%i'), outTemp, appTemp, dewPoint, outHumidity, windSpeed, windGust, windDir, barometer, rain FROM archive WHERE dateTime >= $nowtime");
+   $last_values = $db->query("SELECT FROM_UNIXTIME(datetime, '%Y-%m-%d %H:%i'), outTemp, appTemp, dewPoint, outHumidity, windSpeed, windGust, windDir, barometer, rain FROM archive WHERE dateTime = $latest_date");
    $latest_row = $last_values->fetch_array();
    }else{
-   $last_values = $db->query("SELECT datetime(min(dateTime), 'unixepoch', 'localtime'), outTemp, appTemp, dewPoint, outHumidity, windSpeed, windGust, windDir, barometer, rain FROM archive WHERE dateTime >= $nowtime and dateTime< $endtime");
+   $last_values = $db->query("SELECT datetime(min(dateTime), 'unixepoch', 'localtime'), outTemp, appTemp, dewPoint, outHumidity, windSpeed, windGust, windDir, barometer, rain FROM archive WHERE dateTime = $latest_date");
    $latest_row = $last_values->fetchArray();
 }
 
 if ('$dbase' === 'mysql') {
-   $rain_total = $db->query("SELECT sum(rain) FROM archive WHERE dateTime >= $nowtime and dateTime < $endtime;");
+   $rain_total = $db->query("SELECT sum(rain) FROM archive WHERE dateTime >= $day_start and dateTime < $endtime;");
    $rain_row = $rain_total->fetch_array();
    }else{
-   $rain_total = $db->query("SELECT sum(rain) FROM archive WHERE dateTime >= $nowtime and dateTime < $endtime;");
+   $rain_total = $db->query("SELECT sum(rain) FROM archive WHERE dateTime >= $day_start and dateTime < $endtime;");
    $rain_row = $rain_total->fetchArray();
    }
    if ($debug==='1'){
-    echo "Nowtime = $nowtime : Endtime = $endtime<br>";
+    echo "Nowtime = $day_start : Endtime = $endtime<br>";
    }
 echo "<!-- start data tables -->\n
 <h1>Latest Weather Observations</h1>
@@ -257,24 +262,26 @@ echo "<!-- start data tables -->\n
    if ( isset( $_REQUEST['datepicker'])) {
        $unixtime =  strtotime($_REQUEST['datepicker']);
        }else{
-       $unixtime = $nowtime;
+   //    $unixtime = $now_time;
+       $unixtime = $day_start;
        }
 
    if ($debug==='1'){
-    echo "Datepicker returns = $unixtime : Request start = $nowtime<br>";
+    echo "Datepicker returns = $unixtime : Request start = $day_start<br>";
     }
 // sanity check because dates from the future are pointless (and untidy)
-// $nowtime holds the latest time from the first (above) observations.
-   if ( $unixtime > $nowtime) {
+// $latest_date holds the latest time from the first (above) observations.
+   //if ( $unixtime > $latest_date) {
+   if ( $unixtime > $latest_date) {
    if ($debug==='1'){
-    echo "test1: $unixtime > $nowtime <br>";
+    echo "test1: $unixtime > $latest_date <br>";
     }
   echo "<p>That is a future date; there are no records!<br> (Wait a while? or best try again. :)</p>";
 //// not work with backdated start time   return;
    return;
    }
    if ($debug==='1'){
-    echo "test2: $unixtime > $nowtime <br>";
+    echo "test2: $unixtime > $latest_date <br>";
     }
    $starttime = $unixtime;
    if ($debug==='1'){
