@@ -11,6 +11,7 @@
 
 import syslog
 
+from weeutil.weeutil import to_bool
 from weewx.cheetahgenerator import SearchList
 
 wxobs_version = "0.03"
@@ -66,19 +67,34 @@ class wxobs(SearchList):
         displayed value returned from the database. This satisfies a quirk in
         my setup where the database is in m/s but I want k/hour displayed.
 
+        us_note: An information message will appear on the report page
+        (index.php) if the database is in US (imperial) units. This is to
+        inform you that the delta-T calcs will be adjusted for the incoming
+        units, and there may be further work required, especially if the script
+        doesn't detect your incoming unit types.
+        This is a switch (boolean) to turn it off.
+
         """
         self.sql_debug = '0'
 
-        self.ext_interval = self.generator.skin_dict['wxobs'].get('ext_interval', '1800')
-        self.arch_interval = self.generator.skin_dict['wxobs'].get('arch_interval')
+        self.ext_interval = self.generator.skin_dict['wxobs'].get(
+            'ext_interval', '1800')
+        self.arch_interval = self.generator.skin_dict['wxobs'].get(
+            'arch_interval')
         if not self.arch_interval:
             self.arch_interval = self.generator.config_dict['StdArchive'] \
                 .get('archive_interval')
-        self.appTemp = self.generator.skin_dict['wxobs'].get('app_Temp', 'appTemp')
-        self.wind_adjust = self.generator.skin_dict['wxobs'].get('wind_adjust', '1')
+        self.appTemp = self.generator.skin_dict['wxobs'].get(
+            'app_Temp', 'appTemp')
+        self.wind_adjust = self.generator.skin_dict['wxobs'].get(
+            'wind_adjust', '1')
+        self.us_note = to_bool(self.generator.skin_dict['wxobs'].get(
+            'show_usnote', True))
+
 
 #       target_unit = METRICWX    # Options are 'US', 'METRICWX', or 'METRIC'
-        self.targ_unit = self.generator.config_dict['StdConvert'].get('target_unit')
+        self.targ_unit = self.generator.config_dict['StdConvert'].get(
+            'target_unit')
 
         def_dbase = self.generator.config_dict['DataBindings'] \
             ['wx_binding'].get('database')
@@ -97,7 +113,8 @@ class wxobs(SearchList):
                 ['MySQL'].get('password')
             if self.sql_debug >= 5:
                 loginf("mysql database is %s, %s, %s, %s" % (
-                    self.mysql_base, self.mysql_host, self.mysql_user, self.mysql_pass))
+                    self.mysql_base, self.mysql_host,
+                    self.mysql_user, self.mysql_pass))
         elif def_dbase == 'archive_sqlite':
             self.dbase = 'sqlite'
             self.sq_dbase = self.generator.config_dict['Databases'] \
