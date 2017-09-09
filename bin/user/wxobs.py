@@ -31,45 +31,58 @@ def logdbg(msg):
 class wxobs(SearchList):
     """
     Overkill?
+    Nah!, just right.
     """
 
     def __init__(self, generator):
         SearchList.__init__(self, generator)
 
         """
-        All we want is the database configuration values from weewx.conf
-        and perhaps the time.
+        This is a minimal SLE - all we want is to make the php configuration
+        easier by transferring the database values as used by weewx, plus a few
+        other variables.
 
-        Timings for displayed values in Historical section:
+        In wxobs/skin.conf:
+        ext_interval: is the spacing between records; 1800 is a half-hour
+        and is the default
 
-        ext_interval is the spacing between records; 1800 is a half-hour.
-         and is the default
+        arch_interval: is the number of records to averge over. The default is to
+        use the weewx.conf value for archive_interval which will return the
+        equivalent of: one observation taken at that archive time.
+        You could choose to set another value?
 
-        arch_interval is the number of records to averge over; choose a value
-         that suits you.
+        The other alternative is to set the $arch_interval to be equal to the
+        value for $ext_interval. This will ensure that all records for the day
+        will be involved in the calcs and the average will be returned as the
+        result.
 
-        $arch_interval = $ext_interval:
-         this means all records for the day are involved in calcs.
-        Alternatively $arch_interval can be set for a single reading if matched
-        to the archive_interval value in weewx.conf (mine happens to be 60
-        seconds and is the default) this becomes the equivalent of: 
-        one observation taken at that archive time.
+        app_Temp: This is a recent addition to weewx and is not enabled by
+        default. The calculation is performed but there is no field in the stock
+        database. This variable allows for the substitution with another value
+        - windchill is just one suggestion.
+        Keep it to the group_degrees (because the label is hard coded in.)
+
+        wind_adjust: This can be used to supply a constant to adjust the
+        displayed value returned from the database. This satisfies a quirk in
+        my setup where the database is in m/s but I want k/hour displayed.
+
         """
-        self.sql_debug ='0'
+        self.sql_debug = '0'
 
         self.ext_interval = self.generator.skin_dict['wxobs'].get('ext_interval', '1800')
         self.arch_interval = self.generator.skin_dict['wxobs'].get('arch_interval')
         if not self.arch_interval:
             self.arch_interval = self.generator.config_dict['StdArchive'] \
                 .get('archive_interval')
-        self.appTemp= self.generator.skin_dict['wxobs'].get('app_Temp', 'appTemp')
+        self.appTemp = self.generator.skin_dict['wxobs'].get('app_Temp', 'appTemp')
+        self.wind_adjust = self.generator.skin_dict['wxobs'].get('wind_adjust', '1')
 
 #       target_unit = METRICWX    # Options are 'US', 'METRICWX', or 'METRIC'
         self.targ_unit = self.generator.config_dict['StdConvert'].get('target_unit')
 
         def_dbase = self.generator.config_dict['DataBindings'] \
             ['wx_binding'].get('database')
-        if self.sql_debug >= 5 :
+        if self.sql_debug >= 5:
             logdbg("database is %s" %  def_dbase)
 
         if def_dbase == 'archive_mysql':
@@ -82,7 +95,7 @@ class wxobs(SearchList):
                 ['MySQL'].get('user')
             self.mysql_pass = self.generator.config_dict['DatabaseTypes'] \
                 ['MySQL'].get('password')
-            if self.sql_debug >= 5 :
+            if self.sql_debug >= 5:
                 loginf("mysql database is %s, %s, %s, %s" % (
                     self.mysql_base, self.mysql_host, self.mysql_user, self.mysql_pass))
         elif def_dbase == 'archive_sqlite':
@@ -92,9 +105,9 @@ class wxobs(SearchList):
             self.sq_root = self.generator.config_dict['DatabaseTypes'] \
                 ['SQLite'].get('SQLITE_ROOT')
 
-            self.sqlite_db = ("%s/%s" %(self.sq_root,self.sq_dbase))
+            self.sqlite_db = ("%s/%s" %(self.sq_root, self.sq_dbase))
 
-            if self.sql_debug >= 5 :
+            if self.sql_debug >= 5:
                 loginf("sqlite database is %s, %s, %s" % (
                     self.sq_dbase, self.sq_root, self.sqlite_db))
 
