@@ -25,26 +25,10 @@
    </div>
 <?php
 
-$debug=0;
-
-//
-// START USER CONFIG AREA
-//
-
-// Not used?
-//date_default_timezone_set('Australia/Melbourne');
-// only valid for date(); use mktime(); instead
-
-// Argh! Another FIXME?
-// Unit adjustment for my wind. Database is in m/s but I need km/h
-// 0.277778 is needed.
-$wind_adjust='1';
-//
-// END USER CONFIG AREA
-//
+$debug='0';
 
 //Note; double quoted variables are values that will be passed from the SLE,
-// via cheetahGenerator. They are required after substitution.
+// via cheetahGenerator. They are required to be in place for the substitution.
 
 if ('$dbase' === 'mysql') {
   if ($debug==='1'){
@@ -65,6 +49,7 @@ if ('$dbase' === 'mysql') {
    }else{
    echo "Define a database with the template - wxobs.inc<br>";
 }
+
 // Attempt to get some meaingful table headings, if we change above options
 if ( '$arch_interval' === '$ext_interval' ) {
  $tflag="Total";
@@ -93,7 +78,7 @@ global $compass;
 $default_ordinate_names = array ('N', 'NNE','NE', 'ENE', 'E', 'ESE', 'SE', 'SSE',
                           'S', 'SSW','SW', 'WSW', 'W', 'WNW', 'NW', 'NNW',
                             'N/A'); //17 objects
- if ( $degr === 0 ) {
+ if ( $degr == 0 ) {
   $compass = "CALM";
   return $compass;
  }
@@ -152,21 +137,8 @@ $tr_bgrnd="";
 // Shows the latest record and the rainfall total
    $day_start = mktime('0', '0', '0', date('n'), date('j'), date('Y'));
    $now_time = mktime();
-//   echo " date = $day_start<br> mktime = $now_time<br>";
-//??   $endtime = $now_time + 79800;
-//   $endtime = $day_start + 86400;
    $endtime = $now_time;
 
-// Now redundant use cheetahGen
-//// A quick check, with warning, re units. Currently it's metric only.
-//   $unit_check = $db->query("SELECT usUnits FROM archive WHERE dateTime = $now_time ");
-//
-//if ('$dbase' === 'mysql') {
-//   $unit_check = $unit_check->fetch_array();
-//   }else{
-//   $unit_check = $unit_check->fetchArray();
-//}
-//   $units = $unit_check[0];
    if ('$targ_unit' === 'US' ) {
    //return; // uncomment the start of this line if the next message is to be ignored.
    $units = '1';
@@ -189,10 +161,10 @@ if ('$dbase' === 'mysql') {
    $latest_date = $last_entry[0];
 
 if ('$dbase' === 'mysql') {
-   $last_values = $db->query("SELECT FROM_UNIXTIME(datetime, '%Y-%m-%d %H:%i'), outTemp, appTemp, dewPoint, outHumidity, windSpeed, windGust, windDir, barometer, rain FROM archive WHERE dateTime = $latest_date");
+   $last_values = $db->query("SELECT FROM_UNIXTIME(datetime, '%Y-%m-%d %H:%i'), outTemp, $appTemp, dewPoint, outHumidity, windSpeed, windGust, windDir, barometer, rain FROM archive WHERE dateTime = $latest_date");
    $latest_row = $last_values->fetch_array();
    }else{
-   $last_values = $db->query("SELECT datetime(min(dateTime), 'unixepoch', 'localtime'), outTemp, appTemp, dewPoint, outHumidity, windSpeed, windGust, windDir, barometer, rain FROM archive WHERE dateTime = $latest_date");
+   $last_values = $db->query("SELECT datetime(min(dateTime), 'unixepoch', 'localtime'), outTemp, $appTemp, dewPoint, outHumidity, windSpeed, windGust, windDir, barometer, rain FROM archive WHERE dateTime = $latest_date");
    $latest_row = $last_values->fetchArray();
 }
 
@@ -204,7 +176,7 @@ if ('$dbase' === 'mysql') {
    $rain_row = $rain_total->fetchArray();
    }
    if ($debug==='1'){
-    echo "Nowtime = $day_start : Endtime = $endtime<br>";
+    echo "day_start = $day_start : Endtime = $endtime<br>";
    }
 echo "<!-- start data tables -->\n
 <h1>Latest Weather Observations</h1>
@@ -257,12 +229,9 @@ echo "<!-- start data tables -->\n
 
 // Min Max summaries
 // Shows the min and max values, averages and rainfall total
-   //    $unixtime =  strtotime($_REQUEST['datepicker']);
-
-   if ( isset( $_REQUEST['datepicker'])) {
+   if ($_REQUEST['datepicker']) {
        $unixtime =  strtotime($_REQUEST['datepicker']);
        }else{
-   //    $unixtime = $now_time;
        $unixtime = $day_start;
        }
 
@@ -271,13 +240,11 @@ echo "<!-- start data tables -->\n
     }
 // sanity check because dates from the future are pointless (and untidy)
 // $latest_date holds the latest time from the first (above) observations.
-   //if ( $unixtime > $latest_date) {
    if ( $unixtime > $latest_date) {
    if ($debug==='1'){
     echo "test1: $unixtime > $latest_date <br>";
     }
   echo "<p>That is a future date; there are no records!<br> (Wait a while? or best try again. :)</p>";
-//// not work with backdated start time   return;
    return;
    }
    if ($debug==='1'){
@@ -287,23 +254,25 @@ echo "<!-- start data tables -->\n
    if ($debug==='1'){
     echo "test3: $unixtime < $starttime <br>";
     }
-   $endtime = $starttime + 79800;
-//   return;
+   $endtime = $starttime + 86400;
 
 if ('$dbase' === 'mysql') {
 // error
-   $stats_snap = $db->query("SELECT FROM_UNIXTIME(datetime, '%Y-%m-%d %H:%i'),min(outTemp), max(outTemp), min(appTemp), max(appTemp), min(dewPoint), max(dewPoint), min(outHumidity), max(outHumidity), avg(windSpeed), avg(windGust), avg(windDir), avg(barometer), sum(rain) FROM archive WHERE dateTime >= $starttime and dateTime < $endtime;");
+   $stats_snap = $db->query("SELECT FROM_UNIXTIME(datetime, '%Y-%m-%d %H:%i'),min(outTemp), max(outTemp), min($appTemp), max($appTemp), min(dewPoint), max(dewPoint), min(outHumidity), max(outHumidity), avg(windSpeed), avg(windGust), avg(windDir), avg(barometer), sum(rain) FROM archive WHERE dateTime >= $starttime and dateTime < $endtime;");
    $stats_row = $stats_snap->fetch_array();
    }else{
-   $stats_snap = $db->query("SELECT datetime(min(dateTime), 'unixepoch', 'localtime'),min(outTemp), max(outTemp), min(appTemp), max(appTemp), min(dewPoint), max(dewPoint), min(outHumidity), max(outHumidity), avg(windSpeed), avg(windGust), avg(windDir), avg(barometer), sum(rain) FROM archive WHERE dateTime >= $starttime and dateTime < $endtime;");
+   $stats_snap = $db->query("SELECT datetime(min(dateTime), 'unixepoch', 'localtime'),min(outTemp), max(outTemp), min($appTemp), max($appTemp), min(dewPoint), max(dewPoint), min(outHumidity), max(outHumidity), avg(windSpeed), avg(windGust), avg(windDir), avg(barometer), sum(rain) FROM archive WHERE dateTime >= $starttime and dateTime < $endtime;");
    $stats_row = $stats_snap->fetchArray();
 }
    $hdate = $stats_row[0];
-   if ($hdate === '') {
-   echo "No data for this date.<br>";
+   if ($hdate == "") {
     return;
    }
-   $this_day =  $_REQUEST['datepicker'];
+   if ( $_REQUEST['datepicker']) {
+       $this_day =  $_REQUEST['datepicker'];
+       }else{
+       $this_day = date('d-m-Y', $day_start);
+       }
 
   echo "<!-- start snapshot summary observations -->
 
@@ -383,21 +352,17 @@ if ('$dbase' === 'mysql') {
  </thead><tbody>";
 
    // extract data for each ext_interval - reverse order (latest at top)
-  //$starttime = $unixtime + ($t*3600);
-  //$endtime = $unixtime + 3600 + ($t*3600);
-
    $c_ycle=(86400/$ext_interval)-1;
-  // $xtra_time = $arch_interval + ($c_ycle*$ext_interval);
    for($t=$c_ycle;$t>=0;$t--)
    {
    $starttime = $unixtime + ($t*'$ext_interval');
    $endtime = $starttime + '$arch_interval';
 
 if ('$dbase' === 'mysql') {
-   $results = $db->query("SELECT FROM_UNIXTIME(datetime, '%Y-%m-%d %H:%i'), avg(outTemp), avg(appTemp), avg(dewPoint), avg(outHumidity), AVG(windSpeed), AVG(windGust), AVG(windDir), avg(barometer), sum(rain) FROM archive WHERE dateTime >= $starttime and dateTime < $endtime;");
+   $results = $db->query("SELECT FROM_UNIXTIME(datetime, '%Y-%m-%d %H:%i'), avg(outTemp), avg($appTemp), avg(dewPoint), avg(outHumidity), AVG(windSpeed), AVG(windGust), AVG(windDir), avg(barometer), sum(rain) FROM archive WHERE dateTime >= $starttime and dateTime < $endtime;");
    $row = $results->fetch_array();
    }else{
-   $results = $db->query("SELECT datetime(min(dateTime), 'unixepoch', 'localtime'), avg(outTemp), avg(appTemp), avg(dewPoint), avg(outHumidity), avg(windSpeed), avg(windGust), avg(windDir), avg(barometer), total(rain) FROM archive WHERE dateTime>= $starttime and dateTime< $endtime;");
+   $results = $db->query("SELECT datetime(min(dateTime), 'unixepoch', 'localtime'), avg(outTemp), avg($appTemp), avg(dewPoint), avg(outHumidity), avg(windSpeed), avg(windGust), avg(windDir), avg(barometer), total(rain) FROM archive WHERE dateTime>= $starttime and dateTime< $endtime;");
    $row = $results->fetchArray();
 }
    if ($tr_bgrnd != "wxhint") {
