@@ -1,4 +1,4 @@
-# installer for SqlBackup
+# installer for wxobs
 # Copyright 2016 Matthew Wall
 # Co-opted by Glenn McKechnie 2017
 # Distributed under the terms of the GNU Public License (GPLv3)
