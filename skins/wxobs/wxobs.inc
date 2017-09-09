@@ -75,6 +75,17 @@ if ( '$arch_interval' === '$ext_interval' ) {
  $iflag=" (as single readings)";
 }
 
+if ( '$appTemp' === 'appTemp') {
+ $appLabel = 'App Temp';
+ $app_label = '$unit.label.appTemp';
+}elseif ( '$appTemp' === 'windchill') {
+ $appLabel = 'Wind Chill';
+ $app_label = '$unit.label.windchill';
+}else{
+ $appLabel = '$appTemp';
+ $app_label = '$unit.label.outTemp';
+}
+
 function ordinalCompass ($degr){
  // templated from weewx code. Mistakes are mine!
 global $compass;
@@ -100,23 +111,26 @@ function deltaT ($units, $Tc,$RH,$P) {
  //$Tc = outTemp.degree_C
  //$RH = outHumidity
  //$P = pressure.hPa
- // The following is an AND statement. It assumes your database, and your
+ // The following is really an AND statement. It assumes your database, & your
  // assigned units are in agreeance. Perhaps it should ignore the database
  // and trust the user?
-if ('$unit.label.outTemp' === "&#176;F") {
-  $Tc=($Tc-32)*5/9; // assuming degF - return degC
-}
-if ('$unit.label.barometer' === ' hPa') { //leading space is critical!
-    $P=$P;
-}elseif ('$unit.label.barometer' === ' inHg') { //leading space is critical!
-    $P=($P*33.86389); //assuming inHg - return hPa
-}elseif ('$unit.label.barometer' === ' mmHg') { //leading space is critical!
-    $P=($P/0.75006168); //assuming mmHg - return hPa
-}else{
-    //echo "Unrecognized pressure units - conversion code is not present";
-    $dT="?units?";
-    return;
-}
+ // Comment out the database check for the moment. Cycles are cheap these days?
+//if ('$units' === '1' ) {
+ if ('$unit.label.outTemp' === "&#176;F") {
+   $Tc=($Tc-32)*5/9; // assuming degF - return degC
+ }
+ if ('$unit.label.barometer' === ' hPa') { //leading space is critical!
+     $P=$P;
+ }elseif ('$unit.label.barometer' === ' inHg') { //leading space is critical!
+     $P=($P*33.86389); //assuming inHg - return hPa
+ }elseif ('$unit.label.barometer' === ' mmHg') { //leading space is critical!
+     $P=($P/0.75006168); //assuming mmHg - return hPa
+ }else{
+     //echo "Unrecognized pressure units - conversion code is not present";
+     $dT="?units?";
+     return;
+ }
+//}
 
 
  $Tdc = (($Tc - (14.55 + 0.114 * $Tc) * (1 - (0.01 * $RH)) - ((2.5 + 0.007 * $Tc) * (1 - (0.01 * $RH))) ** 3 - (15.9 + 0.117 * $Tc) * (1 - (0.01 * $RH)) ** 14));
@@ -136,26 +150,28 @@ $tr_bgrnd="";
 // Start of Latest observations
 // Shows the latest record and the rainfall total
    $nowtime = mktime('0', '0', '0', date('n'), date('j'), date('Y'));
-   $endtime = $nowtime + 79800;
+//??   $endtime = $nowtime + 79800;
+   $endtime = $nowtime + 86400;
 
-// A quick check, with warning, re units. Currently it's metric only.
-   $unit_check = $db->query("SELECT usUnits FROM archive WHERE dateTime = $nowtime ");
-
-if ('$dbase' === 'mysql') {
-   $unit_check = $unit_check->fetch_array();
-   }else{
-   $unit_check = $unit_check->fetchArray();
-}
-   $units = $unit_check[0];
-   if ($units === "1") {
+// Now redundant use cheetahGen
+//// A quick check, with warning, re units. Currently it's metric only.
+//   $unit_check = $db->query("SELECT usUnits FROM archive WHERE dateTime = $nowtime ");
+//
+//if ('$dbase' === 'mysql') {
+//   $unit_check = $unit_check->fetch_array();
+//   }else{
+//   $unit_check = $unit_check->fetchArray();
+//}
+//   $units = $unit_check[0];
+   if ('$targ_unit' === 'US' ) {
    //return; // uncomment the start of this line if the next message is to be ignored.
-    echo "<p>The database appears to be in imperial (US) units.<br>
-          The deltaT calc requires Metric units. If the weewx labels also<br>
-          report Imperial units then adjustments will be made accordingly.<br>
-          <br>
-          Look for // FIXME_UNITS in the wxobs.inc file.
+   $units = '1';
+    echo "<p>weewx reports that the database is in imperial (US) units.<br>
+          <br>????<br>
+          Adjustments will be made depending on the weewx label returned by this skin.<br>
+          The deltaT calc requires Metric units and an adjustment will be made.<br>
+	  &nbsp;&nbsp;&nbsp;<b>Check the results!</b><br>
           </p>";
-    // FIXME_UNITS
    }
 
 
@@ -192,7 +208,7 @@ echo "<!-- start data tables -->\n
   <tr>
    <th class=\"wxheadr\" rowspan=\"2\">Date&nbsp;&nbsp;&nbsp;&nbsp;Time</th>
    <th class=\"wxheadr\" rowspan=\"2\">Out Temp<br>$unit.label.outTemp</th>
-   <th class=\"wxheadr\" rowspan=\"2\">App Temp<br>$unit.label.appTemp</th>
+   <th class=\"wxheadr\" rowspan=\"2\">$appLabel<br>$app_label</th>
    <th class=\"wxheadr\" rowspan=\"2\">Dew Point<br>$unit.label.dewpoint</th>
    <th class=\"wxheadr\" rowspan=\"2\">Humidity<br>$unit.label.outHumidity</th>
    <th class=\"wxheadr\" rowspan=\"2\">delta-T<br>$unit.label.outTemp</th>
@@ -291,7 +307,7 @@ if ('$dbase' === 'mysql') {
   <tr>
    <th class=\"wxheadr\" rowspan=\"2\">Date&nbsp;&nbsp;&nbsp;&nbsp; Time</th>
    <th class=\"wxheadr\" rowspan=\"2\">Out Temp<br>$unit.label.outTemp</th>
-   <th class=\"wxheadr\" rowspan=\"2\">App Temp<br>$unit.label.appTemp</th>
+   <th class=\"wxheadr\" rowspan=\"2\">$appLabel<br>$app_label</th>
    <th class=\"wxheadr\" rowspan=\"2\">Dew Point<br>$unit.label.dewpoint</th>
    <th class=\"wxheadr\" rowspan=\"2\">Humidity<br>$unit.label.outHumidity</th>
    <th class=\"wxheadr\" colspan=\"4\">Wind</th>
@@ -343,7 +359,7 @@ if ('$dbase' === 'mysql') {
   <tr>
    <th class=\"wxheadr\" rowspan=\"2\">Date&nbsp;&nbsp;&nbsp;&nbsp; Time</th>
    <th class=\"wxheadr\" rowspan=\"2\">Out Temp<br>$unit.label.outTemp</th>
-   <th class=\"wxheadr\" rowspan=\"2\">App Temp<br>$unit.label.appTemp</th>
+   <th class=\"wxheadr\" rowspan=\"2\">$appLabel<br>$app_label</th>
    <th class=\"wxheadr\" rowspan=\"2\">Dew Point<br>$unit.label.dewpoint</th>
    <th class=\"wxheadr\" rowspan=\"2\">Humidity<br>$unit.label.outHumidity</th>
    <th class=\"wxheadr\" rowspan=\"2\">delta-T<br>$unit.label.outTemp</th>
@@ -359,8 +375,13 @@ if ('$dbase' === 'mysql') {
   </tr>
  </thead><tbody>";
 
-   // extract data for each half hour - reverse order (latest at top)
-   for($t=47;$t>=0;$t--)
+   // extract data for each ext_interval - reverse order (latest at top)
+  //$starttime = $unixtime + ($t*3600);
+  //$endtime = $unixtime + 3600 + ($t*3600);
+
+   $c_ycle=(86400/$ext_interval)-1;
+  // $xtra_time = $arch_interval + ($c_ycle*$ext_interval);
+   for($t=$c_ycle;$t>=0;$t--)
    {
    $starttime = $unixtime + ($t*'$ext_interval');
    $endtime = $starttime + '$arch_interval';
