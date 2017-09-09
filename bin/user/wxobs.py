@@ -3,7 +3,7 @@
 #    Credit to Tom Keffer <tkeffer@gmail.com>, Matthew Wall and the core
 #    weewx team, all from whom I've borrowed heavily.
 #    Mistakes are mine, corrections and or improvements welcomed
-#       https://github.com/glennmckechnie/weewx-sqlbackup
+#       https://github.com/glennmckechnie/weewx-wxobs
 #
 #    See the file LICENSE.txt for your full rights.
 #
@@ -62,6 +62,10 @@ class wxobs(SearchList):
         if not self.arch_interval:
             self.arch_interval = self.generator.config_dict['StdArchive'] \
                 .get('archive_interval')
+        self.appTemp= self.generator.skin_dict['wxobs'].get('app_Temp', 'appTemp')
+
+#       target_unit = METRICWX    # Options are 'US', 'METRICWX', or 'METRIC'
+        self.targ_unit = self.generator.config_dict['StdConvert'].get('target_unit')
 
         def_dbase = self.generator.config_dict['DataBindings'] \
             ['wx_binding'].get('database')
