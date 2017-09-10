@@ -7,7 +7,8 @@ It is configured to use the weewx.conf settings as its defaults. I don't use sql
 
 I've used appTemp for one of the fields, apparently not everyone has this? Consequently this is configurable via skin.conf to return windchill (or another group degree field) for those not setup to store appTemp in their databases.
 
-It reads directly from the database so it doesn't use weewx's internal processes to massage the data to match units. It relies on the database value matching the dtabase units (US, METRIC, METRICWX) and then the [Units][[Groups]] as returned by the skin.conf file being correct. Based on those fields it will attempt to ensure that delta-T uses the required Metric units to get a sensible result.
+It reads directly from the database so it doesn't use weewx's internal processes to massage the data to match units. It relies on the database value matching the dtabase units (US, METRIC, METRICWX) and then the [Units][[Groups]]group**** as returned by the skin.conf file being correct. Based on those fields it will attempt to ensure that delta-T uses the required Metric units to get a sensible result.
+
 If this applies in your case, CHECK THE RESULT and confirm its working as it should. If it doesn't then report the issue and supply a fix (earn a __Legend__ star) or at the least report it (earn a __Contributor__ star) :-)
 
 Thanks to:
@@ -33,12 +34,16 @@ Thanks to:
    </pre>
 
 4. It should work after that restart (and the report cycle has run). If everything is detected and is usable without further tweaks, it should present its report page at weewx/wxobs/index.php.
+
    Read and understand the options in wxobs/skin.conf There are optional variables that you can configure and a suggestion on report timing.
 
 5. Problems?
    Hopefully none but if there are then look at your logs - syslog and apache2/error.log. If you view them in a terminal window then you will see what's happening, as it occurs.
+   
    (I find multitail -f /var/log/syslog /var/log/apache2/error.log works for me {adjust to suit your install} -- apt-get install multi-tail if needed)
+   
    The error numbers reported in the apache2/error.log will refer to the index.php file in your webserver directory.
+   
    If using sqlite then you may just get a blank page and an error in /var/log/apache2/error.log that says __PHP Fatal error:  Uncaught Error: Class 'SQLite3' not found__
 
 For the current debian installation here, the following remedied that...
