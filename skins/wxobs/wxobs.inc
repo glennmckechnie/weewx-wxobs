@@ -25,7 +25,84 @@
    </div>
 <?php
 
-$debug='0';
+function ordinalCompass ($degr){
+ // templated from weewx code. Mistakes are mine!
+global $compass;
+$default_ordinate_names = array ('N', 'NNE','NE', 'ENE', 'E', 'ESE', 'SE', 'SSE',
+                          'S', 'SSW','SW', 'WSW', 'W', 'WNW', 'NW', 'NNW',
+                            'N/A'); //17 objects
+ if ( $degr == 0 ) {
+  $compass = "CALM";
+  return $compass;
+ }
+
+ $sector_size = 360/16;
+ $degree = ($degr + $sector_size/2.0) % 360.0;
+ $sector = intval($degree / $sector_size);
+ $compass = $default_ordinate_names[$sector];
+}
+
+function deltaT ($units, $Tc,$RH,$P) {
+ global $dT;
+ // DeltaT calculations
+ // sourced from wdSearchX3.py, part of the weewx-wd package by oz greg
+ // available at https://bitbucket.org/ozgreg/weewx-wd/wiki/Home
+ //$Tc = outTemp.degree_C
+ //$RH = outHumidity
+ //$P = pressure.hPa
+ // The following is really an AND statement. It assumes your database, & your
+ // assigned units are in agreeance. Perhaps it should ignore the database
+ // and trust the user?
+ // Comment out the database check for the moment. Cycles are cheap these days?
+//if ('$units' === '1' ) {
+ if ('$unit.label.outTemp' === "&#176;F") {
+   $Tc=($Tc-32)*5/9; // assuming degF - return degC
+  if ($debug==='1'){
+  echo "<p>delta-T<br> assumed degF: Tc has become $Tc<p>";
+  }
+  }else{
+  if ($debug==='1'){
+  echo "<p>delta-T<br> assumed degC: Tc remains $Tc<p>";
+  }
+ }
+ if ('$unit.label.barometer' === ' hPa') { //leading space is critical!
+     $P=$P;
+  if ($debug==='1'){
+  echo "<p>delta-T<br> assuming hPa: P remains $P<p>";
+  }
+ }elseif ('$unit.label.barometer' === ' inHg') { //leading space is critical!
+     $P=($P*33.86389); //assuming inHg - return hPa
+  if ($debug==='1'){
+  echo "<p>delta-T<br> assumed inHg: P has become $P<p>";
+  }
+ }elseif ('$unit.label.barometer' === ' mmHg') { //leading space is critical!
+     $P=($P/0.75006168); //assuming mmHg - return hPa
+  if ($debug==='1'){
+  echo "<p>delta-T<br> assumed mmHg: P has become $P<p>";
+  }
+ }else{
+     //echo "Unrecognized pressure units - conversion code is not present";
+     $dT="?units?";
+  if ($debug==='1'){
+  echo "<p>delta-T<br> ($P) returned, assuming nothing: P has become $P<p>";
+  }
+     return;
+ }
+//}
+
+ $Tdc = (($Tc - (14.55 + 0.114 * $Tc) * (1 - (0.01 * $RH)) - ((2.5 + 0.007 * $Tc) * (1 - (0.01 * $RH))) ** 3 - (15.9 + 0.117 * $Tc) * (1 - (0.01 * $RH)) ** 14));
+ $E = (6.11 * 10 ** (7.5 * $Tdc / (237.7 + $Tdc)));
+ $WBc = (((0.00066 * $P) * $Tc) + ((4098 * $E) / (($Tdc + 237.7) ** 2) * $Tdc)) / ((0.00066 * $P) + (4098 * $E) / (($Tdc + 237.7) ** 2));
+// $WetBulb = "%.1f" % $WBc + $unit.label.outTemp
+// $WetBulb = "%.1f" % ($WBc*9/5+32) + $unit.label.outTemp // degrees F
+//echo "Tdc = $Tdc E = $E WBc = $WBc :: T=$Tc : RH=$RH : P=$P<br>";
+//$DeltaT = $Tc - $WBc;
+ $dT = abs(round($Tc - $WBc,1));
+
+}
+
+$debug='$wxobs_debug';
+$tr_bgrnd="";
 
 //Note; double quoted variables are values that will be passed from the SLE,
 // via cheetahGenerator. They are required to be in place for the substitution.
@@ -72,85 +149,34 @@ if ( '$appTemp' === 'appTemp') {
  $app_label = '$unit.label.outTemp';
 }
 
-function ordinalCompass ($degr){
- // templated from weewx code. Mistakes are mine!
-global $compass;
-$default_ordinate_names = array ('N', 'NNE','NE', 'ENE', 'E', 'ESE', 'SE', 'SSE',
-                          'S', 'SSW','SW', 'WSW', 'W', 'WNW', 'NW', 'NNW',
-                            'N/A'); //17 objects
- if ( $degr == 0 ) {
-  $compass = "CALM";
-  return $compass;
- }
+if ($debug==='1'){
+     echo "<p>ext_interval is $ext_interval <br> arch_interval is $arch_interval<br>";
+     echo "appTemp is defined as $appTemp with $app_label used as the units.</p>";
+     }
 
- $sector_size = 360/16;
- $degree = ($degr + $sector_size/2.0) % 360.0;
- $sector = intval($degree / $sector_size);
- $compass = $default_ordinate_names[$sector];
-}
-
-function deltaT ($units, $Tc,$RH,$P) {
- global $dT;
- // DeltaT calculations
- // sourced from wdSearchX3.py, part of the weewx-wd package by oz greg
- // available at https://bitbucket.org/ozgreg/weewx-wd/wiki/Home
- //$Tc = outTemp.degree_C
- //$RH = outHumidity
- //$P = pressure.hPa
- // The following is really an AND statement. It assumes your database, & your
- // assigned units are in agreeance. Perhaps it should ignore the database
- // and trust the user?
- // Comment out the database check for the moment. Cycles are cheap these days?
-//if ('$units' === '1' ) {
- if ('$unit.label.outTemp' === "&#176;F") {
-   $Tc=($Tc-32)*5/9; // assuming degF - return degC
- }
- if ('$unit.label.barometer' === ' hPa') { //leading space is critical!
-     $P=$P;
- }elseif ('$unit.label.barometer' === ' inHg') { //leading space is critical!
-     $P=($P*33.86389); //assuming inHg - return hPa
- }elseif ('$unit.label.barometer' === ' mmHg') { //leading space is critical!
-     $P=($P/0.75006168); //assuming mmHg - return hPa
- }else{
-     //echo "Unrecognized pressure units - conversion code is not present";
-     $dT="?units?";
-     return;
- }
-//}
-
-
- $Tdc = (($Tc - (14.55 + 0.114 * $Tc) * (1 - (0.01 * $RH)) - ((2.5 + 0.007 * $Tc) * (1 - (0.01 * $RH))) ** 3 - (15.9 + 0.117 * $Tc) * (1 - (0.01 * $RH)) ** 14));
- $E = (6.11 * 10 ** (7.5 * $Tdc / (237.7 + $Tdc)));
- $WBc = (((0.00066 * $P) * $Tc) + ((4098 * $E) / (($Tdc + 237.7) ** 2) * $Tdc)) / ((0.00066 * $P) + (4098 * $E) / (($Tdc + 237.7) ** 2));
-// $WetBulb = "%.1f" % $WBc + $unit.label.outTemp
-// $WetBulb = "%.1f" % ($WBc*9/5+32) + $unit.label.outTemp // degrees F
-//echo "Tdc = $Tdc E = $E WBc = $WBc :: T=$Tc : RH=$RH : P=$P<br>";
-//$DeltaT = $Tc - $WBc;
- $dT = abs(round($Tc - $WBc,1));
-
-}
-
-$tr_bgrnd="";
-
+   if ('$targ_unit' === 'US' && $us_note) {
+   //if ('$targ_unit' === 'METRICWX' && $us_note) { // quick override for tests
+   $units = '1';
+    echo "<div style=\"background-color:#dac0cd\">
+          <p>weewx reports that the database is in $targ_unit (imperial)units.
+          <br>????<br>
+          Adjustments will be made depending on the weewx label returned by this skin.<br>
+          The deltaT calc requires Metric units and an adjustment will be made.<br>
+          &nbsp;&nbsp;&nbsp;<b>Check the results!</b><br>(This message can be turned off
+          in skin.conf by uncommenting <i>#show_usnote = False</i>)
+          </p></div>";
+   }else{
+   $units = '0';
+   }
 
 // Start of Latest observations
 // Shows the latest record and the rainfall total
    $day_start = mktime('0', '0', '0', date('n'), date('j'), date('Y'));
    $now_time = mktime();
    $endtime = $now_time;
-
-   if ('$targ_unit' === 'US' ) {
-   //return; // uncomment the start of this line if the next message is to be ignored.
-   $units = '1';
-    echo "<p>weewx reports that the database is in imperial (US) units.<br>
-          <br>????<br>
-          Adjustments will be made depending on the weewx label returned by this skin.<br>
-          The deltaT calc requires Metric units and an adjustment will be made.<br>
-          &nbsp;&nbsp;&nbsp;<b>Check the results!</b><br>
-          </p>";
-   }else{
-   $units = '0';
-   }
+if ($debug==='1'){
+  echo "<p>Latest Observations:<br>day_start = $day_start<br> endtime uses the now_time value ( $endtime )</p>";
+}
 
    $last_entry = $db->query("SELECT dateTime FROM archive ORDER BY datetime DESC LIMIT 1");
 if ('$dbase' === 'mysql') {
@@ -174,9 +200,6 @@ if ('$dbase' === 'mysql') {
    }else{
    $rain_total = $db->query("SELECT sum(rain) FROM archive WHERE dateTime >= $day_start and dateTime < $endtime;");
    $rain_row = $rain_total->fetchArray();
-   }
-   if ($debug==='1'){
-    echo "day_start = $day_start : Endtime = $endtime<br>";
    }
 echo "<!-- start data tables -->\n
 <h1>Latest Weather Observations</h1>
@@ -231,30 +254,31 @@ echo "<!-- start data tables -->\n
 // Shows the min and max values, averages and rainfall total
    if ($_REQUEST['datepicker']) {
        $unixtime =  strtotime($_REQUEST['datepicker']);
+   if ($debug==='1'){
+    echo "<p>Min (Max)<br> Datepicker returned $unixtime</p>";
+    }
        }else{
        $unixtime = $day_start;
+   if ($debug==='1'){
+    echo "<p>Min (Max)<br> Datepicker returned null, day_start ( $day_start ) has been used</p>";
+    }
        }
 
-   if ($debug==='1'){
-    echo "Datepicker returns = $unixtime : Request start = $day_start<br>";
-    }
 // sanity check because dates from the future are pointless (and untidy)
 // $latest_date holds the latest time from the first (above) observations.
    if ( $unixtime > $latest_date) {
    if ($debug==='1'){
-    echo "test1: $unixtime > $latest_date <br>";
+    echo "<p> unixtime ( $unixtime ) is > latest+date ( $latest_date ) </p>";
     }
-  echo "<p>That is a future date; there are no records!<br> (Wait a while? or best try again. :)</p>";
+    echo "<p>That is a future date; there are no records!<br> (Wait a while? or best try again. :)</p>";
    return;
    }
-   if ($debug==='1'){
-    echo "test2: $unixtime > $latest_date <br>";
-    }
+
    $starttime = $unixtime;
-   if ($debug==='1'){
-    echo "test3: $unixtime < $starttime <br>";
-    }
    $endtime = $starttime + 86400;
+   if ($debug==='1'){
+    echo "<p>Min (Max) and Periodic Stats<br> starttime is now = unixtime ( $unixtime ) and  endtime is + 86400  ( $endtime )</p>";
+    }
 
 if ('$dbase' === 'mysql') {
 // error
@@ -387,6 +411,7 @@ if ('$dbase' === 'mysql') {
    echo "<td>$compass</td>"; //wind direction ORDINAL
    $metWind = round(($row[5]/$wind_adjust), 1);//weewx database is METRICWX, value is stored as m/s
    echo "<td>$metWind</td>";
+   //echo "round(($row[6]/$wind_adjust), 1)<br>";//weewx database is METRICWX, value is stored as m/s
    $metGust = round(($row[6]/$wind_adjust), 1);//weewx database is METRICWX, value is stored as m/s
    echo "<td>$metGust</td>";
    $windDir = round($row[7], 0);
