@@ -188,7 +188,7 @@ if ('$dbase' === 'mysql') {
    $latest_date = $last_entry[0];
 
 if ('$dbase' === 'mysql') {
-    $last_values = $db->query("SELECT FROM_UNIXTIME(datetime, '%Y-%m-%d %H:%i'), outTemp, $appTemp, dewPoint, outHumidity, windSpeed, windGust, windDir, barometer, rain FROM archive WHERE dateTime = $latest_date");
+    $last_values = $db->query("SELECT FROM_UNIXTIME(datetime, '%d-%m-%Y %H:%i'), outTemp, $appTemp, dewPoint, outHumidity, windSpeed, windGust, windDir, barometer, rain FROM archive WHERE dateTime = $latest_date");
     $latest_row = $last_values->fetch_array();
 } else {
     $last_values = $db->query("SELECT datetime(min(dateTime), 'unixepoch', 'localtime'), outTemp, $appTemp, dewPoint, outHumidity, windSpeed, windGust, windDir, barometer, rain FROM archive WHERE dateTime = $latest_date");
@@ -218,7 +218,7 @@ echo "<!-- start data tables -->\n
    <th class=\"wxheadr\" rowspan=\"2\">Total Rain<br>$unit.label.rain</th>
   </tr>
   <tr>
-   <th class=\"wxheadr\" class=\"wxheadr\">Direction<br>compass</th>
+   <th class=\"wxheadr\">Direction<br>compass</th>
    <th class=\"wxheadr\">Speed<br>$unit.label.wind</th>
    <th class=\"wxheadr\">Gust<br>$unit.label.wind</th>
    <th class=\"wxheadr\">Direction<br>$unit.label.windDir</th>
@@ -283,7 +283,7 @@ if ($debug==='1') {
 
 if ('$dbase' === 'mysql') {
 // error
-    $stats_snap = $db->query("SELECT FROM_UNIXTIME(datetime, '%Y-%m-%d %H:%i'),min(outTemp), max(outTemp), min($appTemp), max($appTemp), min(dewPoint), max(dewPoint), min(outHumidity), max(outHumidity), avg(windSpeed), avg(windGust), avg(windDir), avg(barometer), sum(rain) FROM archive WHERE dateTime >= $starttime and dateTime < $endtime;");
+    $stats_snap = $db->query("SELECT FROM_UNIXTIME(datetime, '%d-%m-%Y %H:%i'),min(outTemp), max(outTemp), min($appTemp), max($appTemp), min(dewPoint), max(dewPoint), min(outHumidity), max(outHumidity), avg(windSpeed), avg(windGust), avg(windDir), avg(barometer), sum(rain) FROM archive WHERE dateTime >= $starttime and dateTime < $endtime;");
     $stats_row = $stats_snap->fetch_array();
 } else {
     $stats_snap = $db->query("SELECT datetime(min(dateTime), 'unixepoch', 'localtime'),min(outTemp), max(outTemp), min($appTemp), max($appTemp), min(dewPoint), max(dewPoint), min(outHumidity), max(outHumidity), avg(windSpeed), avg(windGust), avg(windDir), avg(barometer), sum(rain) FROM archive WHERE dateTime >= $starttime and dateTime < $endtime;");
@@ -316,7 +316,7 @@ if ($_REQUEST['datepicker']) {
    <th class=\"wxheadr\" rowspan=\"2\">Total Rain<br>$unit.label.rain</th>
   </tr>
   <tr>
-   <th class=\"wxheadr\" class=\"wxheadr\">Direction<br>compass</th>
+   <th class=\"wxheadr\">Direction<br>compass</th>
    <th class=\"wxheadr\">Speed<br>$unit.label.wind</th>
    <th class=\"wxheadr\">Gust<br>$unit.label.wind</th>
    <th class=\"wxheadr\">Direction<br>$unit.label.windDir</th>
@@ -369,7 +369,7 @@ if ($_REQUEST['datepicker']) {
    <th class=\"wxheadr\" rowspan=\"2\">$tflag Rain<br>$unit.label.rain</th>
   </tr>
   <tr>
-   <th class=\"wxheadr\" class=\"wxheadr\">Direction<br>compass</th>
+   <th class=\"wxheadr\">Direction<br>compass</th>
    <th class=\"wxheadr\">Speed<br>$unit.label.wind</th>
    <th class=\"wxheadr\">Gust<br>$unit.label.wind</th>
    <th class=\"wxheadr\">Direction<br>$unit.label.windDir</th>
@@ -383,7 +383,7 @@ for ($t=$c_ycle; $t>=0; $t--) {
     $endtime = $starttime + '$arch_interval';
 
     if ('$dbase' === 'mysql') {
-           $results = $db->query("SELECT FROM_UNIXTIME(datetime, '%Y-%m-%d %H:%i'), avg(outTemp), avg($appTemp), avg(dewPoint), avg(outHumidity), AVG(windSpeed), AVG(windGust), AVG(windDir), avg(barometer), sum(rain) FROM archive WHERE dateTime >= $starttime and dateTime < $endtime;");
+           $results = $db->query("SELECT FROM_UNIXTIME(datetime, '%d-%m-%Y %H:%i'), avg(outTemp), avg($appTemp), avg(dewPoint), avg(outHumidity), AVG(windSpeed), AVG(windGust), AVG(windDir), avg(barometer), sum(rain) FROM archive WHERE dateTime >= $starttime and dateTime < $endtime;");
            $row = $results->fetch_array();
     } else {
         $results = $db->query("SELECT datetime(min(dateTime), 'unixepoch', 'localtime'), avg(outTemp), avg($appTemp), avg(dewPoint), avg(outHumidity), avg(windSpeed), avg(windGust), avg(windDir), avg(barometer), total(rain) FROM archive WHERE dateTime>= $starttime and dateTime< $endtime;");
@@ -425,4 +425,3 @@ for ($t=$c_ycle; $t>=0; $t--) {
    echo "</tbody></table><!-- end snapshot observations -->";
 
     ?>
-   </div>
