@@ -3,10 +3,12 @@
 
 It is set out in the style of the _Latest Weather Observations_ pages that the Australian Weather Bureau - BOM provides. eg:- [Ballarat](http://www.bom.gov.au/products/IDV60801/IDV60801.94852.shtml)  I find those pages useful, that one especially when keeping an eye on the accuracy of my station.
 
-It is configured to use the weewx.conf settings as its defaults. I  sqlite so that's a best guess (which appears to work with an archived conversion of my mysql) Feedback, corrections are welcomed on that - or anything here.
-I've used appTemp for one of the fields, apparently not everyone has this? Consequently this is configurable via skin.conf to return windchill(or other group_degree field) for those not setup to store appTemp in their databases.
+It is configured to use the weewx.conf settings as its defaults. I don't use sqlite but have tried this on a simulator version with US settings and it appeatrs to work correctly. Feedback, corrections are welcomed on that - or anything here.
 
-Ie it read directly from the database it doesn't use weewx's internal formulas to massage the data to match units. It relies on the database value matching the dtabase units (US, METRIC, METRICWX) and then the [Units][[Groups]] as returned by the skin.conf file being correct. Based on those filds it will attewmpt to ensure that delta-T uses the required Metric units to get a sensible result. If this applies in your case, CHECK THE RESULT and confirm its working as it should. If it doesn't then report the issue and supply a fix (earn a 'Legend' star) or at the least report it (earn a Conributor star) :-)
+I've used appTemp for one of the fields, apparently not everyone has this? Consequently this is configurable via skin.conf to return windchill (or another group degree field) for those not setup to store appTemp in their databases.
+
+It reads directly from the database so it doesn't use weewx's internal processes to massage the data to match units. It relies on the database value matching the dtabase units (US, METRIC, METRICWX) and then the [Units][[Groups]] as returned by the skin.conf file being correct. Based on those fields it will attempt to ensure that delta-T uses the required Metric units to get a sensible result.
+If this applies in your case, CHECK THE RESULT and confirm its working as it should. If it doesn't then report the issue and supply a fix (earn a __Legend__ star) or at the least report it (earn a __Contributor__ star) :-)
 
 Thanks to:
 * Powerin (weewx-users) for the initial starting point, from the thread titled [Daily climatological summaries](https://groups.google.com/d/topic/weewx-user/cEAzvxv3T6Q/discussion)
@@ -15,22 +17,14 @@ Thanks to:
 ***Instructions:***
 
 1. Download the skin to your weewx machine.
-
-    wget https://github.com/glennmckechnie/weewx-wxobs/archive/master.zip
-
+    __wget https://github.com/glennmckechnie/weewx-wxobs/archive/master.zip__
 2. Change to that directory and run the wee_extension installer
-
-   sudo wee_extension --install master.zip
-
+   __sudo wee_extension --install master.zip__
 3. Restart weewx
-
-   sudo /etc/init.d/weewx stop
-
-   sudo /etc/;init.d/weewx start
-
+   __sudo /etc/init.d/weewx stop__
+   __sudo /etc/;init.d/weewx start__
 4. It should work after that restart (and the report cycle has run). If everything is detected and is usable without further tweaks, it should present its report page at weewx/wxobs/index.php.
    Read and understand the options in wxobs/skin.conf There are optional variables that you can configure and a suggestion on report timing.
-
 5. Problems?
    Hopefully none but if there are then look at your logs - syslog and apache2/error.log. If you view them in a terminal window then you will see what's happening, as it occurs.
    (I find multitail -f /var/log/syslog /var/log/apache2/error.log works for me {adjust to suit your install} -- apt-get install multi-tail if needed)
@@ -48,7 +42,7 @@ Thanks to:
    </pre>
 
 
-__Note:__  datepicker.js doesn't (didn't) play well with the seasons javascript file (seasons.js). The toggle feature on the #includes was disrupted and didn't behave as it should. I've edited datepicker.js and removed __window.onload=null;__ from the  _function onDOMReady_
+__Note:__  If you are using the seasons skin. datepicker.js doesn't (didn't) play well with the seasons javascript file (seasons.js). The toggle feature on the #includes was disrupted and didn't behave as it should. I've edited datepicker.js and removed __window.onload=null;__ from the  _function onDOMReady_
 
 Nothing seems to have broken (for me). It fixed the problem but I'm not knowledgable enough to know what side-effects I've invoked. YMMV. Expert knowledge and/or fixes welcomed.
 
