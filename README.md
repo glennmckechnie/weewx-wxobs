@@ -1,82 +1,54 @@
 # weewx-wxobs
-An additional weewx report page that uses php to extract archival data (Daily climatological summaries) from the weewx database and present it as a series of snapshots (currently half-hourly) averaged throughout the chosen day. It includes delta-T ( primarily for agricultural purposes.)
+ A skin that integrates with weewx and provides a report page that uses php to extract archival data (Daily climatological summaries) from the weewx database and present it as a series of snapshots (currently half-hourly) averaged throughout the chosen day. It includes delta-T ( used for agricultural purposes. )
 
 It is set out in the style of the _Latest Weather Observations_ pages that the Australian Weather Bureau - BOM provides. eg:- [Ballarat](http://www.bom.gov.au/products/IDV60801/IDV60801.94852.shtml)  I find those pages useful, that one especially when keeping an eye on the accuracy of my station.
 
-It integrates with the seasons skin, but should be easily modified for use within other skins. It uses the cheetah generator to some extent (unit labels) but these could be bypassed if it was used as a stand-alone page.
-It is configured to use either the sqlite or mysql databases that weewx uses. I don't currently use sqlite so that's a best guess (which appears to work with an archived conversion of my mysql) Feedback, corrections are welcomed on that - or anything here.
+It is configured to use the weewx.conf settings as its defaults. I  sqlite so that's a best guess (which appears to work with an archived conversion of my mysql) Feedback, corrections are welcomed on that - or anything here.
+I've used appTemp for one of the fields, apparently not everyone has this? Consequently this is configurable via skin.conf to return windchill(or other group_degree field) for those not setup to store appTemp in their databases.
 
-It currently (initial upload) is __only configured for Metric Units,__ but that can be changed with some tweaks (contributions welcomed). Those tweaks would for the most part be simple, except for the delta-T calculations, where a tad more work would be involved.
+Ie it read directly from the database it doesn't use weewx's internal formulas to massage the data to match units. It relies on the database value matching the dtabase units (US, METRIC, METRICWX) and then the [Units][[Groups]] as returned by the skin.conf file being correct. Based on those filds it will attewmpt to ensure that delta-T uses the required Metric units to get a sensible result. If this applies in your case, CHECK THE RESULT and confirm its working as it should. If it doesn't then report the issue and supply a fix (earn a 'Legend' star) or at the least report it (earn a Conributor star) :-)
 
 Thanks to:
 * Powerin (weewx-users) for the initial starting point, from the thread titled [Daily climatological summaries](https://groups.google.com/d/topic/weewx-user/cEAzvxv3T6Q/discussion)
 * [weewx-wd](https://bitbucket.org/ozgreg/weewx-wd/wiki/Home) (by ozgreg) for the delta-T calcs in wdSearchX3.py, these are also referenced by Powerin under the post [Wet bulb and DeltaT temperatures](https://groups.google.com/d/topic/weewx-user/IoBrtQ-OL3I/discussion) post.
 
 ***Instructions:***
-* Copy  the files -- datepicker.css, datepicker.js, wxobs.css -- to your weewx HTML ROOT directory. 
-* Add wxobs.php.html to the Seasons skin directory (or skin of your choosing - expect some tweaking to be needed.) 
-* The configuration section within wxobs.php.html exists between the __USER CONFIG AREA__ tags...
- <pre>
-//
-// START USER CONFIG AREA
-//
 
-// Not used?
-//date_default_timezone_set('Australia/Melbourne');
+1. Download the skin to your weewx machine.
 
-// Define one database type only (mysql OR sqlite)
-// Choice of sqlite (weewx default) or mysql (a weewx option)
-// Uncomment grouped variables and change to suit
-// for sqlite3 -- apt-get install php-sqlite3
-//$dbase='sqlite';
-//$sqlite_db = "/var/lib/weewx/weewx.sdb";
+    wget https://github.com/glennmckechnie/weewx-wxobs/archive/master.zip
 
-$dbase='mysql';
-$mysql_host = "localhost";
-$mysql_user = "your-mysql-username"; // CHANGE to suit yours
-$mysql_pass = "your-password";     // CHANGE to suit yours
-$mysql_base = "your-database-probably weewx"; // CHANGE to suit yours
+2. Change to that directory and run the wee_extension installer
 
-// Timings for displayed values in Historical section.
-// ext_interval is the spacing between records; 1800 is a half-hour.
-$ext_interval = 1800;
-// arch_interval is the number of records to averge over; choose a value that suits you.
-//$arch_interval = $ext_interval; // this means all records for the day are involved in calcs.
-$arch_interval = 60; // this only reads the last record for the interval, if matched to weewx.conf
-                     // archive_interval (mine happens to be 60 seconds - change to suit yours)
-                     // this becomes the equivalent of: one observation taken at that archive time.
-//
-// END USER CONFIG AREA
-//
-</pre>
+   sudo wee_extension --install master.zip
 
-* By editing the above section in wxobs.php.html, make a choice...
-* If using the weewx default database of sdb - sqlite: configure the sqlite database location and comment out __//$dbase='mysql';__ then uncomment __$dbase='sqlite';__ 
-* __OR__, if it's mysql archive then configure the mysql variables and check that the mysql flag is uncommented __$dbase='mysql';__
-* If you went with the sqlite option, you may need to install php-sqlite3, hopefully __apt-get install php-sqlite3__ will do that for you.
-* The template is configured to give half-hourly values - change __$ext interval__ if you want something else. 
-* The template is also pre-configured to return "snapshot" values; as if you had pen and paper and took a note of the readings at that time. 
-  Alternatively, it can be configured to give average values over the selected time span by commenting out (__//$arch_interval = 60;__) and uncommenting $arch_interval (__$arch_interval = $ext_interval;__)
-* It's intended that _$arch interval_ matches your weewx archive interval. If you have an archive interval of, say, 300 (5 minutes) then set this, to that! This is already a kludge (that does seem to work quite well)  but best not push it too far. We are aiming to look for a valid value within that time period, we'll supply 1 (not 0 or 2?).
-* Modify the seasons/skin.conf by adding the __wxobs section, etc.__ to CheetahGenerator, and __, datepicker.css, wxobs.css, datepicker.js, links.inc__
+3. Restart weewx
+
+   sudo /etc/init.d/weewx stop
+
+   sudo /etc/;init.d/weewx start
+
+4. It should work after that restart (and the report cycle has run). If everything is detected and is usable without further tweaks, it should present its report page at weewx/wxobs/index.php.
+   Read and understand the options in wxobs/skin.conf There are optional variables that you can configure and a suggestion on report timing.
+
+5. Problems?
+   Hopefully none but if there are then look at your logs - syslog and apache2/error.log. If you view them in a terminal window then you will see what's happening, as it occurs.
+   (I find multitail -f /var/log/syslog /var/log/apache2/error.log works for me {adjust to suit your install} -- apt-get install multi-tail if needed)
+   The error numbers reported in the apache2/error.log will refer to the index.php file in your webserver directory.
+   If using sqlite then you may just get a blank page and an error in /var/log/apache2/error.log that says __PHP Fatal error:  Uncaught Error: Class 'SQLite3' not found__
+   The following should remedy that...
+   <pre>
+   apt-get install php-sqlite3
+   
+   a2enmod php7.0
+   
+   phpenmod sqlite3
+   
+   /etc/init.d/apache2 force-reload
+   </pre>
 
 
-    [CheetahGenerator]
-    
-        [[ToDate]]
-           
-              [[[wxobs]]]
-                template = wxobs.php.tmpl
-
-    [CopyGenerator]
-    
-       copy_once = (leave existing values) , datepicker.css, wxobs.css, datepicker.js, links.inc
-       
-* links.inc is an optional include file for the seasons skin. As an example, it is referenced within wxobs.php.html in the top #includes section, under &lt;div id="widget group"&gt;. It just generates a section with a link to this page, obviously it can include other links/information for the seasons side menu. It also shows the usage with a GET request to load wxobs.php with the current timestamp.       
-
-And with that, you should be right to go.
-
-__One warning:__  datepicker.js doesn't (didn't) play well with the seasons javascript file (seasons.js). The toggle feature on the #includes was disrupted and didn't behave as it should. I've edited datepicker.js and removed __window.onload=null;__ from the  _function onDOMReady_
+__Note:__  datepicker.js doesn't (didn't) play well with the seasons javascript file (seasons.js). The toggle feature on the #includes was disrupted and didn't behave as it should. I've edited datepicker.js and removed __window.onload=null;__ from the  _function onDOMReady_
 
 Nothing seems to have broken (for me). It fixed the problem but I'm not knowledgable enough to know what side-effects I've invoked. YMMV. Expert knowledge and/or fixes welcomed.
 
