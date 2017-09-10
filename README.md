@@ -28,7 +28,7 @@ Thanks to:
 
    __sudo /etc/init.d/weewx stop__
 
-__sudo /etc/;init.d/weewx start__
+   __sudo /etc/init.d/weewx start__
 
 4. It should work after that restart (and the report cycle has run). If everything is detected and is usable without further tweaks, it should present its report page at weewx/wxobs/index.php.
    Read and understand the options in wxobs/skin.conf There are optional variables that you can configure and a suggestion on report timing.
