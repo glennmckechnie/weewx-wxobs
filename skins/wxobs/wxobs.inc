@@ -59,33 +59,33 @@ function deltaT($units, $Tc, $RH, $P, $debug)
 //if ('$units' === '1' ) {
     if ('$unit.label.outTemp' === "&#176;F") {
          $Tc=($Tc-32)*5/9; // assuming degF - return degC
-        if ($debug==='1') {
+        if ($debug==='2') {
             echo "<p>delta-T<br> assumed degF: Tc has become $Tc<p>";
         }
     } else {
-        if ($debug==='1') {
+        if ($debug==='2') {
             echo "<p>delta-T<br> assumed degC: Tc remains $Tc<p>";
         }
     }
     if ('$unit.label.barometer' === ' hPa') { //leading space is critical!
         $P=$P;
-        if ($debug==='1') {
+        if ($debug==='2') {
             echo "<p>delta-T<br> assuming hPa: P remains $P<p>";
         }
     } elseif ('$unit.label.barometer' === ' inHg') { //leading space is critical!
         $P=($P*33.86389); //assuming inHg - return hPa
-        if ($debug==='1') {
+        if ($debug==='2') {
             echo "<p>delta-T<br> assumed inHg: P has become $P<p>";
         }
     } elseif ('$unit.label.barometer' === ' mmHg') { //leading space is critical!
         $P=($P/0.75006168); //assuming mmHg - return hPa
-        if ($debug==='1') {
+        if ($debug==='2') {
             echo "<p>delta-T<br> assumed mmHg: P has become $P<p>";
         }
     } else {
         //echo "Unrecognized pressure units - conversion code is not present";
         $dT="?units?";
-        if ($debug==='1') {
+        if ($debug==='2') {
             echo "<p>delta-T<br> ($P) returned, assuming nothing: P has become $P<p>";
         }
         return;
