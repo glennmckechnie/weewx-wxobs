@@ -74,8 +74,12 @@ class wxobs(SearchList):
         doesn't detect your incoming unit types.
         This is a switch (boolean) to turn it off.
 
+        wxobs_debug: Allow index.php to include debugging info if set to 1
+        or if set to 5, this script to the weewx log
+
         """
-        self.sql_debug = '0'
+        self.wxobs_debug = int(self.generator.skin_dict['wxobs'].get(
+            'wxobs_debug', '0'))
 
         self.ext_interval = self.generator.skin_dict['wxobs'].get(
             'ext_interval', '1800')
@@ -98,7 +102,7 @@ class wxobs(SearchList):
 
         def_dbase = self.generator.config_dict['DataBindings'] \
             ['wx_binding'].get('database')
-        if self.sql_debug >= 5:
+        if self.wxobs_debug >= 5:
             logdbg("database is %s" %  def_dbase)
 
         if def_dbase == 'archive_mysql':
@@ -111,7 +115,7 @@ class wxobs(SearchList):
                 ['MySQL'].get('user')
             self.mysql_pass = self.generator.config_dict['DatabaseTypes'] \
                 ['MySQL'].get('password')
-            if self.sql_debug >= 5:
+            if self.wxobs_debug >= 5:
                 loginf("mysql database is %s, %s, %s, %s" % (
                     self.mysql_base, self.mysql_host,
                     self.mysql_user, self.mysql_pass))
@@ -124,7 +128,7 @@ class wxobs(SearchList):
 
             self.sqlite_db = ("%s/%s" %(self.sq_root, self.sq_dbase))
 
-            if self.sql_debug >= 5:
+            if self.wxobs_debug >= 5:
                 loginf("sqlite database is %s, %s, %s" % (
                     self.sq_dbase, self.sq_root, self.sqlite_db))
 
