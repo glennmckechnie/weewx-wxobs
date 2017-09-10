@@ -30,7 +30,7 @@
    &nbsp;<img src="favicon.ico" alt="">
    </td>
     <td>
-    wxobs - <a href="wxobs.php?datepicker=$day.dateTime.format('%d-%m-%Y')&submitDate=Show+records" target="_blank">wxobs</a>
+    wxobs - <a href="index.php?datepicker=$day.dateTime.format('%d-%m-%Y')&submitDate=Show+records" target="_blank">Daily summaries</a>
     </td>
    </tr>
    </table>
