@@ -58,6 +58,22 @@ For the current debian installation here, the following remedied that...
    </pre>
    Hopefully that applies for your setup, or at least gives some direction.
 
+6. If you run the seasons skin as your main skin ( weewx/seasons ) then the index.php file should pick up seasons.css and won't look so... ordinary?, it will also use the seasons.js so the __links.inc__ widget will work as intended.
+   
+   The file, wxobs.inc contains the core of the php and form data. If you have a blank template for your skin (everything above and below the &lt;body&gt; &lt;/body&gt; tags) then simply copy the contents of wxobs.inc between those tags and it should work, and use the skins style (you may have to fix a few paths in the new php file)
+
+
+7.To uninstall
+   
+   <pre>sudo wee_extension --uninstall wxobs</pre>
+   
+   and then restart weewx
+
+   <pre>
+   sudo /etc/init.d/weewx stop
+
+   sudo /etc/init.d/weewx start
+   </pre>
 
 __Note:__  If you are using the seasons skin. datepicker.js doesn't (didn't) play well with the seasons javascript file (seasons.js). The toggle feature on the #includes was disrupted and didn't behave as it should. I've edited datepicker.js and removed __window.onload=null;__ from the  _function onDOMReady_
 
