@@ -60,7 +60,8 @@ For the current debian installation here, the following remedied that...
 
 6. If you run the seasons skin as your main skin ( weewx/seasons ) then the index.php file should pick up seasons.css and won't look so... ordinary?, it will also use the seasons.js so the __links.inc__ widget will work as intended.
    
-   The file, wxobs.inc contains the core of the php and form data. If you have a blank template for your skin (everything above and below the &lt;body&gt; &lt;/body&gt; tags) then simply copy the contents of wxobs.inc between those tags and it should work, and use the skins style (you may have to fix a few paths in the new php file)
+   The file wxobs.inc contains the core of the php and form data. If you have a blank template for your skin (everything above and below the &lt;body&gt; &lt;/body&gt; tags) then simply copy the contents of wxobs.inc (or simply add the line #include wxobs.inc, so that cheetahGenerator will do all the work) between those tags and it should work and ibe able to use your skins style (you may have to fix a few paths in the headers of the new php file)
+   You'll also need to duplicate the datepicker.css, datepicker.js and wxobs.css stanzas into the new &lt;head&gt;.
 
 
 7.To uninstall
