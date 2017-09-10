@@ -43,7 +43,7 @@ function ordinalCompass($degr)
     $compass = $default_ordinate_names[$sector];
 }
 
-function deltaT($units, $Tc, $RH, $P)
+function deltaT($units, $Tc, $RH, $P, $debug)
 {
     global $dT;
  // DeltaT calculations
@@ -101,6 +101,7 @@ function deltaT($units, $Tc, $RH, $P)
 //$DeltaT = $Tc - $WBc;
     $dT = abs(round($Tc - $WBc, 1));
 }
+
 
 $debug='$wxobs_debug';
 $tr_bgrnd="";
@@ -235,7 +236,7 @@ echo "<!-- start data tables -->\n
    echo "<td>$metdew</td>";
    $humid = round($latest_row[4], 1);
    echo "<td>$humid</td>";
-   deltaT($units, $latest_row[1], $latest_row[4], $latest_row[8]);
+   deltaT($units, $latest_row[1], $latest_row[4], $latest_row[8], $debug);
    echo "<td>$dT</td>";
    ordinalCompass($latest_row[7]);
    echo "<td>$compass</td>"; //wind direction ordinal
@@ -406,7 +407,7 @@ for ($t=$c_ycle; $t>=0; $t--) {
         echo "<td>$metdew</td>";
         $humid = round($row[4], 1);
         echo "<td>$humid</td>";
-        deltaT($units, $row[1], $row[4], $row[8]);
+        deltaT($units, $row[1], $row[4], $row[8], $debug);
         echo "<td>$dT</td>";
         ordinalCompass($row[7]);
         echo "<td>$compass</td>"; //wind direction ORDINAL
