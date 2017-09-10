@@ -381,7 +381,8 @@ if ($_REQUEST['datepicker']) {
 for ($t=$c_ycle; $t>=0; $t--) {
     $starttime = $unixtime + ($t*'$ext_interval');
     $endtime = $starttime + '$arch_interval';
-
+// mysql will return the date as dd-mm-yyyy (as per the db->query statements following) adjust if desired.
+// sqlite will return the date as yyyy-mm-dd (default)
     if ('$dbase' === 'mysql') {
            $results = $db->query("SELECT FROM_UNIXTIME(datetime, '%d-%m-%Y %H:%i'), avg(outTemp), avg($appTemp), avg(dewPoint), avg(outHumidity), AVG(windSpeed), AVG(windGust), AVG(windDir), avg(barometer), sum(rain) FROM archive WHERE dateTime >= $starttime and dateTime < $endtime;");
            $row = $results->fetch_array();
