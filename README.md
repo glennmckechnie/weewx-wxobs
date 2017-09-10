@@ -18,17 +18,19 @@ Thanks to:
 
 1. Download the skin to your weewx machine.
 
-    __wget https://github.com/glennmckechnie/weewx-wxobs/archive/master.zip__
+    <pre>wget https://github.com/glennmckechnie/weewx-wxobs/archive/master.zip</pre>
     
 2. Change to that directory and run the wee_extension installer
    
-   __sudo wee_extension --install master.zip__
+   <pre>sudo wee_extension --install master.zip</pre>
    
 3. Restart weewx
 
-   __sudo /etc/init.d/weewx stop__
+   <pre>
+   sudo /etc/init.d/weewx stop
 
-   __sudo /etc/init.d/weewx start__
+   sudo /etc/init.d/weewx start
+   </pre>
 
 4. It should work after that restart (and the report cycle has run). If everything is detected and is usable without further tweaks, it should present its report page at weewx/wxobs/index.php.
    Read and understand the options in wxobs/skin.conf There are optional variables that you can configure and a suggestion on report timing.
