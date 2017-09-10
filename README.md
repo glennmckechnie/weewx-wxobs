@@ -17,20 +17,29 @@ Thanks to:
 ***Instructions:***
 
 1. Download the skin to your weewx machine.
+
     __wget https://github.com/glennmckechnie/weewx-wxobs/archive/master.zip__
+    
 2. Change to that directory and run the wee_extension installer
+   
    __sudo wee_extension --install master.zip__
+   
 3. Restart weewx
+
    __sudo /etc/init.d/weewx stop__
-   __sudo /etc/;init.d/weewx start__
+
+__sudo /etc/;init.d/weewx start__
+
 4. It should work after that restart (and the report cycle has run). If everything is detected and is usable without further tweaks, it should present its report page at weewx/wxobs/index.php.
    Read and understand the options in wxobs/skin.conf There are optional variables that you can configure and a suggestion on report timing.
+
 5. Problems?
    Hopefully none but if there are then look at your logs - syslog and apache2/error.log. If you view them in a terminal window then you will see what's happening, as it occurs.
    (I find multitail -f /var/log/syslog /var/log/apache2/error.log works for me {adjust to suit your install} -- apt-get install multi-tail if needed)
    The error numbers reported in the apache2/error.log will refer to the index.php file in your webserver directory.
    If using sqlite then you may just get a blank page and an error in /var/log/apache2/error.log that says __PHP Fatal error:  Uncaught Error: Class 'SQLite3' not found__
-   The following should remedy that...
+
+For the current debian installation here, the following remedied that...
    <pre>
    apt-get install php-sqlite3
    
@@ -40,6 +49,7 @@ Thanks to:
    
    /etc/init.d/apache2 force-reload
    </pre>
+   Hopefully that applies for your setup, or at least gives some direction.
 
 
 __Note:__  If you are using the seasons skin. datepicker.js doesn't (didn't) play well with the seasons javascript file (seasons.js). The toggle feature on the #includes was disrupted and didn't behave as it should. I've edited datepicker.js and removed __window.onload=null;__ from the  _function onDOMReady_
