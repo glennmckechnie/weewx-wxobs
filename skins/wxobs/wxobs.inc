@@ -25,9 +25,16 @@
    </div>
 <?php
 
+/**
+* ToDo
+* stackoverflow.com/questions/9866139/database-locked-while-trying-to-access-from-php-script
+*  $db->exec('PRAGMA journal_mode = wal;');
+*/
 function ordinalCompass($degr)
 {
-    // templated from weewx code. Mistakes are mine!
+    /*
+    * Templated from weewx code. Mistakes are mine!
+    */
     global $compass;
     $default_ordinate_names = array ('N', 'NNE','NE', 'ENE', 'E', 'ESE', 'SE', 'SSE',
                           'S', 'SSW','SW', 'WSW', 'W', 'WNW', 'NW', 'NNW',
@@ -45,13 +52,15 @@ function ordinalCompass($degr)
 
 function deltaT($Tc, $RH, $P, $debug)
 {
+    /*
+    * DeltaT calculations
+    * sourced from wdSearchX3.py, part of the weewx-wd package by oz greg
+    * available at https://bitbucket.org/ozgreg/weewx-wd/wiki/Home
+    * $Tc = outTemp.degree_C
+    * $RH = outHumidity
+    * $P = pressure.hPa
+    */
     global $dT;
-     // DeltaT calculations
-     // sourced from wdSearchX3.py, part of the weewx-wd package by oz greg
-     // available at https://bitbucket.org/ozgreg/weewx-wd/wiki/Home
-     //$Tc = outTemp.degree_C
-     //$RH = outHumidity
-     //$P = pressure.hPa
     if ('$unit.label.outTemp' === '&#176;F') {
          $Tc=($Tc-32)*5/9; // assuming degF - return degC
         if ($debug==='2') {
@@ -81,7 +90,7 @@ function deltaT($Tc, $RH, $P, $debug)
         //echo "Unrecognized pressure units - conversion code is not present";
         $dT="?units?";
         if ($debug==='2') {
-            echo "<p>delta-T<br> ($P) returned, assuming nothing: P has become $P<p>";
+            echo "<p>delta-T<br>($P) returned, assuming nothing: P has become $P<p>";
         }
         return;
     }
@@ -155,21 +164,18 @@ if ($debug==='1') {
 if ($debug==='1') {
     echo "<p>want delta is $want_delta with show warning of $show_warning<br>
          '$targ_unit' === 'US' || '$unit.label.outTemp' !== '&#176;C' ||
-         '$unit.label.barometer' !== ' hPa')</p>";
+         '$unit.label.barometer' !== ' hPa'</p>";
 }
 
 if ($show_warning) {
-
     if ('$targ_unit' === 'US' || '$unit.label.outTemp' !== '&#176;C'
         || '$unit.label.barometer' !== ' hPa'
     ) {
-        //$units = '1';
         echo "<div style=\"background-color:#dac0cd\">
               <h2>delta-T calculation: configuration notes</h2>
-              <p>weewx reports that the database is in $targ_unit (imperial) units.
-              <br>
-              Or that the Temperature, pressure units differ from the degC or hPa
-              required to correctly calculate the delta-T values. This may be
+              <p>Weewx reports that the database is in $targ_unit (imperial) units,
+              and /or that the temperature, pressure units differ from the degC or
+              hPa required to correctly calculate the delta-T values. This may be
               compensated for but we need to be sure that what's being reported is
               correct.</p>
               <p>Review your wxobs/skin.conf file and match the group_fields with
@@ -184,25 +190,29 @@ if ($show_warning) {
               Whatever units are used in the database needs to be reflected
               in the skin.conf file.</p>
               <p>ie:-<br>
-              If you know the database stores the temperature in C then you need to
-              specify it (or deg F accordingly)<br>
-              group_temperature  = degree_C</p>
+              If you know the database stores the temperature in &#176;C then you
+              need to specify it<br>
+              group_temperature  = degree_C<br> The same logic applies if it's
+              &#176;F - like for like.</p>
               <p>If you know the database stores the pressure in hPa then you need
               to specify it (or inHg, mmHG or other) <br>
               group_pressure     = hPa</p>
-              <p>The code will compensate correctly for degC, degF, hPa, inHg, 
+              <p>The code will compensate correctly for &#176;C, &#176;F, hPa, inHg,
               mmHg.  BUT only if you tell it in the skin.conf file (or blind luck
               favours you!)<br>
               (Others units aren't accounted for, they'll need to be added to the
               code.)</p>
               <p>&nbsp;&nbsp;&nbsp; Then: <b>Check the results!</b></p>
-              <p>Finally, when all is working correctly you can turn this message
-              off in that same skin.conf file by uncommenting the line<br>
-              <b>#show_warning = False</b></p></div>";
-    } else {
-        // $units = '0';
+              <p>Finally, when all is working to your satisfaction, you can turn
+              this message off manually by uncommenting the line<br>
+              <b>#show_warning = False</b><br>
+              in that same config file.<br>
+              The message will also dissappear if the correct units (degC and hPa)
+              are detected.
+              </p></div>";
     }
 }
+
 // Start of Latest observations
 // Shows the latest record and the rainfall total
    $day_start = mktime('0', '0', '0', date('n'), date('j'), date('Y'));
@@ -213,11 +223,12 @@ if ($debug==='1') {
     <br> endtime uses the now_time value ( $endtime )</p>";
 }
 
-   $last_entry = $db->query(
-       "SELECT dateTime FROM archive ORDER BY datetime DESC LIMIT 1"
-   );
-   if ('$dbase' === 'mysql') {
-       $last_entry = $last_entry->fetch_array();
+    $last_entry = $db->query(
+        "SELECT dateTime FROM archive ORDER BY datetime DESC LIMIT 1"
+    );
+
+    if ('$dbase' === 'mysql') {
+        $last_entry = $last_entry->fetch_array();
     } else {
         $last_entry = $last_entry->fetchArray();
     }
@@ -229,6 +240,7 @@ if ($debug==='1') {
             $appTemp, dewPoint, outHumidity, windSpeed, windGust, windDir,
             barometer, rain FROM archive WHERE dateTime = $latest_date"
         );
+
         $latest_row = $last_values->fetch_array();
     } else {
         $last_values = $db->query(
@@ -236,6 +248,7 @@ if ($debug==='1') {
             outTemp, $appTemp, dewPoint, outHumidity, windSpeed, windGust,
             windDir, barometer, rain FROM archive WHERE dateTime = $latest_date"
         );
+
         $latest_row = $last_values->fetchArray();
     }
 
@@ -244,12 +257,14 @@ if ($debug==='1') {
             "SELECT sum(rain) FROM archive WHERE dateTime
             >= $day_start and dateTime < $endtime;"
         );
+
         $rain_row = $rain_total->fetch_array();
     } else {
         $rain_total = $db->query(
             "SELECT sum(rain) FROM archive WHERE dateTime
             >= $day_start and dateTime < $endtime;"
         );
+
         $rain_row = $rain_total->fetchArray();
     }
 
@@ -266,7 +281,7 @@ if ($debug==='1') {
         }
     }
 
-    echo "<!-- start data tables -->\n
+    echo "<div class=\"wxdata\">\n<!-- start data tables -->\n
 <h1>Latest Weather Observations</h1>
 <table class=\"wxdata\">
   <thead>
@@ -368,6 +383,7 @@ if ($debug==='1') {
             avg(windGust), avg(windDir), avg(barometer), sum(rain) FROM archive
             WHERE dateTime >= $starttime and dateTime < $endtime;"
         );
+
         $stats_row = $stats_snap->fetch_array();
     } else {
         $stats_snap = $db->query(
@@ -377,6 +393,7 @@ if ($debug==='1') {
             avg(windDir), avg(barometer), sum(rain) FROM archive WHERE dateTime
             >= $starttime and dateTime < $endtime;"
         );
+
         $stats_row = $stats_snap->fetchArray();
     }
     $hdate = $stats_row[0];
@@ -493,6 +510,7 @@ if ($debug==='1') {
                    AVG(windGust), AVG(windDir), avg(barometer), sum(rain) FROM
                    archive WHERE dateTime >= $starttime and dateTime < $endtime;"
                );
+
                $row = $results->fetch_array();
         } else {
             $results = $db->query(
@@ -502,6 +520,7 @@ if ($debug==='1') {
                 total(rain) FROM archive WHERE dateTime>= $starttime and
                 dateTime< $endtime;"
             );
+
             $row = $results->fetchArray();
         }
         if ($tr_bgrnd != "wxhint") {
@@ -510,6 +529,7 @@ if ($debug==='1') {
             $tr_bgrnd = "wxwht";
         }
             $hdate = $row[0];
+
         if ($hdate != "") {
             echo "<tr class=\"$tr_bgrnd\"><td> $hdate <!-- $starttime-$endtime -->";
             $metTemp = round($row[1], 1);
@@ -548,6 +568,8 @@ if ($debug==='1') {
             echo "<td>$metRain</td></tr>";
         }
     }
-    echo "</tbody></table><!-- end snapshot observations -->";
+    echo "</tbody></table></div><!-- end snapshot observations -->";
+    $db->close();
+    unset($db);
 
     ?>
