@@ -67,11 +67,11 @@ class wxobs(SearchList):
         displayed value returned from the database. This satisfies a quirk in
         my setup where the database is in m/s but I want k/hour displayed.
 
-        us_note: An information message will appear on the report page
-        (index.php) if the database is in US (imperial) units. This is to
-        inform you that the delta-T calcs will be adjusted for the incoming
-        units, and there may be further work required, especially if the script
-        doesn't detect your incoming unit types.
+        show_warning: An information message will appear on the report page
+        (index.php) if the database is in US units (imperial) or units are
+        detected that don't match the native units required for the delta-T
+        calcs.
+        An information div is included in the report page when this occurs.
         This is a switch (boolean) to turn it off.
 
         wxobs_debug: Allow index.php to include debugging info if set to 1
@@ -92,8 +92,8 @@ class wxobs(SearchList):
             'app_Temp', 'appTemp')
         self.wind_adjust = self.generator.skin_dict['wxobs'].get(
             'wind_adjust', '1')
-        self.us_note = to_bool(self.generator.skin_dict['wxobs'].get(
-            'show_usnote', True))
+        self.show_warning = to_bool(self.generator.skin_dict['wxobs'].get(
+            'show_warning', True))
 
 
 #       target_unit = METRICWX    # Options are 'US', 'METRICWX', or 'METRIC'
