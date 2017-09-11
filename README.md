@@ -19,11 +19,11 @@ Thanks to:
 
 1. Download the skin to your weewx machine.
 
-    <pre>wget https://github.com/glennmckechnie/weewx-wxobs/archive/master.zip</pre>
+    <pre>wget -O weewx-wxobs.zip https://github.com/glennmckechnie/weewx-wxobs/archive/master.zip</pre>
     
 2. Change to that directory and run the wee_extension installer
    
-   <pre>sudo wee_extension --install master.zip</pre>
+   <pre>sudo wee_extension --install weewx-wxobs.zip</pre>
    
 3. Restart weewx
 
