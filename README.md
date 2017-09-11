@@ -1,13 +1,13 @@
 # weewx-wxobs
- A skin that integrates with weewx and provides a report page that uses php to extract archival data (Daily climatological summaries) from the weewx database and present it as a series of snapshots (currently half-hourly) averaged throughout the chosen day. It includes delta-T ( used for agricultural purposes. )
+ A skin that integrates with weewx and provides a php driven report page to extract archival data (Daily climatological summaries) from the weewx database. It then presents it as a series of snapshots (currently half-hourly) averaged throughout the chosen day. There is an option to include appTemp, and delta-T ( used for agricultural purposes. )
 
 It is set out in the style of the _Latest Weather Observations_ pages that the Australian Weather Bureau - BOM provides. eg:- [Ballarat](http://www.bom.gov.au/products/IDV60801/IDV60801.94852.shtml)  I find those pages useful, that one especially when keeping an eye on the accuracy of my station.
 
-It is configured to use the weewx.conf settings as its defaults. I don't use sqlite but have tried this on a simulator version with US settings and it appears to work correctly. Feedback, corrections are welcomed on that - or anything here.
+It is configured to use the weewx.conf settings as its defaults. It works well with  mysql and although I don't use sqlite, it's been run against a simulator version with US settings and also works correctly there. Feedback, corrections are welcomed on that - or anything here.
 
-I've used appTemp for one of the fields, apparently not everyone has this? Consequently this is configurable via skin.conf to return windchill (or another group degree field) for those not setup to store appTemp in their databases.
+I've used appTemp for one of the fields, apparently not everyone has this? Consequently this is configurable via skin.conf to return windchill (or another group degree field) for those not setup to store appTemp in their databases. Delta-T is an either or selection, it can be skipped or configured as an additional column.
 
-It reads directly from the database so it doesn't use weewx's internal processes to massage the data to match units. It relies on the database value matching the database units (US, METRIC, METRICWX) and then the [Units][[Groups]]group**** as returned by the skin.conf file being correct. Based on those fields it will attempt to ensure that delta-T uses the required Metric units to get a sensible result.
+It reads directly from the database so it doesn't use weewx's internal processes to massage the data to match units. It relies on the database value matching the database units (US, METRIC, METRICWX) and then the [Units][[Groups]]group**** as returned by the skin.conf file being correct. Based on those fields it will attempt to ensure that the optional delta-T uses the required Metric units to get a sensible result.
 
 If this applies in your case, CHECK THE RESULT and confirm its working as it should. If it doesn't then report the issue and supply a fix (earn a __Legend__ star) or at the least report it (earn a __Contributor__ star) :-)
 
