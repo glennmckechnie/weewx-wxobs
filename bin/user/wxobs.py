@@ -74,6 +74,10 @@ class wxobs(SearchList):
         An information div is included in the report page when this occurs.
         This is a switch (boolean) to turn it off.
 
+        calculate_deltaT: Whether to generate deltaT for the report page.
+        Default is not to generate that data.
+        This is a switch (boolean) to turn it back on.
+
         wxobs_debug: Allow index.php to include debugging info if set to 1
         or if set to 5, this script to the weewx log
 
@@ -94,6 +98,11 @@ class wxobs(SearchList):
             'wind_adjust', '1')
         self.show_warning = to_bool(self.generator.skin_dict['wxobs'].get(
             'show_warning', True))
+        self.want_delta = to_bool(self.generator.skin_dict['wxobs'].get(
+            'calculate_deltaT', False))
+        if not self.want_delta:
+            self.show_warning = to_bool(self.generator.skin_dict['wxobs'].get(
+                'show_warning', False))
 
 
 #       target_unit = METRICWX    # Options are 'US', 'METRICWX', or 'METRIC'
