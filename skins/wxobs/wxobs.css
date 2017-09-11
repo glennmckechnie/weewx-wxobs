@@ -19,7 +19,7 @@ th.wxheadr {
 
 
 table.wxdata {
-    width:80%;
+    width:90%;
     border:1px #C0CDDA solid; /*#000 */
     border:1px;
     cellspacing:1px ;
@@ -28,7 +28,7 @@ table.wxdata {
 table.wxdata td {
      text-align: center;
      font-family:Arial, sans-serif;
-     font-size:80%;
+     font-size:90%;
      padding:2px;
      margin:1;
      border:1px solid #C0CDDA; 

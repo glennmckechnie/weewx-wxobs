@@ -269,7 +269,7 @@ if ($debug==='1') {
     }
 
     if ($want_delta) {
-        $delta_label="<th class=\"wxheadr\" rowspan=\"2\">delta-T<br>
+        $delta_label="<th class=\"wxheadr\" rowspan=\"2\">delta&dash;T<br>
             $unit.label.outTemp</th>";
         if ($debug==='1') {
             echo "<p>want_delta is $want_delta so ...<br> label is '$delta_label'";
@@ -458,7 +458,7 @@ if ($debug==='1') {
     echo "</tbody></table>\n<!-- end snapshot summary observations -->\n";
 
     if ($want_delta) {
-        $delta_label="<th class=\"wxheadr\" rowspan=\"2\">delta-T<br>
+        $delta_label="<th class=\"wxheadr\" rowspan=\"2\">delta&dash;T<br>
             $unit.label.outTemp</th>";
         if ($debug==='1') {
             echo "<p>want_delta is $want_delta so ...<br> label is '$delta_label'";
