@@ -33,7 +33,11 @@ Thanks to:
    sudo /etc/init.d/weewx start
    </pre>
 
-4. It should work after that restart (and the report cycle has run). If everything is detected and is usable without further tweaks, it should present its report page at weewx/wxobs/index.php.
+4. It should work after that restart (and the report cycle has run). If your database and units satisfy the requirements it will be usable without further tweaks. If the database or detected units differ from delta-T's native units then a check is required and this will be displayed on the report page, it should be unmissable!
+
+__DON'T PANIC!__  Read it, follow the directions, make the changes (if required) and when done, turn the message off from within the skin.conf file.
+
+, it should present its report page at weewx/wxobs/index.php.
 
    Read and understand the options in wxobs/skin.conf There are optional variables that you can configure and a suggestion on report timing.
 
