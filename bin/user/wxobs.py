@@ -60,12 +60,12 @@ class wxobs(SearchList):
         app_Temp: This is a recent addition to weewx and is not enabled by
         default. The calculation is performed but there is no field in the stock
         database. This variable allows for the substitution with another value
-        - windchill is just one suggestion.
+        The default is to use windchill.
         Keep it to the group_degrees (because the label is hard coded in.)
 
         wind_adjust: This can be used to supply a constant to adjust the
         displayed value returned from the database. This satisfies a quirk in
-        my setup where the database is in m/s but I want k/hour displayed.
+        my setup where the database is in m/s but I want kmh displayed.
 
         show_warning: An information message will appear on the report page
         (index.php) if the database is in US units (imperial) or units are
@@ -93,7 +93,7 @@ class wxobs(SearchList):
             self.arch_interval = self.generator.config_dict['StdArchive'] \
                 .get('archive_interval')
         self.appTemp = self.generator.skin_dict['wxobs'].get(
-            'app_Temp', 'appTemp')
+            'app_Temp', 'windchill')
         self.wind_adjust = self.generator.skin_dict['wxobs'].get(
             'wind_adjust', '1')
         self.show_warning = to_bool(self.generator.skin_dict['wxobs'].get(

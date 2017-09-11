@@ -33,7 +33,7 @@ Thanks to:
    sudo /etc/init.d/weewx start
    </pre>
 
-4. This script no longer generates appTemp, nor delta-T values by default. They are selectable within the skin.conf file. This means it should all work after that restart above (and the report cycle has run to generate the page!). If you select delta-T and your database and units satisfy the requirements it will be usable without further tweaks. More likely though, is that the database or detected units will differ from delta-T's native units and some configuration will be required. This will start with a set of instructions being displayed on the report page, it should be un-missable!
+4. This script no longer generates appTemp, nor delta-T values by default. They are selectable within the skin.conf file. This means it should all work after that restart above (and the report cycle has run to generate the page!). If you select delta-T and your database and units satisfy the requirements then it will be usable without further tweaks. More likely though, is that the database or detected units will differ from delta-T's native units and some configuration will be required. This will start with a set of instructions being displayed on the report page, it should be un-missable!
 
 __DON'T PANIC!__  Read it, follow the directions, make the changes (if required) and when done, turn the message off from within the skin.conf file.
 
