@@ -19,10 +19,11 @@ th.wxheadr {
 
 
 table.wxdata {
+    width:80%;
     border:1px #C0CDDA solid; /*#000 */
-      border:1px;
-      cellspacing:1px ;
-      }
+    border:1px;
+    cellspacing:1px ;
+    }
 
 table.wxdata td {
      text-align: center;
@@ -34,3 +35,9 @@ table.wxdata td {
      border-left-color:#fff; border-top-color: #fff;
      empty-cells:show;
     }
+
+div.wxdata {
+    /*width:400px;*/
+    width:90%;
+    }
+
