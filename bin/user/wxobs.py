@@ -102,6 +102,8 @@ class wxobs(SearchList):
         if not self.want_delta:
             self.show_warning = to_bool(self.generator.skin_dict['wxobs'].get(
                 'show_warning', False))
+        self.include_file = self.generator.skin_dict['wxobs'].get(
+            'include_file', '/tmp/wxobs_inc.php')
 
 
 #       target_unit = METRICWX    # Options are 'US', 'METRICWX', or 'METRIC'
@@ -123,6 +125,11 @@ class wxobs(SearchList):
                 ['MySQL'].get('user')
             self.mysql_pass = self.generator.config_dict['DatabaseTypes'] \
                 ['MySQL'].get('password')
+            v_al = ["<?php\n $php_dbase = '%s';\n $php_mysql_base = '%s';\n"
+                    " $php_mysql_host = '%s';\n $php_mysql_user = '%s';\n"
+                    " $php_mysql_pass = '%s';\n" %
+                    (self.dbase, self.mysql_base, self.mysql_host,
+                     self.mysql_user, self.mysql_pass)]
             if self.wxobs_debug >= 5:
                 loginf("mysql database is %s, %s, %s, %s" % (
                     self.mysql_base, self.mysql_host,
@@ -135,10 +142,18 @@ class wxobs(SearchList):
                 ['SQLite'].get('SQLITE_ROOT')
 
             self.sqlite_db = ("%s/%s" %(self.sq_root, self.sq_dbase))
+            v_al = ["<?php\n $php_dbase = 'sqlite';\n $php_sqlite_db = '%s';\n" %
+                    self.sqlite_db]
 
             if self.wxobs_debug >= 5:
                 loginf("sqlite database is %s, %s, %s" % (
                     self.sq_dbase, self.sq_root, self.sqlite_db))
+
+        self.phpinc_file = '/tmp/wxobs_inc.php'
+
+        php_inc = open(self.phpinc_file, 'w')
+        php_inc.writelines(v_al)
+        php_inc.close()
 
 if __name__ == '__main__':
     # Hmmm!
