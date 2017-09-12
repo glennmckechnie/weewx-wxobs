@@ -17,7 +17,7 @@
 <div id='extlink_widget' class="widget">
   <div class="widget_title">
    <a class="widget_control_left"
-        onclick="toggle_widget('extlink')">External Links</a>
+        onclick="toggle_widget('extlink')">Local Links</a>
         &nbsp;
    <a class="widget_control"
      onclick="toggle_widget('extlink')">&diams;</a>
