@@ -31,7 +31,7 @@ table.wxdata td {
      font-size:90%;
      padding:2px;
      margin:1;
-     border:1px solid #C0CDDA; 
+     border:1px solid #C0CDDA;
      border-left-color:#fff; border-top-color: #fff;
      empty-cells:show;
     }
@@ -39,5 +39,9 @@ table.wxdata td {
 div.wxdata {
     /*width:400px;*/
     width:90%;
+    }
+div.alert {
+    width:70%;
+    background-color:#dac0cd;
     }
 
