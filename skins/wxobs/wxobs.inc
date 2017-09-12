@@ -29,8 +29,14 @@
 * ToDo
 * stackoverflow.com/questions/9866139/database-locked-while-trying-to-access-from-php-script
 *  $db->exec('PRAGMA journal_mode = wal;');
+*
+* Debugging:
+* 1 and above is low level, variables, some logic.
+* 3 only for delta-T final values (low level - if enabled)
+* 4 only for delta-T unit conversion calcs (verbose) - if enabled
+* 5 only for ordinalCompass conversion calcs (N, NE...CALM) (verbose)
 */
-function ordinalCompass($degr)
+function ordinalCompass($degr, $debug)
 {
     /*
     * Templated from weewx code. Mistakes are mine!
@@ -39,8 +45,14 @@ function ordinalCompass($degr)
     $default_ordinate_names = array ('N', 'NNE','NE', 'ENE', 'E', 'ESE', 'SE', 'SSE',
                           'S', 'SSW','SW', 'WSW', 'W', 'WNW', 'NW', 'NNW',
                             'N/A'); //17 objects
+    if ($debug == '5') {
+        echo "<p>degr passed as '$degr'<br>";
+    }
     if ($degr == 0) {
         $compass = "CALM";
+        if ($debug == '5') {
+            echo "so compass is $compass</p>";
+        }
         return $compass;
     }
 
@@ -48,6 +60,9 @@ function ordinalCompass($degr)
     $degree = ($degr + $sector_size/2.0) % 360.0;
     $sector = intval($degree / $sector_size);
     $compass = $default_ordinate_names[$sector];
+    if ($debug == '5') {
+        echo "so degree is $degree, sector is $sector: results in compass $compass</p>";
+    }
 }
 
 function deltaT($Tc, $RH, $P, $debug)
@@ -63,33 +78,33 @@ function deltaT($Tc, $RH, $P, $debug)
     global $dT;
     if ('$unit.label.outTemp' === '&#176;F') {
          $Tc=($Tc-32)*5/9; // assuming degF - return degC
-        if ($debug==='2') {
+        if ($debug=='4') {
             echo "<p>delta-T<br> assumed degF: Tc has become $Tc<p>";
         }
     } else {
-        if ($debug==='2') {
+        if ($debug=='4') {
             echo "<p>delta-T<br> assumed degC: Tc remains $Tc<p>";
         }
     }
     if ('$unit.label.barometer' === ' hPa') { //leading space is critical!
         $P=$P;
-        if ($debug==='2') {
+        if ($debug=='4') {
             echo "<p>delta-T<br> assuming hPa: P remains $P<p>";
         }
     } elseif ('$unit.label.barometer' === ' inHg') { //leading space is critical!
         $P=($P*33.86389); //assuming inHg - return hPa
-        if ($debug==='2') {
+        if ($debug=='4') {
             echo "<p>delta-T<br> assumed inHg: P has become $P<p>";
         }
     } elseif ('$unit.label.barometer' === ' mmHg') { //leading space is critical!
         $P=($P/0.75006168); //assuming mmHg - return hPa
-        if ($debug==='2') {
+        if ($debug=='4') {
             echo "<p>delta-T<br> assumed mmHg: P has become $P<p>";
         }
     } else {
         //echo "Unrecognized pressure units - conversion code is not present";
         $dT="?units?";
-        if ($debug==='2') {
+        if ($debug=='4') {
             echo "<p>delta-T<br>($P) returned, assuming nothing: P has become $P<p>";
         }
         return;
@@ -109,14 +124,17 @@ function deltaT($Tc, $RH, $P, $debug)
 }
 
 
+/*
+* Note; double quoted variables are values that will be passed from the SLE,
+* via cheetahGenerator. They are required to be in place for the substitution
+* to work.
+*/
+
 $debug='$wxobs_debug';
 $tr_bgrnd="";
 
-//Note; double quoted variables are values that will be passed from the SLE,
-// via cheetahGenerator. They are required to be in place for the substitution.
-
 if ('$dbase' === 'mysql') {
-    if ($debug==='1') {
+    if ($debug>='1') {
         echo "<p>database is $dbase with the name: $mysql_base</p>";
     }
     $db = new mysqli('$mysql_host', '$mysql_user', '$mysql_pass', '$mysql_base');
@@ -127,7 +145,7 @@ if ('$dbase' === 'mysql') {
         return;
     }
 } elseif ('$dbase' === 'sqlite') {
-    if ($debug==='1') {
+    if ($debug>='1') {
         echo "<p>database is $dbase with path/name: $sqlite_db</p>";
     }
     $db = new SQLite3('$sqlite_db');
@@ -157,14 +175,15 @@ if ('$appTemp' === 'appTemp') {
     $app_label = '$unit.label.outTemp';
 }
 
-if ($debug==='1') {
+if ($debug>='1') {
     echo "<p>ext_interval is $ext_interval <br> arch_interval is $arch_interval<br>
          appTemp is defined as $appTemp with $app_label used as the units.</p>";
 }
-if ($debug==='1') {
+if ($debug>='1') {
     echo "<p>want delta is $want_delta with show warning of $show_warning<br>
-         '$targ_unit' === 'US' || '$unit.label.outTemp' !== '&#176;C' ||
-         '$unit.label.barometer' !== ' hPa'</p>";
+         ('$targ_unit' === 'US' || '$unit.label.outTemp' !== '&#176;C' ||
+         '$unit.label.barometer' !== ' hPa')<br>
+         ie:- if one is (true) then show the warning &lt;div&gt;</p>";
 }
 
 if ($show_warning) {
@@ -174,8 +193,8 @@ if ($show_warning) {
         echo "<div style=\"background-color:#dac0cd\">
               <h2>delta-T calculation: configuration notes</h2>
               <p>Weewx reports that the database is in $targ_unit (imperial) units,
-              and /or that the temperature, pressure units differ from the degC or
-              hPa required to correctly calculate the delta-T values. This may be
+              and /or that the temperature, pressure units differ from the &#176;C or
+              hPa required to calculate the delta-T values correctly. This may be
               compensated for but we need to be sure that what's being reported is
               correct.</p>
               <p>Review your wxobs/skin.conf file and match the group_fields with
@@ -218,7 +237,7 @@ if ($show_warning) {
    $day_start = mktime('0', '0', '0', date('n'), date('j'), date('Y'));
    $now_time = mktime();
    $endtime = $now_time;
-if ($debug==='1') {
+if ($debug>='1') {
     echo "<p>Latest Observations:<br>day_start = $day_start
     <br> endtime uses the now_time value ( $endtime )</p>";
 }
@@ -271,12 +290,12 @@ if ($debug==='1') {
     if ($want_delta) {
         $delta_label="<th class=\"wxheadr\" rowspan=\"2\">delta&dash;T<br>
             $unit.label.outTemp</th>";
-        if ($debug==='1') {
+        if ($debug>='3') {
             echo "<p>want_delta is $want_delta so ...<br> label is '$delta_label'";
         }
     } else {
         $delta_label="";
-        if ($debug==='1') {
+        if ($debug>='3') {
             echo "<p>want_delta is $want_delta so ...<br> label is '$delta_label'";
         }
     }
@@ -317,17 +336,17 @@ if ($debug==='1') {
     if ($want_delta) {
         deltaT($latest_row[1], $latest_row[4], $latest_row[8], $debug);
         echo "<td>$dT</td>";
-        if ($debug==='3') {
+        if ($debug=='3') {
             echo "<p>want_delta is $want_delta so ...<br>";
             echo "delta_data is '$dT'</p>";
         }
     } else {
-        if ($debug==='3') {
+        if ($debug=='3') {
             echo "<p>want_delta is $want_delta so ...<br>";
             echo "delta_data is 'null'</p>";
         }
     }
-    ordinalCompass($latest_row[7]);
+    ordinalCompass($latest_row[7], $debug);
     echo "<td>$compass</td>"; //wind direction ordinal
     $metWind = round(($latest_row[5]/$wind_adjust), 1);
     echo "<td>$metWind</td>";
@@ -345,12 +364,12 @@ if ($debug==='1') {
     // Shows the min and max values, averages and rainfall total
     if ($_REQUEST['datepicker']) {
         $unixtime =  strtotime($_REQUEST['datepicker']);
-        if ($debug==='1') {
+        if ($debug>='1') {
             echo "<p>Min (Max)<br> Datepicker returned $unixtime</p>";
         }
     } else {
         $unixtime = $day_start;
-        if ($debug==='1') {
+        if ($debug>='1') {
             echo "<p>Min (Max)<br> Datepicker returned null, day_start
                 ( $day_start ) has been used</p>";
         }
@@ -359,7 +378,7 @@ if ($debug==='1') {
     // sanity check because dates from the future are pointless (and untidy)
     // $latest_date holds the latest time from the first (above) observations.
     if ($unixtime > $latest_date) {
-        if ($debug==='1') {
+        if ($debug>='1') {
             echo "<p> unixtime ( $unixtime ) is > latest+date ( $latest_date ) </p>";
         }
         echo "<p>That is a future date; there are no records!<br>
@@ -369,7 +388,7 @@ if ($debug==='1') {
 
     $starttime = $unixtime;
     $endtime = $starttime + 86400;
-    if ($debug==='1') {
+    if ($debug>='1') {
         echo "<p>Min (Max) and Periodic Stats<br> starttime is now = unixtime 
         ( $unixtime ) and  endtime is + 86400  ( $endtime )</p>";
     }
@@ -443,7 +462,7 @@ if ($debug==='1') {
     $minhumid = round($stats_row[7], 1);
     $maxhumid = round($stats_row[8], 1);
     echo "<td>$minhumid ($maxhumid)</td>";
-    ordinalCompass($stats_row[11]);
+    ordinalCompass($stats_row[11], $debug);
     echo "<td> $compass</td>"; //wind direction ordinal
     $metWind = round(($stats_row[9]/$wind_adjust), 1);
     echo "<td>$metWind</td>";
@@ -460,12 +479,12 @@ if ($debug==='1') {
     if ($want_delta) {
         $delta_label="<th class=\"wxheadr\" rowspan=\"2\">delta&dash;T<br>
             $unit.label.outTemp</th>";
-        if ($debug==='1') {
+        if ($debug=='3') {
             echo "<p>want_delta is $want_delta so ...<br> label is '$delta_label'";
         }
     } else {
         $delta_label="";
-        if ($debug==='1') {
+        if ($debug=='3') {
             echo "<p>want_delta is $want_delta so ...<br> label is '$delta_label'";
         }
     }
@@ -543,17 +562,17 @@ if ($debug==='1') {
             if ($want_delta) {
                 deltaT($row[1], $row[4], $row[8], $debug);
                 echo "<td>$dT</td>";
-                if ($debug==='3') {
+                if ($debug=='3') {
                     echo "<p>want_delta is $want_delta so ...<br>";
                     echo "delta_data is '$dT'</p>";
                 }
             } else {
-                if ($debug==='3') {
+                if ($debug=='3') {
                     echo "<p>want_delta is $want_delta so ...<br>";
                     echo "delta_data is 'null'</p>";
                 }
             }
-            ordinalCompass($row[7]);
+            ordinalCompass($row[7], $debug);
             echo "<td>$compass</td>"; //wind direction ORDINAL
             $metWind = round(($row[5]/$wind_adjust), 1);
             echo "<td>$metWind</td>";

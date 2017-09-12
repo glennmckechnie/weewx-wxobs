@@ -30,10 +30,6 @@ def logdbg(msg):
 
 
 class wxobs(SearchList):
-    """
-    Overkill?
-    Nah!, just right.
-    """
 
     def __init__(self, generator):
         SearchList.__init__(self, generator)
@@ -78,10 +74,13 @@ class wxobs(SearchList):
         Default is not to generate that data.
         This is a switch (boolean) to turn it back on.
 
-        wxobs_debug: Allow index.php to include debugging info if set to 1
-        or if set to 5, this script to the weewx log
-
+        wxobs_debug: Allow index.php to include debugging info if set to...
+        1 and above is low level, variables, some logic.
+        3 only for delta-T final values (low level - if enabled)
+        4 only for delta-T unit conversion calcs (verbose) - if enabled
+        5 only for ordinalCompass conversion calcs (N, NE...CALM) (verbose)
         """
+
         self.wxobs_debug = int(self.generator.skin_dict['wxobs'].get(
             'wxobs_debug', '0'))
 
