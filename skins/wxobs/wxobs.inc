@@ -24,7 +24,34 @@
       </form>
    </div>
 <?php
+//include($include_file);
+//include('/tmp/wxobs_inc.php');
+//if (file_exists('/tmp/wxobs_inc.php')) {
+//    include('/tmp/wxobs_inc.php');
+//} else {
+//    echo"<p>Leave a message complaining - change it to the skin directory?</p>";
+//    return;
+//}
 
+if((@include '$include_file') === false)
+{
+    echo "<div class=\"alert\">";
+    echo "<p>The database config file has gone missing!<br>";
+    echo "&nbsp;&nbsp;&nbsp;That shouldn't happen.</p>";
+    echo "The file should have been accessable as<br> <i>$include_file</i><br>";
+    echo "It will be regenerated on weewx's next report run,";
+    echo " or when report_timing allows.<br>";
+    echo "If the problem persists, consider changing";
+    echo " its location as ";
+    echo "wxobs/skin.conf will accept<br>";
+    echo "<i>include_file = /new_path/name</i><br>";
+    echo "where the path and name can be anything";
+    echo " secure, and allowable.<br>";
+    echo "If all else fails, report the problem as an issue";
+    echo " - to its github site.</p></div>";
+
+}
+include('$include_file');
 /**
 * ToDo
 * stackoverflow.com/questions/9866139/database-locked-while-trying-to-access-from-php-script
@@ -133,27 +160,34 @@ function deltaT($Tc, $RH, $P, $debug)
 $debug='$wxobs_debug';
 $tr_bgrnd="";
 
-if ('$dbase' === 'mysql') {
+if ($php_dbase === 'mysql') {
     if ($debug>='1') {
-        echo "<p>database is $dbase with the name: $mysql_base</p>";
+        echo "<p>database is $php_dbase with the name: $mysql_base</p>";
     }
-    $db = new mysqli('$mysql_host', '$mysql_user', '$mysql_pass', '$mysql_base');
+    $db = new mysqli(
+        $php_mysql_host,
+        $php_mysql_user,
+        $php_mysql_pass,
+        $php_mysql_base
+    );
     if ($db->connect_errno) {
         echo ("<p>Connection to mysql database failed:<br>
-            Has it been configured in wxobs.php.tmpl?<br>
+            Has it been configured correctly - these were the values sent<br>
+            host=$php_mysql_host,user=$php_mysql_user,
+            pass=$php_mysql_pass,base=$php_mysql_base<br>
      $db->connect_error</p>");
         return;
     }
-} elseif ('$dbase' === 'sqlite') {
+} elseif ($php_dbase === 'sqlite') {
     if ($debug>='1') {
-        echo "<p>database is $dbase with path/name: $sqlite_db</p>";
+        echo "<p>database is $php_dbase with path/name: $php_sqlite_db</p>";
     }
-    $db = new SQLite3('$sqlite_db');
+    $db = new SQLite3($php_sqlite_db);
 } else {
-    echo "Define a database with the template - wxobs.inc<br>";
+    echo "Failed to access the database by any known methods.<br>";
 }
 
-// Attempt to get some meaingful table headings, if we change above options
+// Attempt to get some meaningful table headings, if we change above options
 if ('$arch_interval' === '$ext_interval') {
     $tflag="Total";
     $avflag="(Average)";
@@ -190,7 +224,7 @@ if ($show_warning) {
     if ('$targ_unit' === 'US' || '$unit.label.outTemp' !== '&#176;C'
         || '$unit.label.barometer' !== ' hPa'
     ) {
-        echo "<div style=\"background-color:#dac0cd\">
+        echo "<div class=\"alert\">
               <h2>delta-T calculation: configuration notes</h2>
               <p>Weewx reports that the database is in $targ_unit (imperial) units,
               and /or that the temperature, pressure units differ from the &#176;C or
@@ -246,14 +280,14 @@ if ($debug>='1') {
         "SELECT dateTime FROM archive ORDER BY datetime DESC LIMIT 1"
     );
 
-    if ('$dbase' === 'mysql') {
+    if ($php_dbase === 'mysql') {
         $last_entry = $last_entry->fetch_array();
     } else {
         $last_entry = $last_entry->fetchArray();
     }
       $latest_date = $last_entry[0];
 
-    if ('$dbase' === 'mysql') {
+    if ($php_dbase === 'mysql') {
         $last_values = $db->query(
             "SELECT FROM_UNIXTIME(datetime, '%d-%m-%Y %H:%i'), outTemp,
             $appTemp, dewPoint, outHumidity, windSpeed, windGust, windDir,
@@ -271,7 +305,7 @@ if ($debug>='1') {
         $latest_row = $last_values->fetchArray();
     }
 
-    if ('$dbase' === 'mysql') {
+    if ($php_dbase === 'mysql') {
         $rain_total = $db->query(
             "SELECT sum(rain) FROM archive WHERE dateTime
             >= $day_start and dateTime < $endtime;"
@@ -393,7 +427,7 @@ if ($debug>='1') {
         ( $unixtime ) and  endtime is + 86400  ( $endtime )</p>";
     }
 
-    if ('$dbase' === 'mysql') {
+    if ($php_dbase === 'mysql') {
         // error
         $stats_snap = $db->query(
             "SELECT FROM_UNIXTIME(datetime, '%d-%m-%Y %H:%i'),min(outTemp),
@@ -522,7 +556,7 @@ if ($debug>='1') {
         // mysql will return the date as dd-mm-yyyy (as per the db->query statements
         // following) adjust if desired.
         // sqlite will return the date as yyyy-mm-dd (default)
-        if ('$dbase' === 'mysql') {
+        if ($php_dbase === 'mysql') {
                $results = $db->query(
                    "SELECT FROM_UNIXTIME(datetime, '%d-%m-%Y %H:%i'), avg(outTemp),
                    avg($appTemp), avg(dewPoint), avg(outHumidity), AVG(windSpeed),
@@ -590,5 +624,4 @@ if ($debug>='1') {
     echo "</tbody></table></div><!-- end snapshot observations -->";
     $db->close();
     unset($db);
-
     ?>
