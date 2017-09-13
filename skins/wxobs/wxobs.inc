@@ -10,8 +10,12 @@
 ## 06-09-2017 initial releas @0.01
 ## 08-09-2017 convert to installable skin
 ## 08-09-2017 add unit check and conversion for deltaT
-## Version 0.03
+## 13-09-2017 move sensitive info to an include file in /tmp, rather than have it
+##            embedded within index.php. Don't show links.inc in index.php as it
+##            breaks the flow and is redundant there. center all but debug info.
+## Version 0.04
 
+   <!-- wxobs version $wxobs_version -->
    <div class="wxobs">
       Use the following to select a date for archived records
       <!-- insert the javascript date picker -->
@@ -23,8 +27,7 @@
    </div>
 <?php
 
-if((@include '$include_file') === false)
-{
+if ((@include '$include_file') === false) {
     echo "<div class=\"alert\">";
     echo "<p>The database config file has gone missing!<br>";
     echo "&nbsp;&nbsp;&nbsp;That shouldn't happen.</p>";
@@ -39,7 +42,6 @@ if((@include '$include_file') === false)
     echo " secure, and allowable.<br>";
     echo "If all else fails, report the problem as an issue";
     echo " - to its github site.</p></div>";
-
 }
 include('$include_file');
 /**
@@ -161,7 +163,7 @@ if ($php_dbase === 'mysql') {
         $php_mysql_base
     );
     if ($db->connect_errno) {
-        echo ("<p class=\"debug\">Connection to mysql database failed:<br>
+        echo ("<p class=\"alert\">Connection to mysql database failed:<br>
             Has it been configured correctly - these were the values sent<br>
             host=$php_mysql_host,user=$php_mysql_user,
             pass=$php_mysql_pass,base=$php_mysql_base<br>
@@ -174,7 +176,7 @@ if ($php_dbase === 'mysql') {
     }
     $db = new SQLite3($php_sqlite_db);
 } else {
-    echo "Failed to access the database by any known methods.<br>";
+    echo "<p class =\"alert\">Failed to access the database by any known methods.<br>";
 }
 
 // Attempt to get some meaningful table headings, if we change above options
@@ -312,15 +314,18 @@ if ($debug>='1') {
     }
 
     if ($want_delta) {
-        $delta_label="<th class=\"wxheadr\" rowspan=\"2\">delta&dash;T<br>
-            $unit.label.outTemp</th>";
+        $s_t = "<th class=\"wxheadr\" rowspan=\"2\">delta&dash;T<br>";
+        $e_d = "$unit.label.outTemp</th>";
+        $delta_label = $s_t.$e_d; // avoid line break in html <th> source
         if ($debug>='3') {
-            echo "<p class=\"debug\">want_delta is $want_delta so ...<br> label is '$delta_label'";
+            echo "<p class=\"debug\">want_delta is $want_delta so label is...<br>
+                 $delta_label";
         }
     } else {
         $delta_label="";
         if ($debug>='3') {
-            echo "<p class=\"debug\">want_delta is $want_delta so ...<br> label is '$delta_label'";
+            echo "<p class=\"debug\">want_delta is $want_delta so label is...<br>
+                 '$delta_label'";
         }
     }
 
@@ -440,12 +445,16 @@ if ($debug>='1') {
     }
     $hdate = $stats_row[0];
     if ($hdate == "") {
+        $read_able=date("d-M-Y H:i", $starttime);
+        echo "<p class=\"alert\">That date appears to be invalid, no data to
+             display.<br> $starttime was given as the starting date ($read_able)
+             </p></body></html>";
         return;
     }
     if ($_REQUEST['datepicker']) {
         $this_day =  $_REQUEST['datepicker'];
     } else {
-        $this_day = date('d-m-Y', $day_start);
+        $this_day = date('d-M-Y', $day_start);
     }
 
 
@@ -499,18 +508,6 @@ if ($debug>='1') {
     echo "<td>$metRain</td></tr>";
     echo "</tbody></table>\n<!-- end snapshot summary observations -->\n";
 
-    if ($want_delta) {
-        $delta_label="<th class=\"wxheadr\" rowspan=\"2\">delta&dash;T<br>
-            $unit.label.outTemp</th>";
-        if ($debug=='3') {
-            echo "<p class=\"debug\">want_delta is $want_delta so ...<br> label is '$delta_label'";
-        }
-    } else {
-        $delta_label="";
-        if ($debug=='3') {
-            echo "<p class=\"debug\">want_delta is $want_delta so ...<br> label is '$delta_label'";
-        }
-    }
     // Half-hourly, daily stats
     // Shows the average half-hourly values for a given (arch_interval) snapshot,
     // averages and rainfall total for that period.
@@ -608,6 +605,9 @@ if ($debug>='1') {
             echo "<td>$metPress</td>";
             $metRain = round($row[9], 2);
             echo "<td>$metRain</td></tr>";
+        //} else {
+        //    echo "<p class=\"alert\">loop number $t of $c_ycle, No more data to
+        //          fetch, no data to display.</p>";
         }
     }
     echo "</tbody></table></div><!-- end snapshot observations -->";
