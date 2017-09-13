@@ -18,44 +18,61 @@ tr.wxhint {
     background-color: #e7ecf1;*/
     background-color: #d8e0e8;
     /*background-color: #dac0cd; /*gray red*/
-    }
+}
 tr.wxwht {
     background-color: #fff;
-    }
+}
 tr.wxheadr {
     background-color: #c0cdda;
     border:1px solid #C0CDDA; 
-    }
+}
 th.wxheadr {
     background-color: #c0cdda;
     border:1px solid #C0CDDA; 
-    }
+}
 
 
 table.wxdata {
     width:90%;
-    border:1px #C0CDDA solid; /*#000 */
+    margin: 0 auto;
     border:1px;
-    cellspacing:1px ;
-    }
+}
 
 table.wxdata td {
-     text-align: center;
-     font-family:Arial, sans-serif;
-     font-size:90%;
-     padding:2px;
-     margin:1;
-     border:1px solid #C0CDDA;
-     border-left-color:#fff; border-top-color: #fff;
-     empty-cells:show;
-    }
+    text-align: center;
+    font-family:Arial, sans-serif;
+    font-size:90%;
+    padding:2px;
+    margin:1;
+    border:1px solid #C0CDDA;
+    border-left-color:#fff; border-top-color: #fff;
+    empty-cells:show;
+}
 
 div.wxdata {
     /*width:400px;*/
-    width:90%;
-    }
+    width:100%;
+    text-align: center;
+    /*background-color:#dac0cd;*/
+}
 div.alert {
+    margin: 0 auto;
     width:70%;
+    text-align: left;
     background-color:#dac0cd;
-    }
+}
+
+div.wxobs {
+    text-align: center;
+}
+
+p.debug {
+    text-align: left;
+    background-color: #e7ecf1;*/
+}
+
+p.alert {
+    text-align: center;
+    background-color:#dac0cd;
+}
 
