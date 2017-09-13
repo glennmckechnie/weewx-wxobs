@@ -14,7 +14,7 @@ import syslog
 from weeutil.weeutil import to_bool
 from weewx.cheetahgenerator import SearchList
 
-wxobs_version = "0.03"
+wxobs_version = "0.04"
 
 def logmsg(level, msg):
     syslog.syslog(level, '%s' % msg)
@@ -81,6 +81,7 @@ class wxobs(SearchList):
         5 only for ordinalCompass conversion calcs (N, NE...CALM) (verbose)
         """
 
+        self.wxobs_version = wxobs_version
         self.wxobs_debug = int(self.generator.skin_dict['wxobs'].get(
             'wxobs_debug', '0'))
 
