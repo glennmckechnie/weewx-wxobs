@@ -30,24 +30,27 @@
        <div id="title">
         <h1 class="page_title">$station.location</h1>
         <p class="lastupdate">$current.dateTime</p>
-        </div>
+       </div>
       </div>
       <p><a href="../index.html">&#10096; Current Conditions</a></p>
-
+      <!-- the following section is a redundant as it calls itself. It's a working example for inclusion in the season skins index.html.tmpl file -->
+      <!--
       <div id="widget_group">
-        #include "links.inc"
+        ##include "links.inc"
       </div>
-   </div>
+      -->
+      <!-- the above section is a redundant as it calls itself. It's a working example for inclusion in the seasons skins index.html.tmpl file -->
+    </div>
 
       <!-- wxobs php code starts here -->
-
+   <center>
         #include "wxobs.inc"
-
+   </center>
       <!-- wxobs php code finishes here -->
 
     <p class="footnote">
       This extension is available at github as <a href="https://github.com/glennmckechnie/weewx-wxobs">weewx-wxobs</a><br>
     </p>
 
-   </body>
-   </html>
+  </body>
+</html>
