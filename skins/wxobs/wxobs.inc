@@ -12,7 +12,7 @@
 ## 08-09-2017 add unit check and conversion for deltaT
 ## Version 0.03
 
-   <div>
+   <div class="wxobs">
       Use the following to select a date for archived records
       <!-- insert the javascript date picker -->
       <form name="form" method="POST" action="index.php">
@@ -63,7 +63,7 @@ function ordinalCompass($degr, $debug)
                           'S', 'SSW','SW', 'WSW', 'W', 'WNW', 'NW', 'NNW',
                             'N/A'); //17 objects
     if ($debug == '5') {
-        echo "<p>degr passed as '$degr'<br>";
+        echo "<p class=\"debug\">degr passed as '$degr'<br>";
     }
     if ($degr == 0) {
         $compass = "CALM";
@@ -96,33 +96,33 @@ function deltaT($Tc, $RH, $P, $debug)
     if ('$unit.label.outTemp' === '&#176;F') {
          $Tc=($Tc-32)*5/9; // assuming degF - return degC
         if ($debug=='4') {
-            echo "<p>delta-T<br> assumed degF: Tc has become $Tc<p>";
+            echo "<p class=\"debug\">delta-T<br> assumed degF: Tc has become $Tc</p>";
         }
     } else {
         if ($debug=='4') {
-            echo "<p>delta-T<br> assumed degC: Tc remains $Tc<p>";
+            echo "<p class=\"debug\">delta-T<br> assumed degC: Tc remains $Tc</p>";
         }
     }
     if ('$unit.label.barometer' === ' hPa') { //leading space is critical!
         $P=$P;
         if ($debug=='4') {
-            echo "<p>delta-T<br> assuming hPa: P remains $P<p>";
+            echo "<p class=\"debug\">delta-T<br> assuming hPa: P remains $P</p>";
         }
     } elseif ('$unit.label.barometer' === ' inHg') { //leading space is critical!
         $P=($P*33.86389); //assuming inHg - return hPa
         if ($debug=='4') {
-            echo "<p>delta-T<br> assumed inHg: P has become $P<p>";
+            echo "<p class=\"debug\">delta-T<br> assumed inHg: P has become $P</p>";
         }
     } elseif ('$unit.label.barometer' === ' mmHg') { //leading space is critical!
         $P=($P/0.75006168); //assuming mmHg - return hPa
         if ($debug=='4') {
-            echo "<p>delta-T<br> assumed mmHg: P has become $P<p>";
+            echo "<p class=\"debug\">delta-T<br> assumed mmHg: P has become $P</p>";
         }
     } else {
         //echo "Unrecognized pressure units - conversion code is not present";
         $dT="?units?";
         if ($debug=='4') {
-            echo "<p>delta-T<br>($P) returned, assuming nothing: P has become $P<p>";
+            echo "<p class=\"debug\">delta-T<br>($P) returned, assuming nothing: P has become $P</p>";
         }
         return;
     }
@@ -152,7 +152,7 @@ $tr_bgrnd="";
 
 if ($php_dbase === 'mysql') {
     if ($debug>='1') {
-        echo "<p>database is $php_dbase with the name: $mysql_base</p>";
+        echo "<p class=\"debug\">database is $dbase with the name: $mysql_base</p>";
     }
     $db = new mysqli(
         $php_mysql_host,
@@ -161,7 +161,7 @@ if ($php_dbase === 'mysql') {
         $php_mysql_base
     );
     if ($db->connect_errno) {
-        echo ("<p>Connection to mysql database failed:<br>
+        echo ("<p class=\"debug\">Connection to mysql database failed:<br>
             Has it been configured correctly - these were the values sent<br>
             host=$php_mysql_host,user=$php_mysql_user,
             pass=$php_mysql_pass,base=$php_mysql_base<br>
@@ -170,7 +170,7 @@ if ($php_dbase === 'mysql') {
     }
 } elseif ($php_dbase === 'sqlite') {
     if ($debug>='1') {
-        echo "<p>database is $php_dbase with path/name: $php_sqlite_db</p>";
+        echo "<p class=\"debug\">database is $dbase with path/name: $sqlite_db</p>";
     }
     $db = new SQLite3($php_sqlite_db);
 } else {
@@ -200,11 +200,11 @@ if ('$appTemp' === 'appTemp') {
 }
 
 if ($debug>='1') {
-    echo "<p>ext_interval is $ext_interval <br> arch_interval is $arch_interval<br>
+    echo "<p class=\"debug\">ext_interval is $ext_interval <br> arch_interval is $arch_interval<br>
          appTemp is defined as $appTemp with $app_label used as the units.</p>";
 }
 if ($debug>='1') {
-    echo "<p>want delta is $want_delta with show warning of $show_warning<br>
+    echo "<p class=\"debug\">want delta is $want_delta with show warning of $show_warning<br>
          ('$targ_unit' === 'US' || '$unit.label.outTemp' !== '&#176;C' ||
          '$unit.label.barometer' !== ' hPa')<br>
          ie:- if one is (true) then show the warning &lt;div&gt;</p>";
@@ -315,12 +315,12 @@ if ($debug>='1') {
         $delta_label="<th class=\"wxheadr\" rowspan=\"2\">delta&dash;T<br>
             $unit.label.outTemp</th>";
         if ($debug>='3') {
-            echo "<p>want_delta is $want_delta so ...<br> label is '$delta_label'";
+            echo "<p class=\"debug\">want_delta is $want_delta so ...<br> label is '$delta_label'";
         }
     } else {
         $delta_label="";
         if ($debug>='3') {
-            echo "<p>want_delta is $want_delta so ...<br> label is '$delta_label'";
+            echo "<p class=\"debug\">want_delta is $want_delta so ...<br> label is '$delta_label'";
         }
     }
 
@@ -361,12 +361,12 @@ if ($debug>='1') {
         deltaT($latest_row[1], $latest_row[4], $latest_row[8], $debug);
         echo "<td>$dT</td>";
         if ($debug=='3') {
-            echo "<p>want_delta is $want_delta so ...<br>";
+            echo "<p class=\"debug\">want_delta is $want_delta so ...<br>";
             echo "delta_data is '$dT'</p>";
         }
     } else {
         if ($debug=='3') {
-            echo "<p>want_delta is $want_delta so ...<br>";
+            echo "<p class=\"debug\">want_delta is $want_delta so ...<br>";
             echo "delta_data is 'null'</p>";
         }
     }
@@ -389,12 +389,12 @@ if ($debug>='1') {
     if ($_REQUEST['datepicker']) {
         $unixtime =  strtotime($_REQUEST['datepicker']);
         if ($debug>='1') {
-            echo "<p>Min (Max)<br> Datepicker returned $unixtime</p>";
+            echo "<p class=\"debug\">Min (Max)<br> Datepicker returned $unixtime</p>";
         }
     } else {
         $unixtime = $day_start;
         if ($debug>='1') {
-            echo "<p>Min (Max)<br> Datepicker returned null, day_start
+            echo "<p class=\"debug\">Min (Max)<br> Datepicker returned null, day_start
                 ( $day_start ) has been used</p>";
         }
     }
@@ -403,17 +403,16 @@ if ($debug>='1') {
     // $latest_date holds the latest time from the first (above) observations.
     if ($unixtime > $latest_date) {
         if ($debug>='1') {
-            echo "<p> unixtime ( $unixtime ) is > latest+date ( $latest_date ) </p>";
+            echo "<p class=\"debug\"> unixtime ( $unixtime ) is > latest+date ( $latest_date ) </p>";
         }
-        echo "<p>That is a future date; there are no records!<br>
-            (Wait a while? or best try again. :)</p>";
+        echo "<p class=\"alert\">That is a future date; there are no records!<br></p>";
         return;
     }
 
     $starttime = $unixtime;
     $endtime = $starttime + 86400;
     if ($debug>='1') {
-        echo "<p>Min (Max) and Periodic Stats<br> starttime is now = unixtime 
+        echo "<p class=\"debug\">Min (Max) and Periodic Stats<br> starttime is now = unixtime 
         ( $unixtime ) and  endtime is + 86400  ( $endtime )</p>";
     }
 
@@ -504,12 +503,12 @@ if ($debug>='1') {
         $delta_label="<th class=\"wxheadr\" rowspan=\"2\">delta&dash;T<br>
             $unit.label.outTemp</th>";
         if ($debug=='3') {
-            echo "<p>want_delta is $want_delta so ...<br> label is '$delta_label'";
+            echo "<p class=\"debug\">want_delta is $want_delta so ...<br> label is '$delta_label'";
         }
     } else {
         $delta_label="";
         if ($debug=='3') {
-            echo "<p>want_delta is $want_delta so ...<br> label is '$delta_label'";
+            echo "<p class=\"debug\">want_delta is $want_delta so ...<br> label is '$delta_label'";
         }
     }
     // Half-hourly, daily stats
@@ -587,12 +586,12 @@ if ($debug>='1') {
                 deltaT($row[1], $row[4], $row[8], $debug);
                 echo "<td>$dT</td>";
                 if ($debug=='3') {
-                    echo "<p>want_delta is $want_delta so ...<br>";
+                    echo "<p class=\"debug\">want_delta is $want_delta so ...<br>";
                     echo "delta_data is '$dT'</p>";
                 }
             } else {
                 if ($debug=='3') {
-                    echo "<p>want_delta is $want_delta so ...<br>";
+                    echo "<p class=\"debug\">want_delta is $want_delta so ...<br>";
                     echo "delta_data is 'null'</p>";
                 }
             }
