@@ -13,10 +13,8 @@
 ## Version 0.03
 
    <div>
-      <p class="contents">
       Use the following to select a date for archived records
-      </p>
-    <!-- insert the javascript date picker -->
+      <!-- insert the javascript date picker -->
       <form name="form" method="POST" action="index.php">
       Choose the date:
       <input id="start_dt" name="datepicker" class="datepicker">
@@ -24,14 +22,6 @@
       </form>
    </div>
 <?php
-//include($include_file);
-//include('/tmp/wxobs_inc.php');
-//if (file_exists('/tmp/wxobs_inc.php')) {
-//    include('/tmp/wxobs_inc.php');
-//} else {
-//    echo"<p>Leave a message complaining - change it to the skin directory?</p>";
-//    return;
-//}
 
 if((@include '$include_file') === false)
 {
@@ -53,7 +43,7 @@ if((@include '$include_file') === false)
 }
 include('$include_file');
 /**
-* ToDo
+* ToDo ??
 * stackoverflow.com/questions/9866139/database-locked-while-trying-to-access-from-php-script
 *  $db->exec('PRAGMA journal_mode = wal;');
 *
@@ -335,7 +325,7 @@ if ($debug>='1') {
     }
 
     echo "<div class=\"wxdata\">\n<!-- start data tables -->\n
-<h1>Latest Weather Observations</h1>
+<h2>Latest Weather Observations</h2>
 <table class=\"wxdata\">
   <thead>
   <tr>
@@ -461,8 +451,8 @@ if ($debug>='1') {
 
 
     echo "<!-- start snapshot summary observations -->
- <h1>Historical Observations for $this_day</h1>
- <h2>Min (Max) Stats</h2>
+ <h2>Historical Observations for $this_day</h2>
+ <h3>Min (Max) Stats</h3>
  <table class=\"wxdata\">
   <thead>
   <tr>
@@ -526,7 +516,7 @@ if ($debug>='1') {
     // Shows the average half-hourly values for a given (arch_interval) snapshot,
     // averages and rainfall total for that period.
     echo "<!-- start snapshot observations -->
- <h2>Periodic Stats $iflag</h2>
+ <h3>Periodic Stats $iflag</h3>
  <table class=\"wxdata\">
  <thead>
   <tr>
