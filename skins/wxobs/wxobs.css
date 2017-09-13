@@ -1,3 +1,17 @@
+@font-face {
+font-family: 'Open Sans';
+    src: url('font/OpenSans.woff') format('woff'),
+    url('font/OpenSans.woff2') format('woff2');
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-family: 'Open Sans', arial, sans-serif;
+    background-color: #ffffff;
+}
+
 tr.wxhint {
     /*http://htmlcolorcodes.com/color-picker/
     background-color: #c0cdcd;
@@ -31,7 +45,7 @@ table.wxdata td {
      font-size:90%;
      padding:2px;
      margin:1;
-     border:1px solid #C0CDDA; 
+     border:1px solid #C0CDDA;
      border-left-color:#fff; border-top-color: #fff;
      empty-cells:show;
     }
@@ -39,5 +53,9 @@ table.wxdata td {
 div.wxdata {
     /*width:400px;*/
     width:90%;
+    }
+div.alert {
+    width:70%;
+    background-color:#dac0cd;
     }
 
