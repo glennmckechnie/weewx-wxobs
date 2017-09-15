@@ -100,6 +100,14 @@ function deltaT($Tc, $RH, $P)
     * $Tc = outTemp.degree_C
     * $RH = outHumidity
     * $P = pressure.hPa
+    * for the same formula as 'Wet Bulb Temperature' see
+    * https://www.aprweather.com/pages/calc.htm
+    * and
+    * http://www.bom.gov.au/climate/averages/climatology/relhum/calc-rh.pdf
+    * and finally,
+    * http://www.weather.gov/epz/wxcalc_rh
+    * with a sopurce description at
+    * http://www.weather.gov/media/epz/wxcalc/wetBulbTdFromRh.pdf
     */
     global $dT;
     global $WBc;
@@ -107,9 +115,12 @@ function deltaT($Tc, $RH, $P)
     $Tdc = (($Tc - (14.55 + 0.114 * $Tc) * (1 - (0.01 * $RH)) -
         ((2.5 + 0.007 * $Tc) * (1 - (0.01 * $RH))) ** 3 -
         (15.9 + 0.117 * $Tc) * (1 - (0.01 * $RH)) ** 14));
+
     $E = (6.11 * 10 ** (7.5 * $Tdc / (237.7 + $Tdc)));
+
     $WBc = (((0.00066 * $P) * $Tc) + ((4098 * $E) / (($Tdc + 237.7) ** 2)
         * $Tdc)) / ((0.00066 * $P) + (4098 * $E) / (($Tdc + 237.7) ** 2));
+
     // $WetBulb = "%.1f" % $WBc + $unit.label.outTemp
     // $WetBulb = "%.1f" % ($WBc*9/5+32) + $unit.label.outTemp // degrees F
     //echo "Tdc = $Tdc E = $E WBc = $WBc :: T=$Tc : RH=$RH : P=$P<br>";
