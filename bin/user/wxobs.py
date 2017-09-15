@@ -63,6 +63,10 @@ class wxobs(SearchList):
         displayed value returned from the database. This satisfies a quirk in
         my setup where the database is in m/s but I want kmh displayed.
 
+        aus_rain: The australian rain day starts at 9 a.m. setting this as
+        true will adjust the rain column values between these 9 .a.m. each day.
+        default is false - start at midnight 00:00:00 through to the next day.
+
         show_warning: An information message will appear on the report page
         (index.php) if the database is in US units (imperial) or units are
         detected that don't match the native units required for the delta-T
@@ -96,6 +100,8 @@ class wxobs(SearchList):
             'app_Temp', 'windchill')
         self.wind_adjust = self.generator.skin_dict['wxobs'].get(
             'wind_adjust', '1')
+        self.aus_rain = to_bool(self.generator.skin_dict['wxobs'].get(
+            'australian_rain', False))
         self.show_warning = to_bool(self.generator.skin_dict['wxobs'].get(
             'show_warning', True))
         self.want_delta = to_bool(self.generator.skin_dict['wxobs'].get(

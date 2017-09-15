@@ -403,6 +403,9 @@ if ($debug>='1') {
                 ( $day_start ) has been used</p>";
         }
     }
+    $rain_day = $unixtime;
+    // $start_yday = $rain_start - 86400;
+    // $start_nine = $rain_start + 32400;
 
     // sanity check because dates from the future are pointless (and untidy)
     // $latest_date holds the latest time from the first (above) observations.
@@ -524,7 +527,7 @@ if ($debug>='1') {
    $delta_label
    <th class=\"wxheadr\" colspan=\"4\">Wind $avflag </th>
    <th class=\"wxheadr\" rowspan=\"2\">Pressure<br>$unit.label.barometer</th>
-   <th class=\"wxheadr\" rowspan=\"2\">$tflag Rain<br>$unit.label.rain</th>
+   <th class=\"wxheadr\" rowspan=\"2\">$tflag Rain<br>(since 9 a.m.)<br>$unit.label.rain</th>
   </tr>
   <tr>
    <th class=\"wxheadr\">Direction<br>compass</th>
@@ -539,6 +542,20 @@ if ($debug>='1') {
     for ($t=$c_ycle; $t>=0; $t--) {
         $starttime = $unixtime + ($t*'$ext_interval');
         $endtime = $starttime + '$arch_interval';
+
+        if ($aus_rain) {
+        // Calculate start day for rain calcs - Australian records start at 9 a.m.
+            $start_nine = $rain_day + 32400; // 9 am today
+            $start_yday = $rain_day - 54000; // 9 am yesterday
+            if ($starttime < $start_nine) {
+                 $rain_start = $start_yday;
+            } elseif ($starttime >= $start_nine) {
+                 $rain_start =$start_nine;
+            }
+        } else {
+            $rain_start = $starttime;
+        }
+
         // mysql will return the date as dd-mm-yyyy (as per the db->query statements
         // following) adjust if desired.
         // sqlite will return the date as yyyy-mm-dd (default)
@@ -549,8 +566,14 @@ if ($debug>='1') {
                    AVG(windGust), AVG(windDir), avg(barometer), sum(rain) FROM
                    archive WHERE dateTime >= $starttime and dateTime < $endtime;"
                );
+                $rain_avg = $db->query(
+                    "SELECT FROM_UNIXTIME(datetime, '%d-%m-%Y %H:%i'),
+                    sum(rain) FROM archive WHERE dateTime >= $rain_start
+                    and dateTime < $endtime;"
+                );
 
                $row = $results->fetch_array();
+               $rain_row = $rain_avg->fetch_array();
         } else {
             $results = $db->query(
                 "SELECT datetime(min(dateTime), 'unixepoch', 'localtime'),
@@ -559,9 +582,16 @@ if ($debug>='1') {
                 total(rain) FROM archive WHERE dateTime>= $starttime and
                 dateTime< $endtime;"
             );
+            $rain_avg = $db->query(
+                "SELECT FROM_UNIXTIME(datetime, '%d-%m-%Y %H:%i'),
+                sum(rain) FROM archive WHERE dateTime >= $rain_start
+                and dateTime < $endtime;"
+            );
 
             $row = $results->fetchArray();
+            $rain_row = $rain_avg->fetchArray();
         }
+        //echo "$rain_start<br>";
         if ($tr_bgrnd != "wxhint") {
             $tr_bgrnd = "wxhint";
         } else {
@@ -603,7 +633,8 @@ if ($debug>='1') {
             echo "<td>$windDir</td>"; //wind direction degrees
             $metPress = round($row[8], 1);
             echo "<td>$metPress</td>";
-            $metRain = round($row[9], 2);
+            //$metRain = round($row[9], 2);
+            $metRain = round($rain_row[1], 2);
             echo "<td>$metRain</td></tr>";
         //} else {
         //    echo "<p class=\"alert\">loop number $t of $c_ycle, No more data to
