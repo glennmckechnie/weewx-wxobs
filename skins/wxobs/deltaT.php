@@ -100,13 +100,13 @@ function deltaT($Tc, $RH, $P)
     * $Tc = outTemp.degree_C
     * $RH = outHumidity
     * $P = pressure.hPa
-    * for the same formula as 'Wet Bulb Temperature' see
+    * for the same formula as here, listed under 'Wet Bulb Temperature' see
     * https://www.aprweather.com/pages/calc.htm
-    * and
+    * and for related formula
     * http://www.bom.gov.au/climate/averages/climatology/relhum/calc-rh.pdf
-    * and finally,
+    * then finally,
     * http://www.weather.gov/epz/wxcalc_rh
-    * with a sopurce description at
+    * with a source description at
     * http://www.weather.gov/media/epz/wxcalc/wetBulbTdFromRh.pdf
     */
     global $dT;
