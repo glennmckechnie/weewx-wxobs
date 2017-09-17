@@ -43,7 +43,7 @@ if ((@include '$include_file') === false) {
     echo "If all else fails, report the problem as an issue";
     echo " - to its github site.</p></div>";
 }
-include('$include_file');
+require '$include_file';
 /**
 * ToDo ??
 * stackoverflow.com/questions/9866139/database-locked-while-trying-to-access-from-php-script
@@ -55,6 +55,13 @@ include('$include_file');
 * 4 only for delta-T unit conversion calcs (verbose) - if enabled
 * 5 only for ordinalCompass conversion calcs (N, NE...CALM) (verbose)
 */
+
+function hDate($d) 
+{
+        $h_read = date('d-M-Y H:i', $d);
+        return $h_read;
+}
+
 function ordinalCompass($degr, $debug)
 {
     /*
@@ -146,7 +153,7 @@ function deltaT($Tc, $RH, $P, $debug)
 /*
 * Note; double quoted variables are values that will be passed from the SLE,
 * via cheetahGenerator. They are required to be in place for the substitution
-* to work.
+* to work with php.
 */
 
 $debug='$wxobs_debug';
@@ -191,7 +198,7 @@ if ('$arch_interval' === '$ext_interval') {
 }
 
 if ('$appTemp' === 'appTemp') {
-    $appLabel = 'App Temp';
+    $appLabel = "<abbr title=\"Apparent Temperature\"\>App Temp";
     $app_label = '$unit.label.appTemp';
 } elseif ('$appTemp' === 'windchill') {
     $appLabel = 'Wind Chill';
@@ -293,7 +300,6 @@ if ($debug>='1') {
             outTemp, $appTemp, dewPoint, outHumidity, windSpeed, windGust,
             windDir, barometer, rain FROM archive WHERE dateTime = $latest_date"
         );
-
         $latest_row = $last_values->fetchArray();
     }
 
@@ -302,21 +308,26 @@ if ($debug>='1') {
             "SELECT sum(rain) FROM archive WHERE dateTime
             >= $day_start and dateTime < $endtime;"
         );
-
         $rain_row = $rain_total->fetch_array();
     } else {
         $rain_total = $db->query(
             "SELECT sum(rain) FROM archive WHERE dateTime
             >= $day_start and dateTime < $endtime;"
         );
-
         $rain_row = $rain_total->fetchArray();
     }
 
+      //echo "latest date = $latest_date : day_start = $day_start : endtime = $endtime";
+      //echo "latest date = ", hDate($latest_date), " : day_start = ",
+      //     hDate($day_start), " : endtime = ", hDate($endtime), "<br>";
+
+    // Build Latest Obs html
+
     if ($want_delta) {
-        $s_t = "<th class=\"wxheadr\" rowspan=\"2\">delta&dash;T<br>";
-        $e_d = "$unit.label.outTemp</th>";
-        $delta_label = $s_t.$e_d; // avoid line break in html <th> source
+        $s_t = "<th class=\"wxheadr\" rowspan=\"2\"><abbr title=\"Used as an indicator";
+        $m_d = " for agricultural spraying conditions, ideally between the vaules of 2";
+        $e_d = " &amp; 8\">delta&dash;T<br>$unit.label.outTemp</th>";
+        $delta_label = $s_t.$m_d.$e_d; // avoid line break in html <th> source
         if ($debug>='3') {
             echo "<p class=\"debug\">want_delta is $want_delta so label is...<br>
                  $delta_label";
@@ -330,18 +341,18 @@ if ($debug>='1') {
     }
 
     echo "<div class=\"wxdata\">\n<!-- start data tables -->\n
-<h2>Latest Weather Observations</h2>
+ <h2><abbr title=\"Latest weather observations for the displayed time.\">Latest Observations</abbr></h2>
 <table class=\"wxdata\">
   <thead>
   <tr>
-   <th class=\"wxheadr\" rowspan=\"2\">Date&nbsp;&nbsp;&nbsp;&nbsp;Time</th>
-   <th class=\"wxheadr\" rowspan=\"2\">Out Temp<br>$unit.label.outTemp</th>
+   <th class=\"wxheadr\" rowspan=\"2\"><abbr title=\"Date and Time in day-month-year format.\">Date&nbsp;&nbsp;&nbsp;&nbsp; Time</th>
+   <th class=\"wxheadr\" rowspan=\"2\"><abbr title=\"Temperature\"\>Out Temp<br>$unit.label.outTemp</th>
    <th class=\"wxheadr\" rowspan=\"2\">$appLabel<br>$app_label</th>
    <th class=\"wxheadr\" rowspan=\"2\">Dew Point<br>$unit.label.dewpoint</th>
-   <th class=\"wxheadr\" rowspan=\"2\">Humidity<br>$unit.label.outHumidity</th>
+   <th class=\"wxheadr\" rowspan=\"2\"><abbr title=\"Relative Humidity\">Humidity<br>$unit.label.outHumidity</th>
    $delta_label
-   <th class=\"wxheadr\" colspan=\"4\">Wind</th>
-   <th class=\"wxheadr\" rowspan=\"2\">Pressure<br>$unit.label.barometer</th>
+   <th class=\"wxheadr\" colspan=\"4\"><abbr title=\"Wind stats at the displayed time.\">Wind</th>
+   <th class=\"wxheadr\" rowspan=\"2\"><abbr title=\"Barometric pressure\">Pressure<br>$unit.label.barometer</th>
    <th class=\"wxheadr\" rowspan=\"2\">Total Rain<br>$unit.label.rain</th>
   </tr>
   <tr>
@@ -403,7 +414,7 @@ if ($debug>='1') {
                 ( $day_start ) has been used</p>";
         }
     }
-    $rain_day = $unixtime;
+    //$rain_day = $unixtime;
     // $start_yday = $rain_start - 86400;
     // $start_nine = $rain_start + 32400;
 
@@ -423,6 +434,24 @@ if ($debug>='1') {
         echo "<p class=\"debug\">Min (Max) and Periodic Stats<br> starttime is now = unixtime 
         ( $unixtime ) and  endtime is + 86400  ( $endtime )</p>";
     }
+    if ($aus_rain) {
+        // Calculate start day for rain calcs - Australian records start at 9 a.m.
+        $start_nine = $starttime + 86400 + 32400; // 9 am today
+        $start_yday = $starttime + 86400 - 54000; // 9 am yesterday
+        if ($starttime < $start_nine) {
+             $rain_start = $start_yday;
+             $rain_end = $rain_start + 86400 + $arch_interval;
+             $t_span = "(since 9 a.m.)";
+        } elseif ($starttime >= $start_nine) {
+             $rain_start =$start_nine;
+             $rain_end = $rain_start + 86400 + $arch_interval;
+             $t_span = "(since 13 a.m.)";
+        }
+    } else {
+        $rain_start = $starttime;
+        $rain_end = $endtime;
+        $t_span = "(since 12 a.m.)";
+    }
 
     if ($php_dbase === 'mysql') {
         // error
@@ -433,7 +462,13 @@ if ($debug>='1') {
             avg(windGust), avg(windDir), avg(barometer), sum(rain) FROM archive
             WHERE dateTime >= $starttime and dateTime < $endtime;"
         );
+        $rain_avg = $db->query(
+            "SELECT FROM_UNIXTIME(datetime, '%d-%m-%Y %H:%i'),
+            sum(rain) FROM archive WHERE dateTime >= $rain_start
+            and dateTime < $rain_end;"
+        );
 
+        $rain_row = $rain_avg->fetch_array();
         $stats_row = $stats_snap->fetch_array();
     } else {
         $stats_snap = $db->query(
@@ -441,9 +476,15 @@ if ($debug>='1') {
             max(outTemp), min($appTemp), max($appTemp), min(dewPoint), max(dewPoint),
             min(outHumidity), max(outHumidity), avg(windSpeed), avg(windGust),
             avg(windDir), avg(barometer), sum(rain) FROM archive WHERE dateTime
-            >= $starttime and dateTime < $endtime;"
+            >= $starttime and dateTime < $rain_end;"
+        );
+        $rain_avg = $db->query(
+            "SELECT FROM_UNIXTIME(datetime, '%d-%m-%Y %H:%i'),
+           sum(rain) FROM archive WHERE dateTime >= $rain_start
+           and dateTime < $endtime;"
         );
 
+        $rain_row = $rain_avg->fetchArray();
         $stats_row = $stats_snap->fetchArray();
     }
     $hdate = $stats_row[0];
@@ -460,27 +501,33 @@ if ($debug>='1') {
         $this_day = date('d-M-Y', $day_start);
     }
 
+    // echo "latest date = ", hDate($latest_date), " : day_start = ",
+    //       hDate($day_start), " : starttime = ", hDate($starttime),
+    //       ": endtime = ", hDate($endtime), "<br>";
+    //  echo "latest date = $latest_date : day_start = $day_start : starttime = $starttime : endtime = $endtime";
+
+    // Build Min (Max) Obs html
 
     echo "<!-- start snapshot summary observations -->
  <h2>Historical Observations for $this_day</h2>
- <h3>Min (Max) Stats</h3>
+ <h3><abbr title=\"Lowest and Highest observations for the nominated day.\">Min (Max) Stats</abbr></h3>
  <table class=\"wxdata\">
   <thead>
   <tr>
-   <th class=\"wxheadr\" rowspan=\"2\">Date&nbsp;&nbsp;&nbsp;&nbsp; Time</th>
-   <th class=\"wxheadr\" rowspan=\"2\">Out Temp<br>$unit.label.outTemp</th>
+   <th class=\"wxheadr\" rowspan=\"2\"><abbr title=\"Date and Time in day-month-year format.\">Date&nbsp;&nbsp;&nbsp;&nbsp; Time</th>
+   <th class=\"wxheadr\" rowspan=\"2\"><abbr title=\"Temperature\"\>Out Temp<br>$unit.label.outTemp</th>
    <th class=\"wxheadr\" rowspan=\"2\">$appLabel<br>$app_label</th>
    <th class=\"wxheadr\" rowspan=\"2\">Dew Point<br>$unit.label.dewpoint</th>
-   <th class=\"wxheadr\" rowspan=\"2\">Humidity<br>$unit.label.outHumidity</th>
-   <th class=\"wxheadr\" colspan=\"4\">Wind</th>
-   <th class=\"wxheadr\" rowspan=\"2\">Pressure<br>$unit.label.barometer</th>
-   <th class=\"wxheadr\" rowspan=\"2\">Total Rain<br>$unit.label.rain</th>
+   <th class=\"wxheadr\" rowspan=\"2\"><abbr title=\"Relative Humidity\">Humidity<br>$unit.label.outHumidity</th>
+   <th class=\"wxheadr\" colspan=\"4\"><abbr title=\"Wind stats as an average over the day.\">Wind</th>
+   <th class=\"wxheadr\" rowspan=\"2\"><abbr title=\"Barometric pressure\">Pressure<br>$unit.label.barometer</th>
+   <th class=\"wxheadr\" rowspan=\"2\">Total Rain<br>$t_span<br>$unit.label.rain</th>
   </tr>
   <tr>
-   <th class=\"wxheadr\">Direction<br>compass</th>
+   <th class=\"wxheadr\"><abbr title=\"Direction the wind comes from as cardinal values\">Direction<br>compass</th>
    <th class=\"wxheadr\">Speed<br>$unit.label.wind</th>
    <th class=\"wxheadr\">Gust<br>$unit.label.wind</th>
-   <th class=\"wxheadr\">Direction<br>$unit.label.windDir</th>
+   <th class=\"wxheadr\"><abbr title=\"Direction the wind comes from\">Direction<br>$unit.label.windDir</th>
   </tr>
  </thead><tbody>";
 
@@ -507,27 +554,28 @@ if ($debug>='1') {
     echo "<td>$windDir</td>"; //wind direction degrees
     $metPress = round($stats_row[12], 1);
     echo "<td>$metPress</td>";
-    $metRain = round($stats_row[13], 2);
+    //$metRain = round($stats_row[13], 2);
+    $metRain = round($rain_row[1], 2);
     echo "<td>$metRain</td></tr>";
     echo "</tbody></table>\n<!-- end snapshot summary observations -->\n";
 
-    // Half-hourly, daily stats
+    // Build Half-hourly, daily stats
     // Shows the average half-hourly values for a given (arch_interval) snapshot,
     // averages and rainfall total for that period.
     echo "<!-- start snapshot observations -->
- <h3>Periodic Stats $iflag</h3>
+ <h3><abbr title=\"Time stamped observations throughout the nominated day.\">Periodic Stats $iflag<br /></h3>
  <table class=\"wxdata\">
  <thead>
   <tr>
-   <th class=\"wxheadr\" rowspan=\"2\">Date&nbsp;&nbsp;&nbsp;&nbsp; Time</th>
-   <th class=\"wxheadr\" rowspan=\"2\">Out Temp<br>$unit.label.outTemp</th>
+   <th class=\"wxheadr\" rowspan=\"2\"><abbr title=\"Date and Time in day-month-year format.\">Date&nbsp;&nbsp;&nbsp;&nbsp; Time</th>
+   <th class=\"wxheadr\" rowspan=\"2\"><abbr title=\"Outside temperature\">Out Temp<br>$unit.label.outTemp</th>
    <th class=\"wxheadr\" rowspan=\"2\">$appLabel<br>$app_label</th>
    <th class=\"wxheadr\" rowspan=\"2\">Dew Point<br>$unit.label.dewpoint</th>
-   <th class=\"wxheadr\" rowspan=\"2\">Humidity<br>$unit.label.outHumidity</th>
+   <th class=\"wxheadr\" rowspan=\"2\"><abbr title=\"Relative Humidity\">Humidity<br>$unit.label.outHumidity</th>
    $delta_label
-   <th class=\"wxheadr\" colspan=\"4\">Wind $avflag </th>
-   <th class=\"wxheadr\" rowspan=\"2\">Pressure<br>$unit.label.barometer</th>
-   <th class=\"wxheadr\" rowspan=\"2\">$tflag Rain<br>(since 9 a.m.)<br>$unit.label.rain</th>
+   <th class=\"wxheadr\" colspan=\"4\"><abbr title=\"Wind stats as averaged over each period.\">Wind $avflag </th>
+   <th class=\"wxheadr\" rowspan=\"2\"><abbr title=\"Barometric pressure\">Pressure<br>$unit.label.barometer</th>
+   <th class=\"wxheadr\" rowspan=\"2\"><abbr title=\"24 hour Rainfall, starting from the nominated time.\">$tflag Rain<br>$t_span<br>$unit.label.rain</th>
   </tr>
   <tr>
    <th class=\"wxheadr\">Direction<br>compass</th>
@@ -538,22 +586,27 @@ if ($debug>='1') {
  </thead><tbody>";
 
     // extract data for each ext_interval - reverse order (latest at top)
-    $c_ycle=(86400/$ext_interval)-1;
+    $c_ycle=(86400/$ext_interval);
     for ($t=$c_ycle; $t>=0; $t--) {
+        $rain_day = $unixtime;
         $starttime = $unixtime + ($t*'$ext_interval');
         $endtime = $starttime + '$arch_interval';
 
         if ($aus_rain) {
-        // Calculate start day for rain calcs - Australian records start at 9 a.m.
+            // Calculate start day for rain calcs - Australian records start at 9 a.m.
             $start_nine = $rain_day + 32400; // 9 am today
             $start_yday = $rain_day - 54000; // 9 am yesterday
             if ($starttime < $start_nine) {
                  $rain_start = $start_yday;
+                 $t_span = "(since 9 a.m.)";
             } elseif ($starttime >= $start_nine) {
                  $rain_start =$start_nine;
+                 $t_span = "(since 13 a.m.)";
             }
         } else {
             $rain_start = $starttime;
+            $rain_end = $endtime;
+            $t_span = "(since 12 a.m.)";
         }
 
         // mysql will return the date as dd-mm-yyyy (as per the db->query statements
@@ -636,9 +689,9 @@ if ($debug>='1') {
             //$metRain = round($row[9], 2);
             $metRain = round($rain_row[1], 2);
             echo "<td>$metRain</td></tr>";
-        //} else {
-        //    echo "<p class=\"alert\">loop number $t of $c_ycle, No more data to
-        //          fetch, no data to display.</p>";
+            //} else {
+            //    echo "<p class=\"alert\">loop number $t of $c_ycle, No more data to
+            //          fetch, no data to display.</p>";
         }
     }
     echo "</tbody></table></div><!-- end snapshot observations -->";
