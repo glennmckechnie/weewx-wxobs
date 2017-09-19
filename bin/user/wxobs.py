@@ -113,7 +113,7 @@ class wxobs(SearchList):
         # in there and hopefully that will work for most users.
         # I'd prefer /tmp/wxobs_inc.php but perhaps that only works for me?
         self.include_file = self.generator.skin_dict['wxobs'].get(
-            'include_file', '/usr/share/php/wxobs_inc.php')
+            'include_file', '/usr/share/php/wxobs_incl.inc')
 
 
 #       target_unit = METRICWX    # Options are 'US', 'METRICWX', or 'METRIC'
