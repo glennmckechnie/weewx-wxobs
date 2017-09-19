@@ -364,7 +364,7 @@ if ($debug>='1') {
         $rain_start = $day_start;
         $rain_end = $endtime;
         $t_span = "(since 12 a.m.)";
-        $td_rain = "<td title=\"24 hour rain starting at midnight\n on this day: ".
+        $td_rain = "<td title=\"24 hour rain starting from midnight\n on this day: ".
                    hDate($rain_start). "\">";
         if ($debug >= 1) {
             echo "Latest: 24 hours ".hDate($day_start)." ($day_start day_start
@@ -412,10 +412,10 @@ if ($debug>='1') {
     // Build Latest Obs html
 
     if ($want_delta) {
-        $s_t = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"Used as an indicator";
-        $m_d = " for agricultural spraying conditions, ideally between the vaules of";
-        $e_d = " 2 &amp; 8\">delta&dash;T<br>$unit.label.outTemp</a></th>";
-        $delta_label = $s_t.$m_d.$e_d; // avoid line break in html <th> source
+        $delta_label = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"Used as an".
+                       " indicator for agricultural spraying conditions, the ideal".
+                       " conditions are between the values of 2 &amp; 8\">".
+                       "delta&dash;T<br>$unit.label.outTemp</a></th>";
         if ($debug>='3') {
             echo "<p class=\"debug\">want_delta is $want_delta so label is...<br>
                  $delta_label";
@@ -565,7 +565,7 @@ if ($debug>='1') {
         $rain_start = $starttime;
         $rain_end = $endtime;
         $t_span = "(since 12 a.m.)";
-        $td_rain = "<td title=\"24 hour rain starting at midnight\n on this day: ".
+        $td_rain = "<td title=\"24 hour rain starting from midnight\n on this day: ".
                    hDate($rain_start). "\">";
     }
     if ($debug>='1') {
@@ -715,8 +715,8 @@ if ($debug>='1') {
 
     // extract data for each ext_interval - reverse order (latest at top)
     $c_ycle=(86400/$ext_interval);
-    // this appears to include an extra - midnight to midnight.
-    // but we're counting fence posts, not panels. It's correct.
+    // this may appear to include an extra interval - midnight to midnight.
+    // but we're counting panels, not fence posts. ie: It's correct.
     for ($t=$c_ycle; $t>=0; $t--) {
         $rain_day = $unixtime;
         $starttime = $unixtime + ($t*'$ext_interval');
@@ -747,7 +747,7 @@ if ($debug>='1') {
             $rain_start = $rain_day;//$starttime;
             $rain_end = $endtime;
             $t_span = "(since 12 a.m.)";
-            $td_rain = "<td title=\"Rain starting at midnight\n on this day: ".
+            $td_rain = "<td title=\"Rain starting from midnight\n on this day: ".
                        hDate($rain_start). "\">";
         }
 
