@@ -22,15 +22,20 @@ tr.wxhint {
 tr.wxwht {
     background-color: #fff;
 }
+
 tr.wxheadr {
     background-color: #c0cdda;
     border:1px solid #C0CDDA; 
 }
+
+tr:hover {
+    background-color: #c2c2c2;
+}
+
 th.wxheadr {
     background-color: #c0cdda;
     border:1px solid #C0CDDA; 
 }
-
 
 table.wxdata {
     width:90%;
