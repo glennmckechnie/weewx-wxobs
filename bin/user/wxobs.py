@@ -109,8 +109,11 @@ class wxobs(SearchList):
         if not self.want_delta:
             self.show_warning = to_bool(self.generator.skin_dict['wxobs'].get(
                 'show_warning', False))
+        # phpinfo.php shows include_path as .:/usr/share/php, we'll put it
+        # in there and hopefully that will work for most users.
+        # I'd prefer /tmp/wxobs_inc.php but perhaps that only works for me?
         self.include_file = self.generator.skin_dict['wxobs'].get(
-            'include_file', '/tmp/wxobs_inc.php')
+            'include_file', '/usr/share/php/wxobs_inc.php')
 
 
 #       target_unit = METRICWX    # Options are 'US', 'METRICWX', or 'METRIC'
@@ -156,9 +159,7 @@ class wxobs(SearchList):
                 loginf("sqlite database is %s, %s, %s" % (
                     self.sq_dbase, self.sq_root, self.sqlite_db))
 
-        self.phpinc_file = '/tmp/wxobs_inc.php'
-
-        php_inc = open(self.phpinc_file, 'w')
+        php_inc = open(self.include_file, 'w')
         php_inc.writelines(v_al)
         php_inc.close()
 
