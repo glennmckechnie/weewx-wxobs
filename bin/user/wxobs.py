@@ -14,7 +14,7 @@ import syslog
 from weeutil.weeutil import to_bool
 from weewx.cheetahgenerator import SearchList
 
-wxobs_version = "0.03"
+wxobs_version = "0.04"
 
 def logmsg(level, msg):
     syslog.syslog(level, '%s' % msg)
@@ -63,6 +63,10 @@ class wxobs(SearchList):
         displayed value returned from the database. This satisfies a quirk in
         my setup where the database is in m/s but I want kmh displayed.
 
+        aus_rain: The australian rain day starts at 9 a.m. setting this as
+        true will adjust the rain column values between these 9 .a.m. each day.
+        default is false - start at midnight 00:00:00 through to the next day.
+
         show_warning: An information message will appear on the report page
         (index.php) if the database is in US units (imperial) or units are
         detected that don't match the native units required for the delta-T
@@ -81,6 +85,7 @@ class wxobs(SearchList):
         5 only for ordinalCompass conversion calcs (N, NE...CALM) (verbose)
         """
 
+        self.wxobs_version = wxobs_version
         self.wxobs_debug = int(self.generator.skin_dict['wxobs'].get(
             'wxobs_debug', '0'))
 
@@ -95,6 +100,8 @@ class wxobs(SearchList):
             'app_Temp', 'windchill')
         self.wind_adjust = self.generator.skin_dict['wxobs'].get(
             'wind_adjust', '1')
+        self.aus_rain = to_bool(self.generator.skin_dict['wxobs'].get(
+            'australian_rain', False))
         self.show_warning = to_bool(self.generator.skin_dict['wxobs'].get(
             'show_warning', True))
         self.want_delta = to_bool(self.generator.skin_dict['wxobs'].get(
@@ -102,6 +109,11 @@ class wxobs(SearchList):
         if not self.want_delta:
             self.show_warning = to_bool(self.generator.skin_dict['wxobs'].get(
                 'show_warning', False))
+        # phpinfo.php shows include_path as .:/usr/share/php, we'll put it
+        # in there and hopefully that will work for most users.
+        # I'd prefer /tmp/wxobs_inc.php but perhaps that only works for me?
+        self.include_file = self.generator.skin_dict['wxobs'].get(
+            'include_file', '/usr/share/php/wxobs_incl.inc')
 
 
 #       target_unit = METRICWX    # Options are 'US', 'METRICWX', or 'METRIC'
@@ -123,6 +135,11 @@ class wxobs(SearchList):
                 ['MySQL'].get('user')
             self.mysql_pass = self.generator.config_dict['DatabaseTypes'] \
                 ['MySQL'].get('password')
+            v_al = ["<?php\n $php_dbase = '%s';\n $php_mysql_base = '%s';\n"
+                    " $php_mysql_host = '%s';\n $php_mysql_user = '%s';\n"
+                    " $php_mysql_pass = '%s';\n" %
+                    (self.dbase, self.mysql_base, self.mysql_host,
+                     self.mysql_user, self.mysql_pass)]
             if self.wxobs_debug >= 5:
                 loginf("mysql database is %s, %s, %s, %s" % (
                     self.mysql_base, self.mysql_host,
@@ -135,10 +152,16 @@ class wxobs(SearchList):
                 ['SQLite'].get('SQLITE_ROOT')
 
             self.sqlite_db = ("%s/%s" %(self.sq_root, self.sq_dbase))
+            v_al = ["<?php\n $php_dbase = 'sqlite';\n $php_sqlite_db = '%s';\n" %
+                    self.sqlite_db]
 
             if self.wxobs_debug >= 5:
                 loginf("sqlite database is %s, %s, %s" % (
                     self.sq_dbase, self.sq_root, self.sqlite_db))
+
+        php_inc = open(self.include_file, 'w')
+        php_inc.writelines(v_al)
+        php_inc.close()
 
 if __name__ == '__main__':
     # Hmmm!
