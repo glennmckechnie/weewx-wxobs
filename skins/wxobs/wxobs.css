@@ -22,30 +22,20 @@ tr.wxhint {
 tr.wxwht {
     background-color: #fff;
 }
-<<<<<<< HEAD
 
-=======
->>>>>>> master
 tr.wxheadr {
     background-color: #c0cdda;
     border:1px solid #C0CDDA; 
 }
-<<<<<<< HEAD
 
 tr:hover {
     background-color: #c2c2c2;
 }
 
-=======
->>>>>>> master
 th.wxheadr {
     background-color: #c0cdda;
     border:1px solid #C0CDDA; 
 }
-<<<<<<< HEAD
-=======
-
->>>>>>> master
 
 table.wxdata {
     width:90%;
@@ -66,11 +56,8 @@ table.wxdata td {
 
 div.wxdata {
     /*width:400px;*/
-<<<<<<< HEAD
     /*width:90%;*/
-=======
     width:100%;
->>>>>>> master
     text-align: center;
     /*background-color:#dac0cd;*/
 }
@@ -84,8 +71,6 @@ div.alert {
 div.wxobs {
     text-align: center;
 }
-<<<<<<< HEAD
-=======
 
 p.debug {
     text-align: left;
@@ -96,5 +81,4 @@ p.alert {
     text-align: center;
     background-color:#dac0cd;
 }
->>>>>>> master
 

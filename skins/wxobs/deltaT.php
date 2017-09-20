@@ -100,7 +100,6 @@ function deltaT($Tc, $RH, $P)
     * $Tc = outTemp.degree_C
     * $RH = outHumidity
     * $P = pressure.hPa
-<<<<<<< HEAD
     * for the same formula as here, listed under 'Wet Bulb Temperature' see
     * https://www.aprweather.com/pages/calc.htm
     * and for related formula
@@ -109,8 +108,6 @@ function deltaT($Tc, $RH, $P)
     * http://www.weather.gov/epz/wxcalc_rh
     * with a source description at
     * http://www.weather.gov/media/epz/wxcalc/wetBulbTdFromRh.pdf
-=======
->>>>>>> master
     */
     global $dT;
     global $WBc;
@@ -118,18 +115,12 @@ function deltaT($Tc, $RH, $P)
     $Tdc = (($Tc - (14.55 + 0.114 * $Tc) * (1 - (0.01 * $RH)) -
         ((2.5 + 0.007 * $Tc) * (1 - (0.01 * $RH))) ** 3 -
         (15.9 + 0.117 * $Tc) * (1 - (0.01 * $RH)) ** 14));
-<<<<<<< HEAD
 
     $E = (6.11 * 10 ** (7.5 * $Tdc / (237.7 + $Tdc)));
 
     $WBc = (((0.00066 * $P) * $Tc) + ((4098 * $E) / (($Tdc + 237.7) ** 2)
         * $Tdc)) / ((0.00066 * $P) + (4098 * $E) / (($Tdc + 237.7) ** 2));
 
-=======
-    $E = (6.11 * 10 ** (7.5 * $Tdc / (237.7 + $Tdc)));
-    $WBc = (((0.00066 * $P) * $Tc) + ((4098 * $E) / (($Tdc + 237.7) ** 2)
-        * $Tdc)) / ((0.00066 * $P) + (4098 * $E) / (($Tdc + 237.7) ** 2));
->>>>>>> master
     // $WetBulb = "%.1f" % $WBc + $unit.label.outTemp
     // $WetBulb = "%.1f" % ($WBc*9/5+32) + $unit.label.outTemp // degrees F
     //echo "Tdc = $Tdc E = $E WBc = $WBc :: T=$Tc : RH=$RH : P=$P<br>";
@@ -207,7 +198,6 @@ echo "<hr><h3>From the Australian, Bureau of Meteorology (BOM)</h3><p>
      and their
      <a href=\"http://www.bom.gov.au/info/leaflets/Pesticide-Spraying.pdf\">
      Leaflet for Pesticide Spraying (pdf)</a></p>";
-<<<<<<< HEAD
 echo "<hr><p>This DeltaT calculator uses formulas originally sourced from the
      Wet bulb section in  wdSearchX3.py, which is part of the weewx-wd package 
      by oz greg and  which is available at 
@@ -219,14 +209,12 @@ echo "<hr><p>This DeltaT calculator uses formulas originally sourced from the
      Wet Bulb Temperature</a></p>
 
      <p>The Delta_T addition started from Powerin in a weewx-user posting.
-=======
 echo "<hr><p>This DeltaT calculator uses formulas sourced from the Wet bulb
      section in  wdSearchX3.py,  which is part of the weewx-wd package by 
      oz greg and  which is available at 
      <a href=\"https://bitbucket.org/ozgreg/weewx-wd/wiki/Home\"\>
      https://bitbucket.org/ozgreg/weewx-wd/wiki/Home</a><br>
      Delta_T addition from Powerin in a weewx-user posting.
->>>>>>> master
      This implementation (with calculator and conversions) is provided as
      part of the <a href=\"https://github.com/glennmckechnie/weewx-wxobs\">
      weewx-wxobs package at github</a></p>";
