@@ -20,7 +20,6 @@
    <!-- wxobs version $wxobs_version -->
    <!-- This weewx extension is available at github: https://github.com/glennmckechnie/weewx-wxobs -->
 =======
-## Version 0.03
 
 >>>>>>> master
    <div class="wxobs">
