@@ -1,5 +1,15 @@
+# Update: 20th Sept 2017
+
+This skin now uses php includes to import critical values into the report page. This should reduce the risk of those details being exposed inadvertently. Hopefully it will be a drop in replacement, no matter which webserver or vendor configuration you have!
+
+Australian rain has now been included as an option (see skin.conf where it's off by default). This is where rain is recorded over the 24 hours between 9 a.m each day
+
+Version bump to 0.04
+
 # weewx-wxobs
  A skin that integrates with weewx and provides a php driven report page to extract archival data (Daily climatological summaries) from the weewx database. It then presents it as a series of snapshots (currently half-hourly) averaged throughout the chosen day. There is an option to include appTemp, and delta-T ( used for agricultural purposes. )
+
+
 
 It is set out in the style of the _Latest Weather Observations_ pages that the Australian Weather Bureau - BOM provides. eg:- [Ballarat](http://www.bom.gov.au/products/IDV60801/IDV60801.94852.shtml)  I find those pages useful, that one especially when keeping an eye on the accuracy of my station.
 
