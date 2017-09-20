@@ -204,8 +204,8 @@ $st_baro = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"".
            "Barometric pressure\">Pressure<br>$unit.label.barometer</a></th>";
 $st_rain = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"".
            "Total rainfall for each interval\n starting from nominated time.\">";
-$st_comp = "<th class=\"wxheadr\"><a title=\"Direction the wind comes from as".
-           "cardinal (compass) values\">Direction<br>compass</a></th>";
+$st_comp = "<th class=\"wxheadr\"><a title=\"Direction the wind comes from as\n".
+           " cardinal (compass) values\">Direction<br>compass</a></th>";
 $st_spd = "<th class=\"wxheadr\">Speed<br>$unit.label.wind</th>";
 $st_gust = "<th class=\"wxheadr\">Gust<br>$unit.label.wind</th>";
 $st_degr = "<th class=\"wxheadr\"><a title=\"Direction the wind comes from in ".
@@ -336,7 +336,7 @@ if ($debug>='1') {
         if ($now_time <= $start_nine) {
             $rain_start = $start_yday;
             $rain_end = $rain_start + 86400 + $arch_interval;
-            $t_span = "(since 9- a.m.)";
+            $t_span = "(since 9 a.m.)";
             $td_rain = "<td style=\"background-color:#aeaeae\" title=\"".
                        "Previous Total over 24 hours\nstarting from ".
                        hDate($rain_start). "\">";
@@ -349,7 +349,7 @@ if ($debug>='1') {
         } elseif ($now_time > $start_nine) {
             $rain_start =$start_nine;
             $rain_end = $rain_start + 86400 + $arch_interval;
-            $t_span = "(since 9+ a.m.)";
+            $t_span = "(since 9 a.m.)";
             $td_rain = "<td style=\"background-color:#d6d6d6\" title=\"".
                        "Current Total over 24 hours\nstarting from ".
                        hDate($rain_start). "\">";
@@ -547,7 +547,7 @@ if ($debug>='1') {
             //echo "} elseif ".hDate($latest_date)." ($latest_date < $start_nine) {". hDate($start_nine)."<br>";
             $rain_start = $start_yday;
             $rain_end = $start_yday + 86400;
-            $t_span = "(since 9-- a.m.)";
+            $t_span = "(since 9 a.m.)";
             $td_rain = "<td style=\"background-color:#aeaeae\" title=\"".
                        "Previous Total over 24 hours\nstarting from ".
                        hDate($rain_start). "\">";
@@ -556,7 +556,7 @@ if ($debug>='1') {
             //echo "} elseif ".hDate($latest_date)." ($latest_date >= $start_nine) {". hDate($start_nine)."<br>";
             $rain_start =$start_nine;
             $rain_end = $start_nine + 86400;
-            $t_span = "(since 9++ a.m.)";
+            $t_span = "(since 9 a.m.)";
             $td_rain = "<td style=\"background-color:#d6d6d6\" title=\"".
                         "Current Total over 24 hours\nstarting from ".
                         hDate($rain_start). "\">";
@@ -730,7 +730,6 @@ if ($debug>='1') {
             if ($starttime <= $start_nine) {
                  $rain_start = $start_yday;
                  $rain_end = $endtime;//$start_yday + 86400;
-                 $t_span = "(since 9-+- a.m.)";
                  $td_rain = "<td style=\"background-color:#aeaeae\" title=\"".
                             "Previous Total over 24 hours\nstarting from ".
                             hDate($rain_start)."\">";
@@ -738,7 +737,6 @@ if ($debug>='1') {
             } elseif ($starttime > $start_nine) {
                  $rain_start =$start_nine;
                  $rain_end = $endtime;//$start_nine + 86400;
-                 $t_span = "(since 9+++ a.m.)";
                  $td_rain = "<td style=\"background-color:#d6d6d6\" title=\"".
                             "Current Total over 24 hours\nstarting from ".
                             hDate($rain_start). "\">";
