@@ -203,18 +203,11 @@ echo "<hr><p>This DeltaT calculator uses formulas originally sourced from the
      by oz greg and  which is available at 
      <a href=\"https://bitbucket.org/ozgreg/weewx-wd/wiki/Home\"\>
      https://bitbucket.org/ozgreg/weewx-wd/wiki/Home</a>
-     That same formula is listed on <b>Andrew Revering's List of Meteorological
+     The Delta_T addition started from user Powerin in a weewx-user posting.</p>
+     <p>That same formula is listed on <b>Andrew Revering's List of Meteorological
      Formulas</b> page, under the section 
      <a href=\"https://www.aprweather.com/pages/calc.htm\">
      Wet Bulb Temperature</a></p>
-
-     <p>The Delta_T addition started from Powerin in a weewx-user posting.
-echo "<hr><p>This DeltaT calculator uses formulas sourced from the Wet bulb
-     section in  wdSearchX3.py,  which is part of the weewx-wd package by 
-     oz greg and  which is available at 
-     <a href=\"https://bitbucket.org/ozgreg/weewx-wd/wiki/Home\"\>
-     https://bitbucket.org/ozgreg/weewx-wd/wiki/Home</a><br>
-     Delta_T addition from Powerin in a weewx-user posting.
      This implementation (with calculator and conversions) is provided as
      part of the <a href=\"https://github.com/glennmckechnie/weewx-wxobs\">
      weewx-wxobs package at github</a></p>";
