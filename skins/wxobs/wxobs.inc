@@ -60,14 +60,9 @@ require '$include_file';
 * 5 only for ordinalCompass conversion calcs (N, NE...CALM) (verbose)
 */
 
-//function hDate($d)
-//{
-//        $h_read = date('d-M-Y H:i', $d);
-//        return $h_read;
-//}
-
 function hDate($d)
 {
+        //$h_read = date('d-M-Y H:i', $d);
         $h_read = date('d-M H:i', $d);
         return $h_read;
 }
@@ -76,6 +71,7 @@ function ordinalCompass($degr, $debug)
 {
     /*
     * Templated from weewx code. Mistakes are mine!
+    * should be using windSpeed == 0, but this works too !?
     */
     global $compass;
     $default_ordinate_names = array ('N', 'NNE','NE', 'ENE', 'E', 'ESE', 'SE', 'SSE',
@@ -104,9 +100,13 @@ function ordinalCompass($degr, $debug)
 function deltaT($Tc, $RH, $P, $debug)
 {
     /*
+    * A calculator deltaT.php is distributed with this script, in the master.zip
+    * file or at its github location
+    *
     * DeltaT calculations
     * sourced from wdSearchX3.py, part of the weewx-wd package by oz greg
     * available at https://bitbucket.org/ozgreg/weewx-wd/wiki/Home
+    * and various other sites - deltaT.php mentioned above.
     * $Tc = outTemp.degree_C
     * $RH = outHumidity
     * $P = pressure.hPa
@@ -310,12 +310,11 @@ if ($show_warning) {
 // Start of Latest observations
 // Shows the latest record and the rainfall total
     $day_start = mktime('0', '0', '0', date('n'), date('j'), date('Y'));
-    $now_time = mktime();
-    $endtime = $now_time;
+    $time_now = mktime();
 if ($debug>='1') {
     echo "<p>Latest Observations:<br>day_start = ", hDate($day_start),
-     "($day_start)<br> endtime uses the now_time value ", hDate($endtime),
-     " ( $endtime )</p>";
+     "($day_start)<br> time_now uses the time_now value ", hDate($time_now),
+     " ( $time_now )</p>";
 }
 
     $last_entry = $db->query(
@@ -331,38 +330,38 @@ if ($debug>='1') {
 
     if ($aus_rain) {
         // Calculate start day for rain calcs - Australian records start at 9 a.m.
-        $start_nine = $day_start + 32400; // 9 am today
-        $start_yday = $day_start - 54000; // 9 am yesterday
-        if ($now_time <= $start_nine) {
-            $rain_start = $start_yday;
+        $today_nine = $day_start + 32400; // 9 am today
+        $past_nine = $day_start - 54000; // 9 am yesterday
+        if ($time_now <= $today_nine) {
+            $rain_start = $past_nine;
             $rain_end = $rain_start + 86400 + $arch_interval;
             $t_span = "(since 9 a.m.)";
             $td_rain = "<td style=\"background-color:#aeaeae\" title=\"".
                        "Previous Total over 24 hours\nstarting from ".
                        hDate($rain_start). "\">";
             if ($debug >= 1) {
-                echo "Latest: nowtime=".hdate($now_time)." : ".hDate($day_start).
-                 " ($day_start day_start < start_nine $start_nine) ".
-                 hDate($start_nine)." : rain_start = ".hDate($rain_start).
+                echo "Latest: time_now=".hDate($time_now)." : ".hDate($day_start).
+                 " ($day_start day_start < today_nine $today_nine) ".
+                 hDate($today_nine)." : rain_start = ".hDate($rain_start).
                  " : rain_end ".hDate($rain_end)."<br>";
             }
-        } elseif ($now_time > $start_nine) {
-            $rain_start =$start_nine;
+        } elseif ($time_now > $today_nine) {
+            $rain_start =$today_nine;
             $rain_end = $rain_start + 86400 + $arch_interval;
             $t_span = "(since 9 a.m.)";
             $td_rain = "<td style=\"background-color:#d6d6d6\" title=\"".
                        "Current Total over 24 hours\nstarting from ".
                        hDate($rain_start). "\">";
             if ($debug >= 1) {
-                echo "Latest: nowtime=".hDate($now_time)." : ".hDate($day_start).
-                 " ($day_start day_start >= start_nine $start_nine) ".
-                 hDate($start_nine)." : rain_start = ".hDate($rain_start).
+                echo "Latest: time_now=".hDate($time_now)." : ".hDate($day_start).
+                 " ($day_start day_start >= today_nine $today_nine) ".
+                 hDate($today_nine)." : rain_start = ".hDate($rain_start).
                  " : rain_end ".hDate($rain_end)."<br>";
             }
         }
     } else {
         $rain_start = $day_start;
-        $rain_end = $endtime;
+        $rain_end = $time_now;
         $t_span = "(since 12 a.m.)";
         $td_rain = "<td title=\"24 hour rain starting from midnight\n on this day: ".
                    hDate($rain_start). "\">";
@@ -400,9 +399,8 @@ if ($debug>='1') {
     }
 
     if ($debug>='1') {
-        //echo "latest date = $latest_date : day_start = $day_start : endtime = $endtime<br>";
         echo "latest date = ", hDate($latest_date), " : day_start = ",
-             hDate($day_start), " : endtime = ", hDate($endtime), "<br>";
+             hDate($day_start), " : time_now = ", hDate($time_now), "<br>";
              echo "latest rain_start = ", hDate($rain_start), " : ($rain_start) rain_end = ",
                   hDate($rain_end), "($rain_end)";
     }
@@ -435,7 +433,7 @@ if ($debug>='1') {
     *   echo "System TimeZone is $systemTimeZone <br>";
     *   }
     */
-
+//Create Latest table headers - ugly layout but ok in html source
     echo "<div class=\"wxdata\">\n<!-- start data tables -->\n
  <H2><A Title=\"Todays latest weather observations, at the displayed time.\">Latest Observations</a></h2>
 <table class=\"wxdata\">
@@ -461,8 +459,8 @@ if ($debug>='1') {
     }
 
 
-    $hdate = $latest_row[0];
-    echo "<tr><td> $hdate<!-- $st_day --></td>";
+    $dbase_date = $latest_row[0];
+    echo "<tr><td> $dbase_date<!-- $st_day --></td>";
     $metTemp = round($latest_row[1], 1);
     echo "<td>$metTemp</td>";
     $metappTemp = round($latest_row[2], 1);
@@ -498,19 +496,18 @@ if ($debug>='1') {
     echo "$td_rain $metRain</td></tr>";
     echo "</tbody></table>\n<!-- end latest observations -->\n<br><hr>";
 
-    // Finished Latest Obs
-    /////////////////////////////
-    // Min Max summaries
-
-    // Shows the min and max values, averages and rainfall total
+// Finished Latest Obs html
+/////////////////////////////
+// Start Min Max summaries
+// Shows the min and max values, averages and rainfall total
     if ($_REQUEST['datepicker']) {
-        $unixtime =  strtotime($_REQUEST['datepicker']);
+        $pick_start =  strtotime($_REQUEST['datepicker']);
         if ($debug>='1') {
             echo "<p class=\"debug\">Min (Max)<br> Datepicker returned ",
-                  hDate($unixtime), " ($unixtime) </p>";
+                  hDate($pick_start), " ($pick_start) </p>";
         }
     } else {
-        $unixtime = $day_start;
+        $pick_start = $day_start;
         if ($debug>='1') {
             echo "<p class=\"debug\">Min (Max)<br> Datepicker returned null,
                  day_start ", hDate($day_start), "( $day_start )
@@ -519,59 +516,56 @@ if ($debug>='1') {
     }
 
     // sanity check because dates from the future are pointless (and untidy)
-    // $latest_date holds the latest time from the first (above) observations.
-    if ($unixtime > $latest_date) {
+    // $latest_date holds the last (latest) entry in database.
+    if ($pick_start > $latest_date) {
         if ($debug>='1') {
-            echo "<p class=\"debug\"> unixtime ( $unixtime ) is > latest+date ( $latest_date ) </p>";
+            echo "<p class=\"debug\"> pick_start ( $pick_start ) is > latest_date ( $latest_date ) </p>";
         }
         echo "<p class=\"alert\">That is a future date; there are no records!<br></p>";
         return;
     }
 
-    $starttime = $unixtime;
-    $endtime = $starttime + 86400;
-    $rain_day = $starttime;
-    // $start_yday = $rain_start - 86400;
-    // $start_nine = $rain_start + 32400;
-    //////////// Min Max
+    $start_time = $pick_start;
+    $day_end = $start_time + 86400;
+
     if ($aus_rain) {
         // Calculate start day for rain calcs - Australian records start at 9 a.m.
-        $start_nine = $rain_day + 32400; // 9 am today
-        $start_yday = $rain_day - 54000; // 9 am yesterday
+        $today_nine = $start_time + 32400; // 9 am today
+        $past_nine = $start_time - 54000; // 9 am yesterday
         if ($debug>='1') {
-            echo "Rain: Min Max start_nine = ", hDate($start_nine), " ($start_nine) <br>";
-            echo "Rain: Min Max start_yday = ". hDate($start_yday)." ($start_yday) <br>";
+            echo "Rain: Min Max today_nine = ", hDate($today_nine), " ($today_nine) <br>";
+            echo "Rain: Min Max past_nine = ". hDate($past_nine)." ($past_nine) <br>";
         }
         // include up to the actual 9 a.m. value
-        if ($latest_date <= $start_nine) {
-            //echo "} elseif ".hDate($latest_date)." ($latest_date < $start_nine) {". hDate($start_nine)."<br>";
-            $rain_start = $start_yday;
-            $rain_end = $start_yday + 86400;
+        if ($latest_date <= $today_nine) {
+            //echo "} elseif ".hDate($latest_date)." ($latest_date < $today_nine) {". hDate($today_nine)."<br>";
+            $rain_start = $past_nine;
+            $rain_end = $past_nine + 86400;
             $t_span = "(since 9 a.m.)";
             $td_rain = "<td style=\"background-color:#aeaeae\" title=\"".
                        "Previous Total over 24 hours\nstarting from ".
                        hDate($rain_start). "\">";
             // start from the 9 a.m. value
-        } elseif ($latest_date > $start_nine) {
-            //echo "} elseif ".hDate($latest_date)." ($latest_date >= $start_nine) {". hDate($start_nine)."<br>";
-            $rain_start =$start_nine;
-            $rain_end = $start_nine + 86400;
+        } elseif ($latest_date > $today_nine) {
+            //echo "} elseif ".hDate($latest_date)." ($latest_date >= $today_nine) {". hDate($today_nine)."<br>";
+            $rain_start =$today_nine;
+            $rain_end = $today_nine + 86400;
             $t_span = "(since 9 a.m.)";
             $td_rain = "<td style=\"background-color:#d6d6d6\" title=\"".
                         "Current Total over 24 hours\nstarting from ".
                         hDate($rain_start). "\">";
         }
     } else {
-        $rain_start = $starttime;
-        $rain_end = $endtime;
+        $rain_start = $start_time;
+        $rain_end = $day_end;
         $t_span = "(since 12 a.m.)";
         $td_rain = "<td title=\"24 hour rain starting from midnight\n on this day: ".
                    hDate($rain_start). "\">";
     }
     if ($debug>='1') {
-        echo "<p class=\"debug\">Min (Max) and Periodic Stats<br> starttime is now
-             = unixtime ". hDate($unixtime). "( $unixtime ) and endtime is + 86400 "
-             .hDate($endtime)." ( $endtime )</p>";
+        echo "<p class=\"debug\">Min (Max) and Periodic Stats<br> start_time is now
+             = pick_start ". hDate($pick_start). "( $pick_start ) and day_end is + 86400 "
+             .hDate($day_end)." ( $day_end )</p>";
     }
 
     if ($php_dbase === 'mysql') {
@@ -581,7 +575,7 @@ if ($debug>='1') {
             max(outTemp), min($appTemp), max($appTemp), min(dewPoint),
             max(dewPoint), min(outHumidity), max(outHumidity), avg(windSpeed),
             avg(windGust), avg(windDir), avg(barometer), sum(rain) FROM archive
-            WHERE dateTime >= $starttime and dateTime < $endtime;"
+            WHERE dateTime >= $start_time and dateTime < $day_end;"
         );
         $rain_avg = $db->query(
             "SELECT FROM_UNIXTIME(datetime, '%d-%m-%Y %H:%i'),
@@ -597,24 +591,22 @@ if ($debug>='1') {
             max(outTemp), min($appTemp), max($appTemp), min(dewPoint), max(dewPoint),
             min(outHumidity), max(outHumidity), avg(windSpeed), avg(windGust),
             avg(windDir), avg(barometer), sum(rain) FROM archive WHERE dateTime
-            >= $starttime and dateTime < $endtime;"
-            //>= $starttime and dateTime < $rain_end;"
+            >= $start_time and dateTime < $day_end;"
         );
         $rain_avg = $db->query(
             "SELECT datetime(min(dateTime), 'unixepoch', 'localtime'),
            sum(rain) FROM archive WHERE dateTime >= $rain_start
            and dateTime < $rain_end;"
-            //and dateTime < $endtime;"
         );
 
         $rain_row = $rain_avg->fetchArray();
         $stats_row = $stats_snap->fetchArray();
     }
-    $hdate = $stats_row[0];
-    if ($hdate == "") {
-        $read_able=date("d-M-Y H:i", $starttime);
+    $dbase_date = $stats_row[0];
+    if ($dbase_date == "") {
+        $read_able=date("d-M-Y H:i", $start_time);
         echo "<p class=\"alert\">That date appears to be invalid, no data to
-             display.<br> $starttime was given as the starting date ($read_able)
+             display.<br> $start_time was given as the starting date ($read_able)
              </p></body></html>";
         return;
     }
@@ -626,15 +618,15 @@ if ($debug>='1') {
 
     if ($debug >= 1) {
         echo "Min Max:<br> latest date = ", hDate($latest_date), " : day_start = ",
-           hDate($day_start), "<br> starttime = ", hDate($starttime),
-           " : endtime = ", hDate($endtime), "<br>rain_start = ",
+           hDate($day_start), "<br> start_time = ", hDate($start_time),
+           " : day_end = ", hDate($day_end), "<br>rain_start = ",
            hDate($rain_start), " : rain_end = ", hDate($rain_end), "<br>";
     }
 
-    // Finish Min (Max) grunt work
-    //////////////////////////
-    // Build Min (Max) Obs html
-
+// Finish Min (Max) grunt work
+//////////////////////////
+// Build Min (Max) Obs html
+// Create Min Max table headers - ugly layout but ok in html source
     echo "<!-- start snapshot summary observations -->
  <h2>Historical Observations for $this_day</h2>
  <h3><a title=\"Lowest and Highest observations for the nominated day.\">Min (Max) Stats</a></h3>
@@ -652,17 +644,17 @@ if ($debug>='1') {
  </thead><tbody>";
 
     if ($debug >= 1) {
-        $st_day = hDate($starttime);
-        $st_day = "$st_day($starttime)";
-        $en_day = hDate($endtime);
-        $en_day = "$en_day($endtime)";
+        $st_day = hDate($start_time);
+        $st_day = "$st_day($start_time)";
+        $en_day = hDate($day_end);
+        $en_day = "$en_day($day_end)";
     } else {
         $st_day = "debug times available here if wxobs_debug = 1 in skin.conf";
         $en_day = "";
     }
 
 
-    echo "<tr><td> $hdate<!-- $st_day : $en_day --></td>";
+    echo "<tr><td> $dbase_date<!-- $st_day : $en_day --></td>";
     $minTemp = round($stats_row[1], 1);
     $maxTemp = round($stats_row[2], 1);
     echo "<td>$minTemp ($maxTemp)</td>";
@@ -690,12 +682,12 @@ if ($debug>='1') {
     echo "$td_rain $metRain</td></tr>";
     echo "</tbody></table>\n<!-- end snapshot summary observations -->\n";
 
-    // Finish Min (Max) Stats
-    //////////////////////////
-    // Build Half-hourly, daily stats html
-
-    // Shows the average half-hourly values for a given (arch_interval) snapshot,
-    // averages and rainfall total for that period.
+// Finish Min (Max) Stats
+//////////////////////////
+// Build Periodic daily stats html
+// Shows the (average) periodic values for a given (arch_interval) snapshot,
+// averages and rainfall total for that period.
+// Create Min Max table headers - ugly layout but ok in html source
     echo "<!-- start snapshot observations -->
  <h3><a title=\"Time stamped observations throughout the nominated day.\">Periodic Stats $iflag</a></h3>
  <table class=\"wxdata\">
@@ -718,32 +710,32 @@ if ($debug>='1') {
     // this may appear to include an extra interval - midnight to midnight.
     // but we're counting panels, not fence posts. ie: It's correct.
     for ($t=$c_ycle; $t>=0; $t--) {
-        $rain_day = $unixtime;
-        $starttime = $unixtime + ($t*'$ext_interval');
-        $endtime = $starttime + '$arch_interval';
+        $start_time = $pick_start + ($t*'$ext_interval');
+        $end_interval = $start_time + '$arch_interval';
 
         if ($aus_rain) {
-            // Calculate start day for rain calcs - Australian records start at 9 a.m.
-            $start_nine = $rain_day + 32400; // 9 am today
-            $start_yday = $rain_day - 54000; // 9 am yesterday
+            // Calculate start day for rain calcs
+            // Australian records start at 9 a.m.
+            $today_nine = $pick_start + 32400; // 9 am today
+            $past_nine = $pick_start - 54000; // 9 am yesterday
             // include up to the actual 9 a.m. value
-            if ($starttime <= $start_nine) {
-                 $rain_start = $start_yday;
-                 $rain_end = $endtime;//$start_yday + 86400;
+            if ($start_time <= $today_nine) {
+                 $rain_start = $past_nine;
+                 $rain_end = $end_interval;//$past_nine + 86400;
                  $td_rain = "<td style=\"background-color:#aeaeae\" title=\"".
                             "Previous Total over 24 hours\nstarting from ".
                             hDate($rain_start)."\">";
                 // start from the 9 a.m. value
-            } elseif ($starttime > $start_nine) {
-                 $rain_start =$start_nine;
-                 $rain_end = $endtime;//$start_nine + 86400;
+            } elseif ($start_time > $today_nine) {
+                 $rain_start =$today_nine;
+                 $rain_end = $end_interval;//$today_nine + 86400;
                  $td_rain = "<td style=\"background-color:#d6d6d6\" title=\"".
                             "Current Total over 24 hours\nstarting from ".
                             hDate($rain_start). "\">";
             }
         } else {
-            $rain_start = $rain_day;//$starttime;
-            $rain_end = $endtime;
+            $rain_start = $pick_start;
+            $rain_end = $end_interval;
             $t_span = "(since 12 a.m.)";
             $td_rain = "<td title=\"Rain starting from midnight\n on this day: ".
                        hDate($rain_start). "\">";
@@ -751,21 +743,21 @@ if ($debug>='1') {
 
         if ($debug >= 6) {
             echo "Periodic Stats :<br> latest date = ", hDate($latest_date),
-                 " : day_start = ", hDate($day_start), "<br> starttime = ",
-                 hDate($starttime), " : endtime = ", hDate($endtime),
+                 " : day_start = ", hDate($day_start), "<br> start_time = ",
+                 hDate($start_time), " : end_interval = ", hDate($end_interval),
                  "<br>rain_start = ", hDate($rain_start), " : rain_end = ",
                  hDate($rain_end), "<br>";
         }
 
         // mysql will return the date as dd-mm-yyyy (as per the db->query statements
         // following) adjust if desired.
-        // sqlite will return the date as yyyy-mm-dd (default)
+        // sqlite will return the date as yyyy-mm-dd (default and appears to be locked?)
         if ($php_dbase === 'mysql') {
                $results = $db->query(
                    "SELECT FROM_UNIXTIME(datetime, '%d-%m-%Y %H:%i'), avg(outTemp),
                    avg($appTemp), avg(dewPoint), avg(outHumidity), avg(windSpeed),
                    avg(windGust), avg(windDir), avg(barometer), sum(rain) FROM
-                   archive WHERE dateTime >= $starttime and dateTime < $endtime;"
+                   archive WHERE dateTime >= $start_time and dateTime < $end_interval;"
                );
                 $rain_avg = $db->query(
                     "SELECT FROM_UNIXTIME(datetime, '%d-%m-%Y %H:%i'),
@@ -780,8 +772,8 @@ if ($debug>='1') {
                 "SELECT datetime(min(dateTime), 'unixepoch', 'localtime'),
                 avg(outTemp), avg($appTemp), avg(dewPoint), avg(outHumidity),
                 avg(windSpeed), avg(windGust), avg(windDir), avg(barometer),
-                total(rain) FROM archive WHERE dateTime>= $starttime and
-                dateTime< $endtime;"
+                total(rain) FROM archive WHERE dateTime>= $start_time and
+                dateTime< $end_interval;"
             );
             $rain_avg = $db->query(
                 "SELECT datetime(min(dateTime), 'unixepoch', 'localtime'),
@@ -797,21 +789,22 @@ if ($debug>='1') {
         } else {
             $tr_bgrnd = "wxwht";
         }
-            $hdate = $row[0];
+
+        $dbase_date = $row[0];
 
         // Values enclosed in comments within generated html tables
         if ($debug >= 1) {
-            $st_day = hDate($starttime);
-            $st_day = "$st_day($starttime)";
-            $en_day = hDate($endtime);
-            $en_day = "$en_day($endtime)";
+            $st_day = hDate($start_time);
+            $st_day = "$st_day($start_time)";
+            $en_day = hDate($end_interval);
+            $en_day = "$en_day($end_interval)";
         } else {
             $st_day = "";
             $en_day = "";
         }
 
-        if ($hdate != "") {
-            echo "<tr class=\"$tr_bgrnd\"><td> $hdate <!-- $st_day : $en_day -->";
+        if ($dbase_date != "") {
+            echo "<tr class=\"$tr_bgrnd\"><td> $dbase_date <!-- $st_day : $en_day -->";
             $metTemp = round($row[1], 1);
             echo "</td><td>$metTemp</td>";
             $metappTemp = round($row[2], 1);
