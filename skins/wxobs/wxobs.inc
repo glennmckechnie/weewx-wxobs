@@ -10,6 +10,7 @@
 ## 06-09-2017 initial releas @0.01
 ## 08-09-2017 convert to installable skin
 ## 08-09-2017 add unit check and conversion for deltaT
+<<<<<<< HEAD
 ## 13-09-2017 move sensitive info to an include file in /tmp, rather than have it
 ##            embedded within index.php. Don't show links.inc in index.php as it
 ##            breaks the flow and is redundant there. center all but debug info.
@@ -18,6 +19,10 @@
 
    <!-- wxobs version $wxobs_version -->
    <!-- This weewx extension is available at github: https://github.com/glennmckechnie/weewx-wxobs -->
+=======
+## Version 0.03
+
+>>>>>>> master
    <div class="wxobs">
       Use the following to select a date for archived records
       <!-- insert the javascript date picker -->
@@ -222,10 +227,17 @@ if ($php_dbase === 'mysql') {
         $php_mysql_base
     );
     if ($db->connect_errno) {
+<<<<<<< HEAD
         echo ("<p class=\"alert\">Connection to mysql database failed:<br>
             Has it been configured correctly - these were the values sent<br>
             host=$php_mysql_host,user=$php_mysql_user,
             pass=$php_mysql_pass,base=$php_mysql_base<br>
+=======
+        echo ("<p class=\"debug\">Connection to mysql database failed:<br>
+            Has it been configured correctly - these were the values sent<br>
+            host=$mysql_host,user=$mysql_user,
+            pass=$mysql_pass,base=$mysql_base<br>
+>>>>>>> master
      $db->connect_error</p>");
         return;
     }
@@ -235,7 +247,11 @@ if ($php_dbase === 'mysql') {
     }
     $db = new SQLite3($php_sqlite_db);
 } else {
+<<<<<<< HEAD
     echo "<p class =\"alert\">Failed to access the database by any known methods.<br>";
+=======
+    echo "Failed to access the database by any known methods.<br>";
+>>>>>>> master
 }
 
 
@@ -417,14 +433,22 @@ if ($debug>='1') {
                        " conditions are between the values of 2 &amp; 8\">".
                        "delta&dash;T<br>$unit.label.outTemp</a></th>";
         if ($debug>='3') {
+<<<<<<< HEAD
             echo "<p class=\"debug\">want_delta is $want_delta so label is...<br>
                  $delta_label";
+=======
+            echo "<p class=\"debug\">want_delta is $want_delta so ...<br> label is '$delta_label'";
+>>>>>>> master
         }
     } else {
         $delta_label="";
         if ($debug>='3') {
+<<<<<<< HEAD
             echo "<p class=\"debug\">want_delta is $want_delta so label is...<br>
                  '$delta_label'";
+=======
+            echo "<p class=\"debug\">want_delta is $want_delta so ...<br> label is '$delta_label'";
+>>>>>>> master
         }
     }
 
@@ -437,7 +461,11 @@ if ($debug>='1') {
     */
 
     echo "<div class=\"wxdata\">\n<!-- start data tables -->\n
+<<<<<<< HEAD
  <H2><A Title=\"Todays latest weather observations, at the displayed time.\">Latest Observations</a></h2>
+=======
+<h2>Latest Weather Observations</h2>
+>>>>>>> master
 <table class=\"wxdata\">
   <thead>
   <tr>
@@ -506,15 +534,24 @@ if ($debug>='1') {
     if ($_REQUEST['datepicker']) {
         $unixtime =  strtotime($_REQUEST['datepicker']);
         if ($debug>='1') {
+<<<<<<< HEAD
             echo "<p class=\"debug\">Min (Max)<br> Datepicker returned ",
                   hDate($unixtime), " ($unixtime) </p>";
+=======
+            echo "<p class=\"debug\">Min (Max)<br> Datepicker returned $unixtime</p>";
+>>>>>>> master
         }
     } else {
         $unixtime = $day_start;
         if ($debug>='1') {
+<<<<<<< HEAD
             echo "<p class=\"debug\">Min (Max)<br> Datepicker returned null,
                  day_start ", hDate($day_start), "( $day_start )
                  has been used</p>";
+=======
+            echo "<p class=\"debug\">Min (Max)<br> Datepicker returned null, day_start
+                ( $day_start ) has been used</p>";
+>>>>>>> master
         }
     }
 
@@ -569,9 +606,14 @@ if ($debug>='1') {
                    hDate($rain_start). "\">";
     }
     if ($debug>='1') {
+<<<<<<< HEAD
         echo "<p class=\"debug\">Min (Max) and Periodic Stats<br> starttime is now
              = unixtime ". hDate($unixtime). "( $unixtime ) and endtime is + 86400 "
              .hDate($endtime)." ( $endtime )</p>";
+=======
+        echo "<p class=\"debug\">Min (Max) and Periodic Stats<br> starttime is now = unixtime 
+        ( $unixtime ) and  endtime is + 86400  ( $endtime )</p>";
+>>>>>>> master
     }
 
     if ($php_dbase === 'mysql') {
@@ -637,7 +679,11 @@ if ($debug>='1') {
 
     echo "<!-- start snapshot summary observations -->
  <h2>Historical Observations for $this_day</h2>
+<<<<<<< HEAD
  <h3><a title=\"Lowest and Highest observations for the nominated day.\">Min (Max) Stats</a></h3>
+=======
+ <h3>Min (Max) Stats</h3>
+>>>>>>> master
  <table class=\"wxdata\">
   <thead>
   <tr>
@@ -690,6 +736,7 @@ if ($debug>='1') {
     echo "$td_rain $metRain</td></tr>";
     echo "</tbody></table>\n<!-- end snapshot summary observations -->\n";
 
+<<<<<<< HEAD
     // Finish Min (Max) Stats
     //////////////////////////
     // Build Half-hourly, daily stats html
@@ -698,6 +745,25 @@ if ($debug>='1') {
     // averages and rainfall total for that period.
     echo "<!-- start snapshot observations -->
  <h3><a title=\"Time stamped observations throughout the nominated day.\">Periodic Stats $iflag</a></h3>
+=======
+    if ($want_delta) {
+        $delta_label="<th class=\"wxheadr\" rowspan=\"2\">delta&dash;T<br>
+            $unit.label.outTemp</th>";
+        if ($debug=='3') {
+            echo "<p class=\"debug\">want_delta is $want_delta so ...<br> label is '$delta_label'";
+        }
+    } else {
+        $delta_label="";
+        if ($debug=='3') {
+            echo "<p class=\"debug\">want_delta is $want_delta so ...<br> label is '$delta_label'";
+        }
+    }
+    // Half-hourly, daily stats
+    // Shows the average half-hourly values for a given (arch_interval) snapshot,
+    // averages and rainfall total for that period.
+    echo "<!-- start snapshot observations -->
+ <h3>Periodic Stats $iflag</h3>
+>>>>>>> master
  <table class=\"wxdata\">
  <thead>
   <tr>
