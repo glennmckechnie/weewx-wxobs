@@ -100,6 +100,10 @@ class wxobs(SearchList):
             'app_Temp', 'windchill')
         self.wind_adjust = self.generator.skin_dict['wxobs'].get(
             'wind_adjust', '1')
+        # this variable is being used as a funcion name, thus the Case
+        # abuse... usage!
+        self.tempConvert = self.generator.skin_dict['wxobs'].get(
+            'temperature_convert', 'NNN')
         self.aus_rain = to_bool(self.generator.skin_dict['wxobs'].get(
             'australian_rain', False))
         self.show_warning = to_bool(self.generator.skin_dict['wxobs'].get(

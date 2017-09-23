@@ -60,6 +60,18 @@ require '$include_file';
 * 5 only for ordinalCompass conversion calcs (N, NE...CALM) (verbose)
 */
 
+function CtoF($x) {
+    return $x * 1.8 + 32.0;
+}
+
+function FtoC($x) {
+    return ($x - 32.0) * 5.0 / 9.0;
+}
+
+function NNN($x) {
+    return $x;
+}
+
 function hDate($d)
 {
         //$h_read = date('d-M-Y H:i', $d);
@@ -469,11 +481,14 @@ if ($debug>='1') {
 
     $dbase_date = $latest_row[0];
     echo "<tr><td> $dbase_date<!-- $st_day --></td>";
-    $metTemp = round($latest_row[1], 1);
+    $x = $tempConvert ($latest_row[1]);
+    $metTemp = round($x, 1);
     echo "<td>$metTemp</td>";
-    $metappTemp = round($latest_row[2], 1);
+    $x = $tempConvert ($latest_row[2]);
+    $metappTemp = round($x, 1);
     echo "<td>$metappTemp</td>";
-    $metdew = round($latest_row[3], 1);
+    $x = $tempConvert ($latest_row[3]);
+    $metdew = round($x, 1);
     echo "<td>$metdew</td>";
     $humid = round($latest_row[4], 1);
     echo "<td>$humid</td>";
@@ -663,14 +678,20 @@ if ($debug>='1') {
 
 
     echo "<tr><td> $dbase_date<!-- $st_day : $en_day --></td>";
-    $minTemp = round($stats_row[1], 1);
-    $maxTemp = round($stats_row[2], 1);
+    $x = $tempConvert ($stats_row[1]);
+    $minTemp = round($x, 1);
+    $x = $tempConvert ($stats_row[2]);
+    $maxTemp = round($x, 1);
     echo "<td>$minTemp ($maxTemp)</td>";
-    $minappTemp = round($stats_row[3], 1);
-    $maxappTemp = round($stats_row[4], 1);
+    $x = $tempConvert ($stats_row[3]);
+    $minappTemp = round($x, 1);
+    $x = $tempConvert ($stats_row[4]);
+    $maxappTemp = round($x, 1);
     echo "<td>$minappTemp ($maxappTemp)</td>";
-    $mindew = round($stats_row[5], 1);
-    $maxdew = round($stats_row[6], 1);
+    $x = $tempConvert ($stats_row[5]);
+    $mindew = round($x, 1);
+    $x = $tempConvert ($stats_row[6]);
+    $maxdew = round($x, 1);
     echo "<td>$mindew ($maxdew)</td>";
     $minhumid = round($stats_row[7], 1);
     $maxhumid = round($stats_row[8], 1);
@@ -813,11 +834,14 @@ if ($debug>='1') {
 
         if ($dbase_date != "") {
             echo "<tr class=\"$tr_bgrnd\"><td> $dbase_date <!-- $st_day : $en_day -->";
-            $metTemp = round($row[1], 1);
+            $x = $tempConvert ($row[1]);
+            $metTemp = round($x, 1);
             echo "</td><td>$metTemp</td>";
-            $metappTemp = round($row[2], 1);
+            $x = $tempConvert ($row[2]);
+            $metappTemp = round($x, 1);
             echo "<td>$metappTemp</td>";
-            $metdew = round($row[3], 1);
+            $x = $tempConvert ($row[3]);
+            $metdew = round($x, 1);
             echo "<td>$metdew</td>";
             $humid = round($row[4], 1);
             echo "<td>$humid</td>";
