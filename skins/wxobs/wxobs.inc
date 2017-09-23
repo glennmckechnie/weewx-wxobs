@@ -202,8 +202,16 @@ $st_wind = "<th class=\"wxheadr\" colspan=\"4\"><a title=\"".
            "Wind stats as averaged over each period.\">Wind $avflag </a></th>";
 $st_baro = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"".
            "Barometric pressure\">Pressure<br>$unit.label.barometer</a></th>";
-$st_rain = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"".
-           "Total rainfall for each interval\n starting from nominated time.\">";
+if ($aus_rain) {
+    $st_rain = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"".
+               "Total rainfall for each interval\nstarting from the".
+               " nominated\ntime. (Australian format)\">";
+} else {
+    $st_rain = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"".
+               " Total rainfall for each\ninterval starting from the\n".
+               " nominated time.\">";
+
+}
 $st_comp = "<th class=\"wxheadr\"><a title=\"Direction the wind comes from as\n".
            " cardinal (compass) values\">Direction<br>compass</a></th>";
 $st_spd = "<th class=\"wxheadr\">Speed<br>$unit.label.wind</th>";
