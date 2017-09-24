@@ -13,8 +13,10 @@
 ## 13-09-2017 move sensitive info to an include file in /tmp, rather than have it
 ##            embedded within index.php. Don't show links.inc in index.php as it
 ##            breaks the flow and is redundant there. center all but debug info.
-## 18-09-2017 Add aus_rain where the 24 hour rainfall count starts at 9 a.m.
-## Version 0.04
+## 18-09-2017 Add shift_rain where the 24 hour rainfall count starts at $start_label a.m.
+## 24-09-2017 Add functions to assist in converting the database units to those
+##            chosen by the user.
+## Version 0.05
 
    <!-- wxobs version $wxobs_version -->
    <!-- This weewx extension is available at github: https://github.com/glennmckechnie/weewx-wxobs -->
@@ -34,6 +36,7 @@ if ((@include '$include_file') === false) {
     echo "<p>The database config file has gone missing!<br>";
     echo "&nbsp;&nbsp;&nbsp;That shouldn't happen.</p>";
     echo "We are using the php default for includes of /usr/share/php<br>";
+    echo "Check that the directory /usr/share/php exists, if not create it.<br>";
     echo "The file should have been accessable as<br> <i>$include_file</i><br>";
     echo "It will be regenerated on weewx's next report run,";
     echo " or when report_timing allows.<br>";
@@ -292,7 +295,8 @@ function deltaT($Tc, $RH, $P, $debug)
         //echo "Unrecognized pressure units - conversion code is not present";
         $dT="?units?";
         if ($debug=='4') {
-            echo "<p class=\"debug\">delta-T<br>($P) returned, assuming nothing: P has become $P</p>";
+            echo "<p class=\"debug\">delta-T<br>($P) returned, assuming nothing".
+                 ": P has become $P</p>";
         }
         return;
     }
@@ -353,15 +357,14 @@ $st_wind = "<th class=\"wxheadr\" colspan=\"4\"><a title=\"".
            "Wind stats as averaged over each period.\">Wind $avflag </a></th>";
 $st_baro = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"".
            "Barometric pressure\">Pressure<br>$unit.label.barometer</a></th>";
-if ($aus_rain) {
+if ($shift_rain) {
     $st_rain = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"".
                "Total rainfall for each interval\nstarting from the".
-               " nominated\ntime. (Australian format)\">";
+               " nominated\ntime. ($start_label a.m.)\">";
 } else {
     $st_rain = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"".
                " Total rainfall for each\ninterval starting from the\n".
                " nominated time.\">";
-
 }
 $st_comp = "<th class=\"wxheadr\"><a title=\"Direction the wind comes from as\n".
            " cardinal (compass) values\">Direction<br>compass</a></th>";
@@ -398,26 +401,28 @@ if ($php_dbase === 'mysql') {
 }
 
 
-if ('$appTemp' === 'appTemp') {
+if ('$app_temp' === 'appTemp') {
     $appLabel = "<a title=\"Apparent Temperature\">App Temp";
     $app_label = "$unit.label.appTemp</a>";
-} elseif ('$appTemp' === 'windchill') {
+} elseif ('$app_temp' === 'windchill') {
     $appLabel = 'Wind Chill';
     $app_label = '$unit.label.windchill';
 } else {
-    $appLabel = '$appTemp';
+    $appLabel = '$app_temp';
     $app_label = '$unit.label.outTemp';
 }
 
 if ($debug>='1') {
-    echo "<p class=\"debug\">ext_interval is $ext_interval <br> arch_interval is $arch_interval<br>
-         appTemp is defined as $appTemp with $app_label used as the units.</p>";
+    echo "<p class=\"debug\">ext_interval is $ext_interval <br>".
+         "arch_interval is $arch_interval<br> appTemp is defined".
+         "as $app_temp with $app_label used as the units.</p>";
 }
 if ($debug>='1') {
-    echo "<p class=\"debug\">want delta is $want_delta with show warning of $show_warning<br>
-         ('$targ_unit' === 'US' || '$unit.label.outTemp' !== '&#176;C' ||
-         '$unit.label.barometer' !== ' hPa')<br>
-         then, if one of the above is (true) show the warning &lt;div&gt;</p>";
+    echo "<p class=\"debug\">want delta is $want_delta with show warning".
+         "of $show_warning<br>".
+         "('$targ_unit' === 'US' || '$unit.label.outTemp' !== '&#176;C' ||".
+         "'$unit.label.barometer' !== ' hPa')<br>".
+         "then, if one of the above is (true) show the warning &lt;div&gt;</p>";
 }
 
 if ($show_warning) {
@@ -487,14 +492,14 @@ if ($debug>='1') {
     }
       $latest_date = $last_entry[0];
 
-    if ($aus_rain) {
-        // Calculate start day for rain calcs - Australian records start at 9 a.m.
-        $today_nine = $day_start + 32400; // 9 am today
-        $past_nine = $day_start - 54000; // 9 am yesterday
+    if ($shift_rain) {
+        // Calculate start day for rain calcs - some recordings start at $start_label a.m.
+        $today_nine = $day_start + $rainday_start; // $start_label am today
+        $past_nine = $day_start - (86400 - $rainday_start); // $start_label am yesterday
         if ($time_now <= $today_nine) {
             $rain_start = $past_nine;
             $rain_end = $rain_start + 86400 + $arch_interval;
-            $t_span = "(since 9 a.m.)";
+            $t_span = "(since $start_label a.m.)";
             $td_rain = "<td style=\"background-color:#aeaeae\" title=\"".
                        "Previous Total over 24 hours\nstarting from ".
                        hDate($rain_start). "\">";
@@ -507,7 +512,7 @@ if ($debug>='1') {
         } elseif ($time_now > $today_nine) {
             $rain_start =$today_nine;
             $rain_end = $rain_start + 86400 + $arch_interval;
-            $t_span = "(since 9 a.m.)";
+            $t_span = "(since $start_label a.m.)";
             $td_rain = "<td style=\"background-color:#d6d6d6\" title=\"".
                        "Current Total over 24 hours\nstarting from ".
                        hDate($rain_start). "\">";
@@ -534,7 +539,7 @@ if ($debug>='1') {
     if ($php_dbase === 'mysql') {
         $last_values = $db->query(
             "SELECT FROM_UNIXTIME(datetime, '%d-%m-%Y %H:%i'), outTemp,
-            $appTemp, dewPoint, outHumidity, windSpeed, windGust, windDir,
+            $app_temp, dewPoint, outHumidity, windSpeed, windGust, windDir,
             barometer FROM archive WHERE dateTime = $latest_date"
         );
         $rain_total = $db->query(
@@ -546,7 +551,7 @@ if ($debug>='1') {
     } else {
         $last_values = $db->query(
             "SELECT datetime(min(dateTime), 'unixepoch', 'localtime'),
-            outTemp, $appTemp, dewPoint, outHumidity, windSpeed, windGust,
+            outTemp, $app_temp, dewPoint, outHumidity, windSpeed, windGust,
             windDir, barometer FROM archive WHERE dateTime = $latest_date"
         );
         $rain_total = $db->query(
@@ -560,8 +565,8 @@ if ($debug>='1') {
     if ($debug>='1') {
         echo "latest date = ", hDate($latest_date), " : day_start = ",
              hDate($day_start), " : time_now = ", hDate($time_now), "<br>";
-             echo "latest rain_start = ", hDate($rain_start), " : ($rain_start) rain_end = ",
-                  hDate($rain_end), "($rain_end)";
+        echo "latest rain_start = ", hDate($rain_start), " : ($rain_start)".
+             "rain_end = ", hDate($rain_end), "($rain_end)";
     }
 
     // Finish Latest grunt work
@@ -689,38 +694,42 @@ if ($debug>='1') {
     // $latest_date holds the last (latest) entry in database.
     if ($pick_start > $latest_date) {
         if ($debug>='1') {
-            echo "<p class=\"debug\"> pick_start ( $pick_start ) is > latest_date ( $latest_date ) </p>";
+            echo "<p class=\"debug\"> pick_start ( $pick_start ) is > ".
+                 "latest_date ( $latest_date ) </p>";
         }
-        echo "<p class=\"alert\">That is a future date; there are no records!<br></p>";
+        echo "<p class=\"alert\">That is a future date; there are no ".
+             "records!<br></p>";
         return;
     }
 
     $start_time = $pick_start;
     $day_end = $start_time + 86400;
 
-    if ($aus_rain) {
-        // Calculate start day for rain calcs - Australian records start at 9 a.m.
-        $today_nine = $start_time + 32400; // 9 am today
-        $past_nine = $start_time - 54000; // 9 am yesterday
+    if ($shift_rain) {
+        // Calculate start day for rain calcs - some recordings start at $start_label a.m.
+        $today_nine = $start_time + $rainday_start; // $start_label am today
+        $past_nine = $start_time - (86400 - $rainday_start); // $start_label am yesterday
         if ($debug>='1') {
-            echo "Rain: Min Max today_nine = ", hDate($today_nine), " ($today_nine) <br>";
-            echo "Rain: Min Max past_nine = ". hDate($past_nine)." ($past_nine) <br>";
+            echo "Rain: Min Max today_nine = ". hDate($today_nine).
+                 " ($today_nine) <br>";
+            echo "Rain: Min Max past_nine = ". hDate($past_nine).
+                 " ($past_nine) <br>";
         }
-        // include up to the actual 9 a.m. value
+        // include up to the actual $start_label a.m. value
         if ($latest_date <= $today_nine) {
             //echo "} elseif ".hDate($latest_date)." ($latest_date < $today_nine) {". hDate($today_nine)."<br>";
             $rain_start = $past_nine;
             $rain_end = $past_nine + 86400;
-            $t_span = "(since 9 a.m.)";
+            $t_span = "(since $start_label a.m.)";
             $td_rain = "<td style=\"background-color:#aeaeae\" title=\"".
                        "Previous Total over 24 hours\nstarting from ".
                        hDate($rain_start). "\">";
-            // start from the 9 a.m. value
+            // start from the $start_label a.m. value
         } elseif ($latest_date > $today_nine) {
             //echo "} elseif ".hDate($latest_date)." ($latest_date >= $today_nine) {". hDate($today_nine)."<br>";
             $rain_start =$today_nine;
             $rain_end = $today_nine + 86400;
-            $t_span = "(since 9 a.m.)";
+            $t_span = "(since $start_label a.m.)";
             $td_rain = "<td style=\"background-color:#d6d6d6\" title=\"".
                         "Current Total over 24 hours\nstarting from ".
                         hDate($rain_start). "\">";
@@ -742,7 +751,7 @@ if ($debug>='1') {
         // error
         $stats_snap = $db->query(
             "SELECT FROM_UNIXTIME(datetime, '%d-%m-%Y %H:%i'),min(outTemp),
-            max(outTemp), min($appTemp), max($appTemp), min(dewPoint),
+            max(outTemp), min($app_temp), max($app_temp), min(dewPoint),
             max(dewPoint), min(outHumidity), max(outHumidity), avg(windSpeed),
             avg(windGust), avg(windDir), avg(barometer), sum(rain) FROM archive
             WHERE dateTime >= $start_time and dateTime < $day_end;"
@@ -758,7 +767,7 @@ if ($debug>='1') {
     } else {
         $stats_snap = $db->query(
             "SELECT datetime(min(dateTime), 'unixepoch', 'localtime'),min(outTemp),
-            max(outTemp), min($appTemp), max($appTemp), min(dewPoint), max(dewPoint),
+            max(outTemp), min($app_temp), max($app_temp), min(dewPoint), max(dewPoint),
             min(outHumidity), max(outHumidity), avg(windSpeed), avg(windGust),
             avg(windDir), avg(barometer), sum(rain) FROM archive WHERE dateTime
             >= $start_time and dateTime < $day_end;"
@@ -897,19 +906,19 @@ if ($debug>='1') {
         $start_time = $pick_start + ($t*'$ext_interval');
         $end_interval = $start_time + '$arch_interval';
 
-        if ($aus_rain) {
+        if ($shift_rain) {
             // Calculate start day for rain calcs
-            // Australian records start at 9 a.m.
-            $today_nine = $pick_start + 32400; // 9 am today
-            $past_nine = $pick_start - 54000; // 9 am yesterday
-            // include up to the actual 9 a.m. value
+            // Some  records start at $start_label a.m.
+            $today_nine = $pick_start + $rainday_start; // $start_label am today
+            $past_nine = $pick_start - (86400 - $rainday_start); // $start_label am yesterday
+            // include up to the actual $start_label a.m. value
             if ($start_time <= $today_nine) {
                  $rain_start = $past_nine;
                  $rain_end = $end_interval;//$past_nine + 86400;
                  $td_rain = "<td style=\"background-color:#aeaeae\" title=\"".
                             "Previous Total over 24 hours\nstarting from ".
                             hDate($rain_start)."\">";
-                // start from the 9 a.m. value
+                // start from the $start_label a.m. value
             } elseif ($start_time > $today_nine) {
                  $rain_start =$today_nine;
                  $rain_end = $end_interval;//$today_nine + 86400;
@@ -939,7 +948,7 @@ if ($debug>='1') {
         if ($php_dbase === 'mysql') {
                $results = $db->query(
                    "SELECT FROM_UNIXTIME(datetime, '%d-%m-%Y %H:%i'), avg(outTemp),
-                   avg($appTemp), avg(dewPoint), avg(outHumidity), avg(windSpeed),
+                   avg($app_temp), avg(dewPoint), avg(outHumidity), avg(windSpeed),
                    avg(windGust), avg(windDir), avg(barometer), sum(rain) FROM
                    archive WHERE dateTime >= $start_time and dateTime < $end_interval;"
                );
@@ -954,7 +963,7 @@ if ($debug>='1') {
         } else {
             $results = $db->query(
                 "SELECT datetime(min(dateTime), 'unixepoch', 'localtime'),
-                avg(outTemp), avg($appTemp), avg(dewPoint), avg(outHumidity),
+                avg(outTemp), avg($app_temp), avg(dewPoint), avg(outHumidity),
                 avg(windSpeed), avg(windGust), avg(windDir), avg(barometer),
                 total(rain) FROM archive WHERE dateTime>= $start_time and
                 dateTime< $end_interval;"
