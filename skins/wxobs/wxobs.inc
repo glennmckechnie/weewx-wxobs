@@ -432,28 +432,34 @@ if ($show_warning) {
         echo "<div class=\"alert\">
               <h2>delta-T calculation: configuration notes</h2>
               <p>Weewx reports that the database is in $targ_unit (imperial) units,
-              and /or that the temperature, pressure units differ from the &#176;C or
-              hPa required to calculate the delta-T values correctly. This may be
+              and /or that the temperature, pressure units may differ from the &#176;C
+              or hPa required to calculate the delta-T values correctly. This will be
               compensated for but we need to be sure that what's being reported is
               correct.</p>
               <p>Review your wxobs/skin.conf file and match the group_fields with
-              your database.
+              your database.<br> You can also use the [[PHPUnits]] section to convert
+              the database values to something else, but you still need to nominate
+              the units using the group_fields.
               <pre>
               [Units]
                   [[Groups]]
                       group_temperature
                       group_pressure
-                      group_speed #check it anyway, delta-T doesn't use it but...
               </pre>
-              Whatever units are used in the database needs to be reflected
-              in the skin.conf file.</p>
+              Eitherway, whatever units are used in the database need to be converted
+              or noted in the skin.conf file for the calculation to be performed
+              correctly</p>
               <p>ie:-<br>
               If you know the database stores the temperature in &#176;C then you
-              need to specify it<br>
-              group_temperature  = degree_C<br> The same logic applies if it's
-              &#176;F - like for like.</p>
-              <p>If you know the database stores the pressure in hPa then you need
-              to specify it (or inHg, mmHG or other) <br>
+              need to specify it as such. <br>
+              group_temperature  = degree_C<br> If it's in &#176;F - you have the
+              option to convert it using [[PHPUnits]] and selecting the appropriate
+              label, or nominate it as what it is &#176;F and let the DeltaT calcs
+              make the adjustments to its calculations, allowing your display to
+              correctly show the units of your choice. ie: it will remain as &#176;F
+              Units in the reports display</p>
+              <p>If you know the database stores the pressure in hPa theni ditto,
+              you need to specify it (or inHg, mmHG or other) <br>
               group_pressure     = hPa</p>
               <p>The code will compensate correctly for &#176;C, &#176;F, hPa, inHg,
               mmHg.  BUT only if you tell it in the skin.conf file (or blind luck
