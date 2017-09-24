@@ -14,7 +14,7 @@ import syslog
 from weeutil.weeutil import to_bool
 from weewx.cheetahgenerator import SearchList
 
-wxobs_version = "0.04"
+wxobs_version = "0.05"
 
 def logmsg(level, msg):
     syslog.syslog(level, '%s' % msg)
@@ -43,8 +43,8 @@ class wxobs(SearchList):
         ext_interval: is the spacing between records; 1800 is a half-hour
         and is the default
 
-        arch_interval: is the number of records to averge over. The default is to
-        use the weewx.conf value for archive_interval which will return the
+        arch_interval: is the number of records to averge over. The default is
+        to use the weewx.conf value for archive_interval which will return the
         equivalent of: one observation taken at that archive time.
         You could choose to set another value?
 
@@ -54,18 +54,23 @@ class wxobs(SearchList):
         result.
 
         app_Temp: This is a recent addition to weewx and is not enabled by
-        default. The calculation is performed but there is no field in the stock
-        database. This variable allows for the substitution with another value
+        default. The calculation is performed but there is no field in the
+        stock database. This variable allows for the substitution with another
+        value.
         The default is to use windchill.
         Keep it to the group_degrees (because the label is hard coded in.)
 
-        wind_adjust: This can be used to supply a constant to adjust the
-        displayed value returned from the database. This satisfies a quirk in
-        my setup where the database is in m/s but I want kmh displayed.
-
-        aus_rain: The australian rain day starts at 9 a.m. setting this as
-        true will adjust the rain column values between these 9 .a.m. each day.
+        shift_rain: For rain accounting times other than midnight to midnight
+        set this to True 
+        If no other options are given the accounting time will be the australian
+        rain day which starts at 9 a.m.
         default is false - start at midnight 00:00:00 through to the next day.
+
+        rain_start: used to shift time (in seconds) to something other than 9a.m.
+        default is 32400
+
+        rain_label: the o'clock label for the rain_start above.
+        default is 9
 
         show_warning: An information message will appear on the report page
         (index.php) if the database is in US units (imperial) or units are
@@ -74,15 +79,28 @@ class wxobs(SearchList):
         An information div is included in the report page when this occurs.
         This is a switch (boolean) to turn it off.
 
-        calculate_deltaT: Whether to generate deltaT for the report page.
-        Default is not to generate that data.
-        This is a switch (boolean) to turn it back on.
-
         wxobs_debug: Allow index.php to include debugging info if set to...
         1 and above is low level, variables, some logic.
         3 only for delta-T final values (low level - if enabled)
         4 only for delta-T unit conversion calcs (verbose) - if enabled
         5 only for ordinalCompass conversion calcs (N, NE...CALM) (verbose)
+
+        calculate_deltaT: Whether to generate deltaT for the report page.
+        Default is not to generate that data.
+        This is a switch (boolean) to turn it on.
+
+        tempConvert:
+        speedConvert:
+        pressConvert:
+        rainConvert: These are all used to convert the database units to ones
+        for display by the php generated report.
+        Because we are bypassing weewx to generate the historical data, we
+        can't utilize the inbuilt weewx functions for unit conversion therefore
+        we need to affect them ourselves.
+        This is performed (if needed) by specifying the conversion to be done
+        from the [[PHPUnits]] section of the skin.conf file.
+        The default is to perform no conversion, to accept the units as they
+        are.
         """
 
         self.wxobs_version = wxobs_version
@@ -96,37 +114,38 @@ class wxobs(SearchList):
         if not self.arch_interval:
             self.arch_interval = self.generator.config_dict['StdArchive'] \
                 .get('archive_interval')
-        self.appTemp = self.generator.skin_dict['wxobs'].get(
+        self.app_temp = self.generator.skin_dict['wxobs'].get(
             'app_Temp', 'windchill')
-        self.wind_adjust = self.generator.skin_dict['wxobs'].get(
-            'wind_adjust', '1')
-        # this variable is being used as a funcion name, thus the Case
-        # abuse... usage!
-        self.tempConvert = self.generator.skin_dict['wxobs'].get(
-            'temperature_convert', 'NTC')
-        self.speedConvert = self.generator.skin_dict['wxobs'].get(
-            'speed_convert', 'NSC')
-        self.pressConvert = self.generator.skin_dict['wxobs'].get(
-            'pressure_convert', 'NPC')
-        self.rainConvert = self.generator.skin_dict['wxobs'].get(
-            'rain_convert', 'NDC')
-        self.aus_rain = to_bool(self.generator.skin_dict['wxobs'].get(
-            'australian_rain', False))
-        self.show_warning = to_bool(self.generator.skin_dict['wxobs'].get(
-            'show_warning', True))
-        self.want_delta = to_bool(self.generator.skin_dict['wxobs'].get(
-            'calculate_deltaT', False))
+        self.want_delta = to_bool(self.generator.skin_dict['wxobs']['DeltaT'] \
+            .get('calculate_deltaT', False))
         if not self.want_delta:
-            self.show_warning = to_bool(self.generator.skin_dict['wxobs'].get(
-                'show_warning', False))
-        # phpinfo.php shows include_path as .:/usr/share/php, we'll put it
-        # in there and hopefully that will work for most users.
-        # I'd prefer /tmp/wxobs_inc.php but perhaps that only works for me?
-        self.include_file = self.generator.skin_dict['wxobs'].get(
-            'include_file', '/usr/share/php/wxobs_incl.inc')
+            self.show_warning = to_bool(self.generator.skin_dict['wxobs'] \
+            ['DeltaT'].get('show_warning', False))
+        self.show_warning = to_bool(self.generator.skin_dict['wxobs']['DeltaT'] \
+            .get('show_warning', True))
+
+        # these variable are being used as a function names, thus the Case
+        # abuse... usage! and the complaints from syntax checkers.
+        self.tempConvert = self.generator.skin_dict['wxobs']['PHPUnits'].get(
+            'temperature_convert', 'NTC')
+        self.speedConvert = self.generator.skin_dict['wxobs']['PHPUnits'].get(
+            'speed_convert', 'NSC')
+        self.pressConvert = self.generator.skin_dict['wxobs']['PHPUnits'].get(
+            'pressure_convert', 'NPC')
+        self.rainConvert = self.generator.skin_dict['wxobs']['PHPUnits'].get(
+            'rain_convert', 'NDC')
+
+        self.shift_rain = to_bool(self.generator.skin_dict['wxobs'] \
+            ['RainTiming'].get('shift_rain', False))
+        #32400 (rainday_start) == 9 hours == 9 a.m.
+        self.rainday_start = self.generator.skin_dict['wxobs']['RainTiming'] \
+            .get('rain_start', '32400')
+        #32400 == 9 hours == 9 (start_label) a.m.
+        self.start_label = self.generator.skin_dict['wxobs']['RainTiming'] \
+            .get('start_label', '9')
 
 
-#       target_unit = METRICWX    # Options are 'US', 'METRICWX', or 'METRIC'
+        # target_unit = METRICWX # Options are 'US', 'METRICWX', or 'METRIC'
         self.targ_unit = self.generator.config_dict['StdConvert'].get(
             'target_unit')
 
@@ -168,6 +187,12 @@ class wxobs(SearchList):
             if self.wxobs_debug >= 5:
                 loginf("sqlite database is %s, %s, %s" % (
                     self.sq_dbase, self.sq_root, self.sqlite_db))
+
+        # phpinfo.php shows include_path as .:/usr/share/php, we'll put it
+        # in there and hopefully that will work for most users.
+        # I iuse/prefer /tmp/wxobs_inc.inc but perhaps that only works for me?
+        self.include_file = self.generator.skin_dict['wxobs'].get(
+            'include_file', '/usr/share/php/wxobs_incl.inc')
 
         php_inc = open(self.include_file, 'w')
         php_inc.writelines(v_al)
