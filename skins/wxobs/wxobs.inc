@@ -48,6 +48,7 @@ if ((@include '$include_file') === false) {
     echo " - to its github site.</p></div>";
 }
 require '$include_file';
+
 /**
 * ToDo ??
 * stackoverflow.com/questions/9866139/database-locked-while-trying-to-access-from-php-script
@@ -59,17 +60,155 @@ require '$include_file';
 * 4 only for delta-T unit conversion calcs (verbose) - if enabled
 * 5 only for ordinalCompass conversion calcs (N, NE...CALM) (verbose)
 */
-
-function CtoF($x) {
+//temperature conversions
+// /usr/share/weewx/weewx/units.py
+function CtoF($x)
+{
     return $x * 1.8 + 32.0;
 }
 
-function FtoC($x) {
+function FtoC($x)
+{
     return ($x - 32.0) * 5.0 / 9.0;
 }
 
-function NNN($x) {
+function NTC($x)
+{
     return $x;
+}
+//pressure conversions
+// $dec_plc is decimal places to display
+function inHgtomBar($x)
+{
+    $x = $x * 0.0295299875;
+    $dec_plc = 2;
+    return array($x, $dec_plc);
+}
+
+function inHgtohPa($x)
+{
+    $x = $x * 0.0295299875;
+    $dec_plc = 2;
+    return array($x, $dec_plc);
+}
+
+function mBartohPa($x)
+{
+    $x = $x * 0.1 ;
+    $dec_plc = 2;
+    return array($x, $dec_plc);
+}
+
+function mBartoinHg($x)
+{
+    $x = $x * 0.0295299875;
+    $dec_plc = 3;
+    return array($x, $dec_plc);
+}
+
+function NPC($x)
+{
+    return $x;
+}
+//speed conversions
+// $dec_plc is decimal places to display
+function MphtoKph($x)
+{
+    $x = $x * 1.609344;
+    $dec_plc = 0;
+    return array($x, $dec_plc);
+}
+
+function MphtoMps($x)
+{
+    $x = $x * 0.44704 ;
+    $dec_plc = 1;
+    return array($x, $dec_plc);
+}
+
+function KphtoMph($x)
+{
+    $x = $x * 0.621371  ;
+    $dec_plc = 0;
+    return array($x, $dec_plc);
+}
+
+function KphtoMps($x)
+{
+    $x = $x * 0.277777778;
+    $dec_plc = 1;
+    return array($x, $dec_plc);
+}
+
+function MpstoMph($x)
+{
+    $x = $x * 2.23693629;
+    $dec_plc = 0;
+    return array($x, $dec_plc);
+}
+
+function MpstoKmh($x)
+{
+    $x = $x * 3.6;
+    $dec_plc = 0;
+    return array($x, $dec_plc);
+}
+
+function NSC($x)
+{
+    $x;
+    $dec_plc = 1;
+    return array($x, $dec_plc);
+}
+// rain conversions
+// $dec_plc is decimal places to display
+function IntoMm($x)
+{
+    $x = $x * 25.4;
+    $dec_plc = 1;
+    return array($x, $dec_plc);
+}
+
+function IntoCm($x)
+{
+    $x = $x * 2.54;
+    $dec_plc = 2;
+    return array($x, $dec_plc);
+}
+
+function CmtoIn($x, $dec_plc)
+{
+    $x = $x * 0.3937000787 ;
+    $dec_plc = 2;
+    return array($x, $dec_plc);
+}
+
+function CmtoMm($x)
+{
+    $x = $x * 10;
+    $dec_plc = 1;
+    return array($x, $dec_plc);
+}
+
+function MmtoIn($x)
+{
+    $x = $x * 0.0393700787;
+    $dec_plc = 2;
+    return array($x, $dec_plc);
+}
+
+function MmtoCm($x)
+{
+    $x = $x * 0.10;
+    $dec_plc = 2;
+    return array($x, $dec_plc);
+}
+
+function NDC($x)
+{
+    $x =$x;
+    $dec_plc = 2;
+    return array($x, $dec_plc);
 }
 
 function hDate($d)
@@ -453,7 +592,7 @@ if ($debug>='1') {
     *   echo "System TimeZone is $systemTimeZone <br>";
     *   }
     */
-//Create Latest table headers - ugly layout but ok in html source
+    //Create Latest table headers - ugly layout but ok in html source
     echo "<div class=\"wxdata\">\n<!-- start data tables -->\n
  <H2><A Title=\"Todays latest weather observations, at the displayed time.\">Latest Observations</a></h2>
 <table class=\"wxdata\">
@@ -507,22 +646,30 @@ if ($debug>='1') {
     }
     ordinalCompass($latest_row[7], $debug);
     echo "<td>$compass</td>"; //wind direction ordinal
-    $metWind = round(($latest_row[5]/$wind_adjust), 1);
+    list($x, $dec_plc) = $speedConvert ($latest_row[5]);
+    $metWind = round($x, $dec_plc);
+    //$metWind = round(($latest_row[5]/$wind_adjust), 1);
     echo "<td>$metWind</td>";
-    $metGust = round(($latest_row[6]/$wind_adjust), 1);
+    list($x, $dec_plc) = $speedConvert ($latest_row[6]);
+    $metGust = round($x, $dec_plc);
+    //$metGust = round(($latest_row[6]/$wind_adjust), 1);
     echo "<td>$metGust</td>";
     $windDir = round($latest_row[7], 0);
     echo "<td>$windDir</td>"; //wind direction degrees
-    $metPress = round($latest_row[8], 1);
+    list($x, $dec_plc) = $pressConvert ($latest_row[8]);
+    $metPress = round($x, $dec_plc);
+    //$metPress = round($latest_row[8], 1);
     echo "<td>$metPress</td>";
-    $metRain = round($rain_row[0], 2);
+    list($x, $dec_plc) = $rainConvert ($rain_row[0]);
+    $metRain = round($x, $dec_plc);
+    //$metRain = round($rain_row[0], 2);
     echo "$td_rain $metRain</td></tr>";
     echo "</tbody></table>\n<!-- end latest observations -->\n<br><hr>";
 
-// Finished Latest Obs html
-/////////////////////////////
-// Start Min Max summaries
-// Shows the min and max values, averages and rainfall total
+    // Finished Latest Obs html
+    /////////////////////////////
+    // Start Min Max summaries
+    // Shows the min and max values, averages and rainfall total
     if ($_REQUEST['datepicker']) {
         $pick_start =  strtotime($_REQUEST['datepicker']);
         if ($debug>='1') {
@@ -646,10 +793,10 @@ if ($debug>='1') {
            hDate($rain_start), " : rain_end = ", hDate($rain_end), "<br>";
     }
 
-// Finish Min (Max) grunt work
-//////////////////////////
-// Build Min (Max) Obs html
-// Create Min Max table headers - ugly layout but ok in html source
+    // Finish Min (Max) grunt work
+    //////////////////////////
+    // Build Min (Max) Obs html
+    // Create Min Max table headers - ugly layout but ok in html source
     echo "<!-- start snapshot summary observations -->
  <h2>Historical Observations for $this_day</h2>
  <h3><a title=\"Lowest and Highest observations for the nominated day.\">Min (Max) Stats</a></h3>
@@ -698,25 +845,33 @@ if ($debug>='1') {
     echo "<td>$minhumid ($maxhumid)</td>";
     ordinalCompass($stats_row[11], $debug);
     echo "<td> $compass</td>"; //wind direction ordinal
-    $metWind = round(($stats_row[9]/$wind_adjust), 1);
+    list($x, $dec_plc) = $speedConvert ($stats_row[9]);
+    $metWind = round($x, $dec_plc);
+    //$metWind = round(($stats_row[9]/$wind_adjust), 1);
     echo "<td>$metWind</td>";
-    $metGust = round(($stats_row[10]/$wind_adjust), 1);
+    list($x, $dec_plc) = $speedConvert ($stats_row[10]);
+    $metGust = round($x, $dec_plc);
+    //$metGust = round(($stats_row[10]/$wind_adjust), 1);
     echo "<td>$metGust</td>";
     $windDir = round($stats_row[11], 0);
     echo "<td>$windDir</td>"; //wind direction degrees
-    $metPress = round($stats_row[12], 1);
+    list($x, $dec_plc) = $pressConvert ($stats_row[12]);
+    $metPress = round($x, $dec_plc);
+    //$metPress = round($stats_row[12], 1);
     echo "<td>$metPress</td>";
     //$metRain = round($stats_row[13], 2);
-    $metRain = round($rain_row[1], 2);
+    list($x, $dec_plc) = $rainConvert ($rain_row[1]);
+    $metRain = round($x, $dec_plc);
+    //$metRain = round($rain_row[1], 2);
     echo "$td_rain $metRain</td></tr>";
     echo "</tbody></table>\n<!-- end snapshot summary observations -->\n";
 
-// Finish Min (Max) Stats
-//////////////////////////
-// Build Periodic daily stats html
-// Shows the (average) periodic values for a given (arch_interval) snapshot,
-// averages and rainfall total for that period.
-// Create Min Max table headers - ugly layout but ok in html source
+    // Finish Min (Max) Stats
+    //////////////////////////
+    // Build Periodic daily stats html
+    // Shows the (average) periodic values for a given (arch_interval) snapshot,
+    // averages and rainfall total for that period.
+    // Create Min Max table headers - ugly layout but ok in html source
     echo "<!-- start snapshot observations -->
  <h3><a title=\"Time stamped observations throughout the nominated day.\">Periodic Stats $iflag</a></h3>
  <table class=\"wxdata\">
@@ -860,17 +1015,23 @@ if ($debug>='1') {
             }
             ordinalCompass($row[7], $debug);
             echo "<td>$compass</td>"; //wind direction ORDINAL
-            $metWind = round(($row[5]/$wind_adjust), 1);
+            list($x, $dec_plc) = $speedConvert ($row[5]);
+            $metWind = round($x, $dec_plc);
+            //$metWind = round(($row[5]/$wind_adjust), 1);
             echo "<td>$metWind</td>";
+            list($x, $dec_plc) = $speedConvert ($row[6]);
             //echo "round(($row[6]/$wind_adjust), 1)<br>";
-            $metGust = round(($row[6]/$wind_adjust), 1);
+            //$metGust = round(($row[6]/$wind_adjust), 1);
+            $metGust = round($x, $dec_plc);
             echo "<td>$metGust</td>";
             $windDir = round($row[7], 0);
             echo "<td>$windDir</td>"; //wind direction degrees
-            $metPress = round($row[8], 1);
+            list($x, $dec_plc) = $pressConvert ($row[8]);
+            $metPress = round($x, $dec_plc);
             echo "<td>$metPress</td>";
             //$metRain = round($row[9], 2);
-            $metRain = round($rain_row[1], 2);
+            list($x, $dec_plc) = $rainConvert ($rain_row[1]);
+            $metRain = round($x, $dec_plc);
             echo "$td_rain $metRain</td></tr>";
         }
     }

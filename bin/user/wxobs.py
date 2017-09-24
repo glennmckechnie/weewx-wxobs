@@ -103,7 +103,13 @@ class wxobs(SearchList):
         # this variable is being used as a funcion name, thus the Case
         # abuse... usage!
         self.tempConvert = self.generator.skin_dict['wxobs'].get(
-            'temperature_convert', 'NNN')
+            'temperature_convert', 'NTC')
+        self.speedConvert = self.generator.skin_dict['wxobs'].get(
+            'speed_convert', 'NSC')
+        self.pressConvert = self.generator.skin_dict['wxobs'].get(
+            'pressure_convert', 'NPC')
+        self.rainConvert = self.generator.skin_dict['wxobs'].get(
+            'rain_convert', 'NDC')
         self.aus_rain = to_bool(self.generator.skin_dict['wxobs'].get(
             'australian_rain', False))
         self.show_warning = to_bool(self.generator.skin_dict['wxobs'].get(
