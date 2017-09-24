@@ -1,4 +1,8 @@
-# Update: 20th Sept 2017
+# Update 24th Sept
+The convert branch is being used to add unit conversions to the php script. It's a bit rough around the edges at the moment but it shouldn't break, it may stutter though. Testing and feedback is welcomed.
+Also switched the australian rain option to accomodate a range of start times - eg : 7 a.m. is 25200 seconds
+
+**Update: 20th Sept 2017**
 
 This skin now uses php includes to import critical values into the report page. This should reduce the risk of those details being exposed inadvertently. Hopefully it will be a drop in replacement, no matter which webserver or vendor configuration you have!
 
