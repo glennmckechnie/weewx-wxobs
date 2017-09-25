@@ -1,5 +1,5 @@
 # Update 24th Sept
-The convert branch is being used to add unit conversions to the php script. It's a bit rough around the edges at the moment but it shouldn't break, it may stutter though. Testing and feedback is welcomed.
+Merged the convert branch into the master branch. It now incorporates unit conversions into the php script. It may still be a bit rough around the edges at the moment but it shouldn't break. Testing and feedback is welcomed.
 
 Also switched the australian rain option to accomodate a range of start times - eg : 7 a.m. is 25200 seconds
 
