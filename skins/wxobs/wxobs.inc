@@ -13,9 +13,10 @@
 ## 13-09-2017 move sensitive info to an include file in /tmp, rather than have it
 ##            embedded within index.php. Don't show links.inc in index.php as it
 ##            breaks the flow and is redundant there. center all but debug info.
-## 18-09-2017 Add shift_rain where the 24 hour rainfall count starts at $start_label a.m.
+## 18-09-2017 Add aus_rain where the 24 hour rainfall count starts at $start_label a.m.
 ## 24-09-2017 Add functions to assist in converting the database units to those
-##            chosen by the user.
+##            chosen by the user. aus_rain becomes shift_rain, now configurable for
+##            other areas
 ## Version 0.05
 
    <!-- wxobs version $wxobs_version -->
