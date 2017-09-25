@@ -83,21 +83,21 @@ function NTC($x)
 // $dec_plc is decimal places to display
 function inHgtomBar($x)
 {
-    $x = $x * 0.0295299875;
+    $x = $x * 33.863881588;
     $dec_plc = 2;
     return array($x, $dec_plc);
 }
 
 function inHgtohPa($x)
 {
-    $x = $x * 0.0295299875;
+    $x = $x * 33.863881588;
     $dec_plc = 2;
     return array($x, $dec_plc);
 }
 
 function mBartohPa($x)
 {
-    $x = $x * 0.1 ;
+    $x = $x;
     $dec_plc = 2;
     return array($x, $dec_plc);
 }
