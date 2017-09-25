@@ -116,13 +116,13 @@ class wxobs(SearchList):
                 .get('archive_interval')
         self.app_temp = self.generator.skin_dict['wxobs'].get(
             'app_Temp', 'windchill')
+        self.show_warning = to_bool(self.generator.skin_dict['wxobs']['DeltaT'] \
+            .get('show_warning', True))
         self.want_delta = to_bool(self.generator.skin_dict['wxobs']['DeltaT'] \
             .get('calculate_deltaT', False))
         if not self.want_delta:
             self.show_warning = to_bool(self.generator.skin_dict['wxobs'] \
             ['DeltaT'].get('show_warning', False))
-        self.show_warning = to_bool(self.generator.skin_dict['wxobs']['DeltaT'] \
-            .get('show_warning', True))
 
         # these variable are being used as a function names, thus the Case
         # abuse... usage! and the complaints from syntax checkers.

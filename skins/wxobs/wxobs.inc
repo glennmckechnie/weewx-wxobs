@@ -431,36 +431,39 @@ if ($show_warning) {
     ) {
         echo "<div class=\"alert\">
               <h2>delta-T calculation: configuration notes</h2>
-              <p>Weewx reports that the database is in $targ_unit (imperial) units,
-              and /or that the temperature, pressure units may differ from the &#176;C
+              <p>Weewx reports that the database is in $targ_unit units, and /
+               or that the temperature, pressure units differ from the &#176;C
               or hPa required to calculate the delta-T values correctly. This will be
               compensated for but we need to be sure that what's being reported is
               correct.</p>
               <p>Review your wxobs/skin.conf file and match the group_fields with
               your database.<br> You can also use the [[PHPUnits]] section to convert
-              the database values to something else, but you still need to nominate
-              the units using the group_fields.
+              the database values to something else, but you will still need to
+              correctly describe those new values using the group_fields.
               <pre>
               [Units]
                   [[Groups]]
                       group_temperature
                       group_pressure
               </pre>
-              Eitherway, whatever units are used in the database need to be converted
-              or noted in the skin.conf file for the calculation to be performed
-              correctly</p>
+              Again, whatever units are used in the database need to be converted
+              or noted in the skin.conf file for the deltaT calculation to be
+              performed correctly</p>
               <p>ie:-<br>
               If you know the database stores the temperature in &#176;C then you
               need to specify it as such. <br>
-              group_temperature  = degree_C<br> If it's in &#176;F - you have the
-              option to convert it using [[PHPUnits]] and selecting the appropriate
-              label, or nominate it as what it is &#176;F and let the DeltaT calcs
-              make the adjustments to its calculations, allowing your display to
-              correctly show the units of your choice. ie: it will remain as &#176;F
-              Units in the reports display</p>
-              <p>If you know the database stores the pressure in hPa theni ditto,
-              you need to specify it (or inHg, mmHG or other) <br>
-              group_pressure     = hPa</p>
+              group_temperature  = degree_C<br> If it's in &#176;F then you have the
+              option to convert it using [[PHPUnits]] and then selecting the
+              appropriate label (which can only be &#176;C), or leave it as &#176;F
+              and let the DeltaT calcs make any adjustments within its calculations.
+              <br>This allows your display to correctly show the units of your choice
+              (as per your group_field selection!) and it will remain as &#176;F
+              in the reports display and the deltaT calculator knows that it needs
+              to convert the units to get the correct result.</p>
+              <p>Likewise, If you know the database stores the pressure in hPa
+              then you need to specify that. If it's inHg, mmHG or other then decide
+              which you want and work through the above logic again depending on
+              what you want displayed.<br>
               <p>The code will compensate correctly for &#176;C, &#176;F, hPa, inHg,
               mmHg.  BUT only if you tell it in the skin.conf file (or blind luck
               favours you!)<br>
@@ -471,8 +474,8 @@ if ($show_warning) {
               this message off manually by uncommenting the line<br>
               <b>#show_warning = False</b><br>
               in that same config file.<br>
-              The message will also dissappear if the correct units (degC and hPa)
-              are detected.
+              (The message will also disappear if the correct units (&#176;C and hPa)
+              are specified in the group_fields section.)
               </p></div>";
     }
 }
@@ -583,7 +586,7 @@ if ($debug>='1') {
         $delta_label = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"Used as an".
                        " indicator for agricultural spraying conditions, the ideal".
                        " conditions are between the values of 2 &amp; 8\">".
-                       "delta&dash;T<br>$unit.label.outTemp</a></th>";
+                       "delta&dash;T<br>&#176;C</a></th>";
         if ($debug>='3') {
             echo "<p class=\"debug\">want_delta is $want_delta so label is...<br>
                  $delta_label";
