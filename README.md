@@ -3,6 +3,8 @@ Merged the convert branch into the master branch. It now incorporates unit conve
 
 Also switched the australian rain option to accomodate a range of start times - eg : 7 a.m. is 25200 seconds
 
+Version bump to 0.05
+
 **Update: 20th Sept 2017**
 
 This skin now uses php includes to import critical values into the report page. This should reduce the risk of those details being exposed inadvertently. Hopefully it will be a drop in replacement, no matter which webserver or vendor configuration you have!
@@ -14,11 +16,11 @@ Version bump to 0.04
 # weewx-wxobs
  A skin that integrates with weewx and provides a php driven report page to extract archival data (Daily climatological summaries) from the weewx database. It then presents it as a series of snapshots (currently half-hourly) averaged throughout the chosen day. There is an option to include appTemp, and delta-T ( used for agricultural purposes. )
 
-
-
 It is set out in the style of the _Latest Weather Observations_ pages that the Australian Weather Bureau - BOM provides. eg:- [Ballarat](http://www.bom.gov.au/products/IDV60801/IDV60801.94852.shtml)  I find those pages useful, that one especially when keeping an eye on the accuracy of my station.
 
 It is configured to use the weewx.conf settings as its defaults. It works well with  mysql and although I don't use sqlite, it's been run against a simulator version with US settings and also works correctly there. Feedback, corrections are welcomed on that - or anything here.
+
+**Of Note:** Because it directly access's the weewx database, it won't work remotely. If you use FTP or RSYNC to transfer the web pages to a remote server then you lose the direct database connection. (Which is probably not a bad thing from a security point of view?) It does work brilliantly from the local sever though :-))
 
 I've used appTemp for one of the fields, apparently not everyone has this? Consequently this is configurable via skin.conf to return windchill (or another group degree field) for those not setup to store appTemp in their databases. Delta-T is an either or selection, it can be skipped or configured as an additional column.
 
