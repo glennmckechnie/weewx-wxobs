@@ -13,8 +13,10 @@
 ## 13-09-2017 move sensitive info to an include file in /tmp, rather than have it
 ##            embedded within index.php. Don't show links.inc in index.php as it
 ##            breaks the flow and is redundant there. center all but debug info.
-## 18-09-2017 Add aus_rain where the 24 hour rainfall count starts at 9 a.m.
-## Version 0.04
+## 18-09-2017 Add shift_rain where the 24 hour rainfall count starts at $start_label a.m.
+## 24-09-2017 Add functions to assist in converting the database units to those
+##            chosen by the user.
+## Version 0.05
 
    <!-- wxobs version $wxobs_version -->
    <!-- This weewx extension is available at github: https://github.com/glennmckechnie/weewx-wxobs -->
@@ -34,6 +36,7 @@ if ((@include '$include_file') === false) {
     echo "<p>The database config file has gone missing!<br>";
     echo "&nbsp;&nbsp;&nbsp;That shouldn't happen.</p>";
     echo "We are using the php default for includes of /usr/share/php<br>";
+    echo "Check that the directory /usr/share/php exists, if not create it.<br>";
     echo "The file should have been accessable as<br> <i>$include_file</i><br>";
     echo "It will be regenerated on weewx's next report run,";
     echo " or when report_timing allows.<br>";
@@ -48,6 +51,7 @@ if ((@include '$include_file') === false) {
     echo " - to its github site.</p></div>";
 }
 require '$include_file';
+
 /**
 * ToDo ??
 * stackoverflow.com/questions/9866139/database-locked-while-trying-to-access-from-php-script
@@ -59,6 +63,156 @@ require '$include_file';
 * 4 only for delta-T unit conversion calcs (verbose) - if enabled
 * 5 only for ordinalCompass conversion calcs (N, NE...CALM) (verbose)
 */
+//temperature conversions
+// /usr/share/weewx/weewx/units.py
+function CtoF($x)
+{
+    return $x * 1.8 + 32.0;
+}
+
+function FtoC($x)
+{
+    return ($x - 32.0) * 5.0 / 9.0;
+}
+
+function NTC($x)
+{
+    return $x;
+}
+//pressure conversions
+// $dec_plc is decimal places to display
+function inHgtomBar($x)
+{
+    $x = $x * 33.863881588;
+    $dec_plc = 2;
+    return array($x, $dec_plc);
+}
+
+function inHgtohPa($x)
+{
+    $x = $x * 33.863881588;
+    $dec_plc = 2;
+    return array($x, $dec_plc);
+}
+
+function mBartohPa($x)
+{
+    $x = $x;
+    $dec_plc = 2;
+    return array($x, $dec_plc);
+}
+
+function mBartoinHg($x)
+{
+    $x = $x * 0.0295299875;
+    $dec_plc = 3;
+    return array($x, $dec_plc);
+}
+
+function NPC($x)
+{
+    return $x;
+}
+//speed conversions
+// $dec_plc is decimal places to display
+function MphtoKph($x)
+{
+    $x = $x * 1.609344;
+    $dec_plc = 0;
+    return array($x, $dec_plc);
+}
+
+function MphtoMps($x)
+{
+    $x = $x * 0.44704 ;
+    $dec_plc = 1;
+    return array($x, $dec_plc);
+}
+
+function KphtoMph($x)
+{
+    $x = $x * 0.621371  ;
+    $dec_plc = 0;
+    return array($x, $dec_plc);
+}
+
+function KphtoMps($x)
+{
+    $x = $x * 0.277777778;
+    $dec_plc = 1;
+    return array($x, $dec_plc);
+}
+
+function MpstoMph($x)
+{
+    $x = $x * 2.23693629;
+    $dec_plc = 0;
+    return array($x, $dec_plc);
+}
+
+function MpstoKmh($x)
+{
+    $x = $x * 3.6;
+    $dec_plc = 0;
+    return array($x, $dec_plc);
+}
+
+function NSC($x)
+{
+    $x;
+    $dec_plc = 1;
+    return array($x, $dec_plc);
+}
+// rain conversions
+// $dec_plc is decimal places to display
+function IntoMm($x)
+{
+    $x = $x * 25.4;
+    $dec_plc = 1;
+    return array($x, $dec_plc);
+}
+
+function IntoCm($x)
+{
+    $x = $x * 2.54;
+    $dec_plc = 2;
+    return array($x, $dec_plc);
+}
+
+function CmtoIn($x, $dec_plc)
+{
+    $x = $x * 0.3937000787 ;
+    $dec_plc = 2;
+    return array($x, $dec_plc);
+}
+
+function CmtoMm($x)
+{
+    $x = $x * 10;
+    $dec_plc = 1;
+    return array($x, $dec_plc);
+}
+
+function MmtoIn($x)
+{
+    $x = $x * 0.0393700787;
+    $dec_plc = 2;
+    return array($x, $dec_plc);
+}
+
+function MmtoCm($x)
+{
+    $x = $x * 0.10;
+    $dec_plc = 2;
+    return array($x, $dec_plc);
+}
+
+function NDC($x)
+{
+    $x =$x;
+    $dec_plc = 2;
+    return array($x, $dec_plc);
+}
 
 function hDate($d)
 {
@@ -141,7 +295,8 @@ function deltaT($Tc, $RH, $P, $debug)
         //echo "Unrecognized pressure units - conversion code is not present";
         $dT="?units?";
         if ($debug=='4') {
-            echo "<p class=\"debug\">delta-T<br>($P) returned, assuming nothing: P has become $P</p>";
+            echo "<p class=\"debug\">delta-T<br>($P) returned, assuming nothing".
+                 ": P has become $P</p>";
         }
         return;
     }
@@ -202,8 +357,15 @@ $st_wind = "<th class=\"wxheadr\" colspan=\"4\"><a title=\"".
            "Wind stats as averaged over each period.\">Wind $avflag </a></th>";
 $st_baro = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"".
            "Barometric pressure\">Pressure<br>$unit.label.barometer</a></th>";
-$st_rain = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"".
-           "Total rainfall for each interval\n starting from nominated time.\">";
+if ($shift_rain) {
+    $st_rain = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"".
+               "Total rainfall for each interval\nstarting from the".
+               " nominated\ntime. ($start_label a.m.)\">";
+} else {
+    $st_rain = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"".
+               " Total rainfall for each\ninterval starting from the\n".
+               " nominated time.\">";
+}
 $st_comp = "<th class=\"wxheadr\"><a title=\"Direction the wind comes from as\n".
            " cardinal (compass) values\">Direction<br>compass</a></th>";
 $st_spd = "<th class=\"wxheadr\">Speed<br>$unit.label.wind</th>";
@@ -239,26 +401,28 @@ if ($php_dbase === 'mysql') {
 }
 
 
-if ('$appTemp' === 'appTemp') {
+if ('$app_temp' === 'appTemp') {
     $appLabel = "<a title=\"Apparent Temperature\">App Temp";
     $app_label = "$unit.label.appTemp</a>";
-} elseif ('$appTemp' === 'windchill') {
+} elseif ('$app_temp' === 'windchill') {
     $appLabel = 'Wind Chill';
     $app_label = '$unit.label.windchill';
 } else {
-    $appLabel = '$appTemp';
+    $appLabel = '$app_temp';
     $app_label = '$unit.label.outTemp';
 }
 
 if ($debug>='1') {
-    echo "<p class=\"debug\">ext_interval is $ext_interval <br> arch_interval is $arch_interval<br>
-         appTemp is defined as $appTemp with $app_label used as the units.</p>";
+    echo "<p class=\"debug\">ext_interval is $ext_interval <br>".
+         "arch_interval is $arch_interval<br> appTemp is defined".
+         "as $app_temp with $app_label used as the units.</p>";
 }
 if ($debug>='1') {
-    echo "<p class=\"debug\">want delta is $want_delta with show warning of $show_warning<br>
-         ('$targ_unit' === 'US' || '$unit.label.outTemp' !== '&#176;C' ||
-         '$unit.label.barometer' !== ' hPa')<br>
-         then, if one of the above is (true) show the warning &lt;div&gt;</p>";
+    echo "<p class=\"debug\">want delta is $want_delta with show warning".
+         "of $show_warning<br>".
+         "('$targ_unit' === 'US' || '$unit.label.outTemp' !== '&#176;C' ||".
+         "'$unit.label.barometer' !== ' hPa')<br>".
+         "then, if one of the above is (true) show the warning &lt;div&gt;</p>";
 }
 
 if ($show_warning) {
@@ -267,30 +431,39 @@ if ($show_warning) {
     ) {
         echo "<div class=\"alert\">
               <h2>delta-T calculation: configuration notes</h2>
-              <p>Weewx reports that the database is in $targ_unit (imperial) units,
-              and /or that the temperature, pressure units differ from the &#176;C or
-              hPa required to calculate the delta-T values correctly. This may be
+              <p>Weewx reports that the database is in $targ_unit units, and /
+               or that the temperature, pressure units differ from the &#176;C
+              or hPa required to calculate the delta-T values correctly. This will be
               compensated for but we need to be sure that what's being reported is
               correct.</p>
               <p>Review your wxobs/skin.conf file and match the group_fields with
-              your database.
+              your database.<br> You can also use the [[PHPUnits]] section to convert
+              the database values to something else, but you will still need to
+              correctly describe those new values using the group_fields.
               <pre>
               [Units]
                   [[Groups]]
                       group_temperature
                       group_pressure
-                      group_speed #check it anyway, delta-T doesn't use it but...
               </pre>
-              Whatever units are used in the database needs to be reflected
-              in the skin.conf file.</p>
+              Again, whatever units are used in the database need to be converted
+              or noted in the skin.conf file for the deltaT calculation to be
+              performed correctly</p>
               <p>ie:-<br>
               If you know the database stores the temperature in &#176;C then you
-              need to specify it<br>
-              group_temperature  = degree_C<br> The same logic applies if it's
-              &#176;F - like for like.</p>
-              <p>If you know the database stores the pressure in hPa then you need
-              to specify it (or inHg, mmHG or other) <br>
-              group_pressure     = hPa</p>
+              need to specify it as such. <br>
+              group_temperature  = degree_C<br> If it's in &#176;F then you have the
+              option to convert it using [[PHPUnits]] and then selecting the
+              appropriate label (which can only be &#176;C), or leave it as &#176;F
+              and let the DeltaT calcs make any adjustments within its calculations.
+              <br>This allows your display to correctly show the units of your choice
+              (as per your group_field selection!) and it will remain as &#176;F
+              in the reports display and the deltaT calculator knows that it needs
+              to convert the units to get the correct result.</p>
+              <p>Likewise, If you know the database stores the pressure in hPa
+              then you need to specify that. If it's inHg, mmHG or other then decide
+              which you want and work through the above logic again depending on
+              what you want displayed.<br>
               <p>The code will compensate correctly for &#176;C, &#176;F, hPa, inHg,
               mmHg.  BUT only if you tell it in the skin.conf file (or blind luck
               favours you!)<br>
@@ -301,8 +474,8 @@ if ($show_warning) {
               this message off manually by uncommenting the line<br>
               <b>#show_warning = False</b><br>
               in that same config file.<br>
-              The message will also dissappear if the correct units (degC and hPa)
-              are detected.
+              (The message will also disappear if the correct units (&#176;C and hPa)
+              are specified in the group_fields section.)
               </p></div>";
     }
 }
@@ -328,14 +501,14 @@ if ($debug>='1') {
     }
       $latest_date = $last_entry[0];
 
-    if ($aus_rain) {
-        // Calculate start day for rain calcs - Australian records start at 9 a.m.
-        $today_nine = $day_start + 32400; // 9 am today
-        $past_nine = $day_start - 54000; // 9 am yesterday
+    if ($shift_rain) {
+        // Calculate start day for rain calcs - some recordings start at $start_label a.m.
+        $today_nine = $day_start + $rainday_start; // $start_label am today
+        $past_nine = $day_start - (86400 - $rainday_start); // $start_label am yesterday
         if ($time_now <= $today_nine) {
             $rain_start = $past_nine;
             $rain_end = $rain_start + 86400 + $arch_interval;
-            $t_span = "(since 9 a.m.)";
+            $t_span = "(since $start_label a.m.)";
             $td_rain = "<td style=\"background-color:#aeaeae\" title=\"".
                        "Previous Total over 24 hours\nstarting from ".
                        hDate($rain_start). "\">";
@@ -348,7 +521,7 @@ if ($debug>='1') {
         } elseif ($time_now > $today_nine) {
             $rain_start =$today_nine;
             $rain_end = $rain_start + 86400 + $arch_interval;
-            $t_span = "(since 9 a.m.)";
+            $t_span = "(since $start_label a.m.)";
             $td_rain = "<td style=\"background-color:#d6d6d6\" title=\"".
                        "Current Total over 24 hours\nstarting from ".
                        hDate($rain_start). "\">";
@@ -375,7 +548,7 @@ if ($debug>='1') {
     if ($php_dbase === 'mysql') {
         $last_values = $db->query(
             "SELECT FROM_UNIXTIME(datetime, '%d-%m-%Y %H:%i'), outTemp,
-            $appTemp, dewPoint, outHumidity, windSpeed, windGust, windDir,
+            $app_temp, dewPoint, outHumidity, windSpeed, windGust, windDir,
             barometer FROM archive WHERE dateTime = $latest_date"
         );
         $rain_total = $db->query(
@@ -387,7 +560,7 @@ if ($debug>='1') {
     } else {
         $last_values = $db->query(
             "SELECT datetime(min(dateTime), 'unixepoch', 'localtime'),
-            outTemp, $appTemp, dewPoint, outHumidity, windSpeed, windGust,
+            outTemp, $app_temp, dewPoint, outHumidity, windSpeed, windGust,
             windDir, barometer FROM archive WHERE dateTime = $latest_date"
         );
         $rain_total = $db->query(
@@ -401,8 +574,8 @@ if ($debug>='1') {
     if ($debug>='1') {
         echo "latest date = ", hDate($latest_date), " : day_start = ",
              hDate($day_start), " : time_now = ", hDate($time_now), "<br>";
-             echo "latest rain_start = ", hDate($rain_start), " : ($rain_start) rain_end = ",
-                  hDate($rain_end), "($rain_end)";
+        echo "latest rain_start = ", hDate($rain_start), " : ($rain_start)".
+             "rain_end = ", hDate($rain_end), "($rain_end)";
     }
 
     // Finish Latest grunt work
@@ -413,7 +586,7 @@ if ($debug>='1') {
         $delta_label = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"Used as an".
                        " indicator for agricultural spraying conditions, the ideal".
                        " conditions are between the values of 2 &amp; 8\">".
-                       "delta&dash;T<br>$unit.label.outTemp</a></th>";
+                       "delta&dash;T<br>&#176;C</a></th>";
         if ($debug>='3') {
             echo "<p class=\"debug\">want_delta is $want_delta so label is...<br>
                  $delta_label";
@@ -433,7 +606,7 @@ if ($debug>='1') {
     *   echo "System TimeZone is $systemTimeZone <br>";
     *   }
     */
-//Create Latest table headers - ugly layout but ok in html source
+    //Create Latest table headers - ugly layout but ok in html source
     echo "<div class=\"wxdata\">\n<!-- start data tables -->\n
  <H2><A Title=\"Todays latest weather observations, at the displayed time.\">Latest Observations</a></h2>
 <table class=\"wxdata\">
@@ -461,11 +634,14 @@ if ($debug>='1') {
 
     $dbase_date = $latest_row[0];
     echo "<tr><td> $dbase_date<!-- $st_day --></td>";
-    $metTemp = round($latest_row[1], 1);
+    $x = $tempConvert ($latest_row[1]);
+    $metTemp = round($x, 1);
     echo "<td>$metTemp</td>";
-    $metappTemp = round($latest_row[2], 1);
+    $x = $tempConvert ($latest_row[2]);
+    $metappTemp = round($x, 1);
     echo "<td>$metappTemp</td>";
-    $metdew = round($latest_row[3], 1);
+    $x = $tempConvert ($latest_row[3]);
+    $metdew = round($x, 1);
     echo "<td>$metdew</td>";
     $humid = round($latest_row[4], 1);
     echo "<td>$humid</td>";
@@ -484,22 +660,30 @@ if ($debug>='1') {
     }
     ordinalCompass($latest_row[7], $debug);
     echo "<td>$compass</td>"; //wind direction ordinal
-    $metWind = round(($latest_row[5]/$wind_adjust), 1);
+    list($x, $dec_plc) = $speedConvert ($latest_row[5]);
+    $metWind = round($x, $dec_plc);
+    //$metWind = round(($latest_row[5]/$wind_adjust), 1);
     echo "<td>$metWind</td>";
-    $metGust = round(($latest_row[6]/$wind_adjust), 1);
+    list($x, $dec_plc) = $speedConvert ($latest_row[6]);
+    $metGust = round($x, $dec_plc);
+    //$metGust = round(($latest_row[6]/$wind_adjust), 1);
     echo "<td>$metGust</td>";
     $windDir = round($latest_row[7], 0);
     echo "<td>$windDir</td>"; //wind direction degrees
-    $metPress = round($latest_row[8], 1);
+    list($x, $dec_plc) = $pressConvert ($latest_row[8]);
+    $metPress = round($x, $dec_plc);
+    //$metPress = round($latest_row[8], 1);
     echo "<td>$metPress</td>";
-    $metRain = round($rain_row[0], 2);
+    list($x, $dec_plc) = $rainConvert ($rain_row[0]);
+    $metRain = round($x, $dec_plc);
+    //$metRain = round($rain_row[0], 2);
     echo "$td_rain $metRain</td></tr>";
     echo "</tbody></table>\n<!-- end latest observations -->\n<br><hr>";
 
-// Finished Latest Obs html
-/////////////////////////////
-// Start Min Max summaries
-// Shows the min and max values, averages and rainfall total
+    // Finished Latest Obs html
+    /////////////////////////////
+    // Start Min Max summaries
+    // Shows the min and max values, averages and rainfall total
     if ($_REQUEST['datepicker']) {
         $pick_start =  strtotime($_REQUEST['datepicker']);
         if ($debug>='1') {
@@ -519,38 +703,42 @@ if ($debug>='1') {
     // $latest_date holds the last (latest) entry in database.
     if ($pick_start > $latest_date) {
         if ($debug>='1') {
-            echo "<p class=\"debug\"> pick_start ( $pick_start ) is > latest_date ( $latest_date ) </p>";
+            echo "<p class=\"debug\"> pick_start ( $pick_start ) is > ".
+                 "latest_date ( $latest_date ) </p>";
         }
-        echo "<p class=\"alert\">That is a future date; there are no records!<br></p>";
+        echo "<p class=\"alert\">That is a future date; there are no ".
+             "records!<br></p>";
         return;
     }
 
     $start_time = $pick_start;
     $day_end = $start_time + 86400;
 
-    if ($aus_rain) {
-        // Calculate start day for rain calcs - Australian records start at 9 a.m.
-        $today_nine = $start_time + 32400; // 9 am today
-        $past_nine = $start_time - 54000; // 9 am yesterday
+    if ($shift_rain) {
+        // Calculate start day for rain calcs - some recordings start at $start_label a.m.
+        $today_nine = $start_time + $rainday_start; // $start_label am today
+        $past_nine = $start_time - (86400 - $rainday_start); // $start_label am yesterday
         if ($debug>='1') {
-            echo "Rain: Min Max today_nine = ", hDate($today_nine), " ($today_nine) <br>";
-            echo "Rain: Min Max past_nine = ". hDate($past_nine)." ($past_nine) <br>";
+            echo "Rain: Min Max today_nine = ". hDate($today_nine).
+                 " ($today_nine) <br>";
+            echo "Rain: Min Max past_nine = ". hDate($past_nine).
+                 " ($past_nine) <br>";
         }
-        // include up to the actual 9 a.m. value
+        // include up to the actual $start_label a.m. value
         if ($latest_date <= $today_nine) {
             //echo "} elseif ".hDate($latest_date)." ($latest_date < $today_nine) {". hDate($today_nine)."<br>";
             $rain_start = $past_nine;
             $rain_end = $past_nine + 86400;
-            $t_span = "(since 9 a.m.)";
+            $t_span = "(since $start_label a.m.)";
             $td_rain = "<td style=\"background-color:#aeaeae\" title=\"".
                        "Previous Total over 24 hours\nstarting from ".
                        hDate($rain_start). "\">";
-            // start from the 9 a.m. value
+            // start from the $start_label a.m. value
         } elseif ($latest_date > $today_nine) {
             //echo "} elseif ".hDate($latest_date)." ($latest_date >= $today_nine) {". hDate($today_nine)."<br>";
             $rain_start =$today_nine;
             $rain_end = $today_nine + 86400;
-            $t_span = "(since 9 a.m.)";
+            $t_span = "(since $start_label a.m.)";
             $td_rain = "<td style=\"background-color:#d6d6d6\" title=\"".
                         "Current Total over 24 hours\nstarting from ".
                         hDate($rain_start). "\">";
@@ -572,7 +760,7 @@ if ($debug>='1') {
         // error
         $stats_snap = $db->query(
             "SELECT FROM_UNIXTIME(datetime, '%d-%m-%Y %H:%i'),min(outTemp),
-            max(outTemp), min($appTemp), max($appTemp), min(dewPoint),
+            max(outTemp), min($app_temp), max($app_temp), min(dewPoint),
             max(dewPoint), min(outHumidity), max(outHumidity), avg(windSpeed),
             avg(windGust), avg(windDir), avg(barometer), sum(rain) FROM archive
             WHERE dateTime >= $start_time and dateTime < $day_end;"
@@ -588,7 +776,7 @@ if ($debug>='1') {
     } else {
         $stats_snap = $db->query(
             "SELECT datetime(min(dateTime), 'unixepoch', 'localtime'),min(outTemp),
-            max(outTemp), min($appTemp), max($appTemp), min(dewPoint), max(dewPoint),
+            max(outTemp), min($app_temp), max($app_temp), min(dewPoint), max(dewPoint),
             min(outHumidity), max(outHumidity), avg(windSpeed), avg(windGust),
             avg(windDir), avg(barometer), sum(rain) FROM archive WHERE dateTime
             >= $start_time and dateTime < $day_end;"
@@ -623,10 +811,10 @@ if ($debug>='1') {
            hDate($rain_start), " : rain_end = ", hDate($rain_end), "<br>";
     }
 
-// Finish Min (Max) grunt work
-//////////////////////////
-// Build Min (Max) Obs html
-// Create Min Max table headers - ugly layout but ok in html source
+    // Finish Min (Max) grunt work
+    //////////////////////////
+    // Build Min (Max) Obs html
+    // Create Min Max table headers - ugly layout but ok in html source
     echo "<!-- start snapshot summary observations -->
  <h2>Historical Observations for $this_day</h2>
  <h3><a title=\"Lowest and Highest observations for the nominated day.\">Min (Max) Stats</a></h3>
@@ -655,39 +843,53 @@ if ($debug>='1') {
 
 
     echo "<tr><td> $dbase_date<!-- $st_day : $en_day --></td>";
-    $minTemp = round($stats_row[1], 1);
-    $maxTemp = round($stats_row[2], 1);
+    $x = $tempConvert ($stats_row[1]);
+    $minTemp = round($x, 1);
+    $x = $tempConvert ($stats_row[2]);
+    $maxTemp = round($x, 1);
     echo "<td>$minTemp ($maxTemp)</td>";
-    $minappTemp = round($stats_row[3], 1);
-    $maxappTemp = round($stats_row[4], 1);
+    $x = $tempConvert ($stats_row[3]);
+    $minappTemp = round($x, 1);
+    $x = $tempConvert ($stats_row[4]);
+    $maxappTemp = round($x, 1);
     echo "<td>$minappTemp ($maxappTemp)</td>";
-    $mindew = round($stats_row[5], 1);
-    $maxdew = round($stats_row[6], 1);
+    $x = $tempConvert ($stats_row[5]);
+    $mindew = round($x, 1);
+    $x = $tempConvert ($stats_row[6]);
+    $maxdew = round($x, 1);
     echo "<td>$mindew ($maxdew)</td>";
     $minhumid = round($stats_row[7], 1);
     $maxhumid = round($stats_row[8], 1);
     echo "<td>$minhumid ($maxhumid)</td>";
     ordinalCompass($stats_row[11], $debug);
     echo "<td> $compass</td>"; //wind direction ordinal
-    $metWind = round(($stats_row[9]/$wind_adjust), 1);
+    list($x, $dec_plc) = $speedConvert ($stats_row[9]);
+    $metWind = round($x, $dec_plc);
+    //$metWind = round(($stats_row[9]/$wind_adjust), 1);
     echo "<td>$metWind</td>";
-    $metGust = round(($stats_row[10]/$wind_adjust), 1);
+    list($x, $dec_plc) = $speedConvert ($stats_row[10]);
+    $metGust = round($x, $dec_plc);
+    //$metGust = round(($stats_row[10]/$wind_adjust), 1);
     echo "<td>$metGust</td>";
     $windDir = round($stats_row[11], 0);
     echo "<td>$windDir</td>"; //wind direction degrees
-    $metPress = round($stats_row[12], 1);
+    list($x, $dec_plc) = $pressConvert ($stats_row[12]);
+    $metPress = round($x, $dec_plc);
+    //$metPress = round($stats_row[12], 1);
     echo "<td>$metPress</td>";
     //$metRain = round($stats_row[13], 2);
-    $metRain = round($rain_row[1], 2);
+    list($x, $dec_plc) = $rainConvert ($rain_row[1]);
+    $metRain = round($x, $dec_plc);
+    //$metRain = round($rain_row[1], 2);
     echo "$td_rain $metRain</td></tr>";
     echo "</tbody></table>\n<!-- end snapshot summary observations -->\n";
 
-// Finish Min (Max) Stats
-//////////////////////////
-// Build Periodic daily stats html
-// Shows the (average) periodic values for a given (arch_interval) snapshot,
-// averages and rainfall total for that period.
-// Create Min Max table headers - ugly layout but ok in html source
+    // Finish Min (Max) Stats
+    //////////////////////////
+    // Build Periodic daily stats html
+    // Shows the (average) periodic values for a given (arch_interval) snapshot,
+    // averages and rainfall total for that period.
+    // Create Min Max table headers - ugly layout but ok in html source
     echo "<!-- start snapshot observations -->
  <h3><a title=\"Time stamped observations throughout the nominated day.\">Periodic Stats $iflag</a></h3>
  <table class=\"wxdata\">
@@ -713,19 +915,19 @@ if ($debug>='1') {
         $start_time = $pick_start + ($t*'$ext_interval');
         $end_interval = $start_time + '$arch_interval';
 
-        if ($aus_rain) {
+        if ($shift_rain) {
             // Calculate start day for rain calcs
-            // Australian records start at 9 a.m.
-            $today_nine = $pick_start + 32400; // 9 am today
-            $past_nine = $pick_start - 54000; // 9 am yesterday
-            // include up to the actual 9 a.m. value
+            // Some  records start at $start_label a.m.
+            $today_nine = $pick_start + $rainday_start; // $start_label am today
+            $past_nine = $pick_start - (86400 - $rainday_start); // $start_label am yesterday
+            // include up to the actual $start_label a.m. value
             if ($start_time <= $today_nine) {
                  $rain_start = $past_nine;
                  $rain_end = $end_interval;//$past_nine + 86400;
                  $td_rain = "<td style=\"background-color:#aeaeae\" title=\"".
                             "Previous Total over 24 hours\nstarting from ".
                             hDate($rain_start)."\">";
-                // start from the 9 a.m. value
+                // start from the $start_label a.m. value
             } elseif ($start_time > $today_nine) {
                  $rain_start =$today_nine;
                  $rain_end = $end_interval;//$today_nine + 86400;
@@ -755,7 +957,7 @@ if ($debug>='1') {
         if ($php_dbase === 'mysql') {
                $results = $db->query(
                    "SELECT FROM_UNIXTIME(datetime, '%d-%m-%Y %H:%i'), avg(outTemp),
-                   avg($appTemp), avg(dewPoint), avg(outHumidity), avg(windSpeed),
+                   avg($app_temp), avg(dewPoint), avg(outHumidity), avg(windSpeed),
                    avg(windGust), avg(windDir), avg(barometer), sum(rain) FROM
                    archive WHERE dateTime >= $start_time and dateTime < $end_interval;"
                );
@@ -770,7 +972,7 @@ if ($debug>='1') {
         } else {
             $results = $db->query(
                 "SELECT datetime(min(dateTime), 'unixepoch', 'localtime'),
-                avg(outTemp), avg($appTemp), avg(dewPoint), avg(outHumidity),
+                avg(outTemp), avg($app_temp), avg(dewPoint), avg(outHumidity),
                 avg(windSpeed), avg(windGust), avg(windDir), avg(barometer),
                 total(rain) FROM archive WHERE dateTime>= $start_time and
                 dateTime< $end_interval;"
@@ -805,11 +1007,14 @@ if ($debug>='1') {
 
         if ($dbase_date != "") {
             echo "<tr class=\"$tr_bgrnd\"><td> $dbase_date <!-- $st_day : $en_day -->";
-            $metTemp = round($row[1], 1);
+            $x = $tempConvert ($row[1]);
+            $metTemp = round($x, 1);
             echo "</td><td>$metTemp</td>";
-            $metappTemp = round($row[2], 1);
+            $x = $tempConvert ($row[2]);
+            $metappTemp = round($x, 1);
             echo "<td>$metappTemp</td>";
-            $metdew = round($row[3], 1);
+            $x = $tempConvert ($row[3]);
+            $metdew = round($x, 1);
             echo "<td>$metdew</td>";
             $humid = round($row[4], 1);
             echo "<td>$humid</td>";
@@ -828,17 +1033,23 @@ if ($debug>='1') {
             }
             ordinalCompass($row[7], $debug);
             echo "<td>$compass</td>"; //wind direction ORDINAL
-            $metWind = round(($row[5]/$wind_adjust), 1);
+            list($x, $dec_plc) = $speedConvert ($row[5]);
+            $metWind = round($x, $dec_plc);
+            //$metWind = round(($row[5]/$wind_adjust), 1);
             echo "<td>$metWind</td>";
+            list($x, $dec_plc) = $speedConvert ($row[6]);
             //echo "round(($row[6]/$wind_adjust), 1)<br>";
-            $metGust = round(($row[6]/$wind_adjust), 1);
+            //$metGust = round(($row[6]/$wind_adjust), 1);
+            $metGust = round($x, $dec_plc);
             echo "<td>$metGust</td>";
             $windDir = round($row[7], 0);
             echo "<td>$windDir</td>"; //wind direction degrees
-            $metPress = round($row[8], 1);
+            list($x, $dec_plc) = $pressConvert ($row[8]);
+            $metPress = round($x, $dec_plc);
             echo "<td>$metPress</td>";
             //$metRain = round($row[9], 2);
-            $metRain = round($rain_row[1], 2);
+            list($x, $dec_plc) = $rainConvert ($rain_row[1]);
+            $metRain = round($x, $dec_plc);
             echo "$td_rain $metRain</td></tr>";
         }
     }
