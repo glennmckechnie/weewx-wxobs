@@ -81,98 +81,100 @@ function NTC($x)
 }
 //pressure conversions
 // $dec_plc is decimal places to display
-function inHgtomBar($x)
+function inHgtomBar($x, $press_plc)
 {
     $x = $x * 33.863881588;
     $dec_plc = 2;
     return array($x, $dec_plc);
 }
 
-function inHgtohPa($x)
+function inHgtohPa($x, $press_plc)
 {
     $x = $x * 33.863881588;
     $dec_plc = 2;
     return array($x, $dec_plc);
 }
 
-function mBartohPa($x)
+function mBartohPa($x, $press_plc)
 {
     $x = $x;
     $dec_plc = 2;
     return array($x, $dec_plc);
 }
 
-function mBartoinHg($x)
+function mBartoinHg($x, $press_plc)
 {
     $x = $x * 0.0295299875;
     $dec_plc = 3;
     return array($x, $dec_plc);
 }
 
-function NPC($x)
+function NPC($x, $press_plc)
 {
-    return $x;
+    $x = $x;
+    $dec_plc = $press_plc;
+    return array($x, $dec_plc);
 }
 //speed conversions
 // $dec_plc is decimal places to display
-function MphtoKph($x)
+function MphtoKph($x, $wind_plc)
 {
     $x = $x * 1.609344;
     $dec_plc = 0;
     return array($x, $dec_plc);
 }
 
-function MphtoMps($x)
+function MphtoMps($x, $wind_plc)
 {
     $x = $x * 0.44704 ;
     $dec_plc = 1;
     return array($x, $dec_plc);
 }
 
-function KphtoMph($x)
+function KphtoMph($x, $wind_plc)
 {
     $x = $x * 0.621371  ;
     $dec_plc = 0;
     return array($x, $dec_plc);
 }
 
-function KphtoMps($x)
+function KphtoMps($x, $wind_plc)
 {
     $x = $x * 0.277777778;
     $dec_plc = 1;
     return array($x, $dec_plc);
 }
 
-function MpstoMph($x)
+function MpstoMph($x, $wind_plc)
 {
     $x = $x * 2.23693629;
     $dec_plc = 0;
     return array($x, $dec_plc);
 }
 
-function MpstoKmh($x)
+function MpstoKmh($x, $wind_plc)
 {
     $x = $x * 3.6;
     $dec_plc = 0;
     return array($x, $dec_plc);
 }
 
-function NSC($x)
+function NSC($x, $wind_plc)
 {
     $x;
-    $dec_plc = 1;
+    $dec_plc = $wind_plc;
     return array($x, $dec_plc);
 }
 // rain conversions
 // $dec_plc is decimal places to display
-function IntoMm($x)
+function IntoMm($x, $rain_plc)
 {
     $x = $x * 25.4;
     $dec_plc = 1;
     return array($x, $dec_plc);
 }
 
-function IntoCm($x)
+function IntoCm($x, $rain_plc)
 {
     $x = $x * 2.54;
     $dec_plc = 2;
@@ -186,31 +188,31 @@ function CmtoIn($x, $dec_plc)
     return array($x, $dec_plc);
 }
 
-function CmtoMm($x)
+function CmtoMm($x, $rain_plc)
 {
     $x = $x * 10;
     $dec_plc = 1;
     return array($x, $dec_plc);
 }
 
-function MmtoIn($x)
+function MmtoIn($x, $rain_plc)
 {
     $x = $x * 0.0393700787;
     $dec_plc = 2;
     return array($x, $dec_plc);
 }
 
-function MmtoCm($x)
+function MmtoCm($x, $rain_plc)
 {
     $x = $x * 0.10;
     $dec_plc = 2;
     return array($x, $dec_plc);
 }
 
-function NDC($x)
+function NDC($x, $rain_plc)
 {
     $x =$x;
-    $dec_plc = 2;
+    $dec_plc = $rain_plc;
     return array($x, $dec_plc);
 }
 
@@ -323,6 +325,7 @@ function deltaT($Tc, $RH, $P, $debug)
 
 $debug='$wxobs_debug';
 $tr_bgrnd="";
+//global $label_plc;
 
 // Attempt to get some meaningful table headings, dependent on xxx_interval options
 if ('$arch_interval' === '$ext_interval') {
@@ -478,6 +481,37 @@ if ($show_warning) {
               are specified in the group_fields section.)
               </p></div>";
     }
+}
+// For report display purposes, prime the decimal place values as if no
+// conversions are to be made.
+if ('$unit.label.barometer' === ' hPa') { //leading space is critical!
+   $press_plc = 1;
+} elseif ('$unit.label.barometer' === ' inHg') { //leading space is critical!
+   $press_plc = 3;
+} elseif ('$unit.label.barometer' === ' mmHg') { //leading space is critical!
+   $press_plc = 2;
+} else {
+   $press_plc = 0;
+}
+
+if ('$unit.label.rain' === ' mm') { //leading space is critical!
+   $rain_plc = 1;
+} elseif ('$unit.label.rain' === ' cm') { //leading space is critical!
+   $rain_plc = 2;
+} elseif ('$unit.label.rain' === ' in') { //leading space is critical!
+   $rain_plc = 2;
+} else {
+   $rain_plc = 0;
+}
+
+if ('$unit.label.wind' === ' kph') { //leading space is critical!
+   $wind_plc = 0;
+} elseif ('$unit.label.wind' === ' mph') { //leading space is critical!
+   $wind_plc = 0;
+} elseif ('$unit.label.wind' === ' m/s') { //leading space is critical!
+   $wind_plc = 0;
+} else {
+   $wind_plc = 0;
 }
 
 // Start of Latest observations
@@ -643,7 +677,7 @@ if ($debug>='1') {
     $x = $tempConvert ($latest_row[3]);
     $metdew = round($x, 1);
     echo "<td>$metdew</td>";
-    $humid = round($latest_row[4], 1);
+    $humid = round($latest_row[4], 0);
     echo "<td>$humid</td>";
     if ($want_delta) {
         deltaT($latest_row[1], $latest_row[4], $latest_row[8], $debug);
@@ -660,21 +694,21 @@ if ($debug>='1') {
     }
     ordinalCompass($latest_row[7], $debug);
     echo "<td>$compass</td>"; //wind direction ordinal
-    list($x, $dec_plc) = $speedConvert ($latest_row[5]);
+    list($x, $dec_plc) = $speedConvert ($latest_row[5], $wind_plc);
     $metWind = round($x, $dec_plc);
     //$metWind = round(($latest_row[5]/$wind_adjust), 1);
     echo "<td>$metWind</td>";
-    list($x, $dec_plc) = $speedConvert ($latest_row[6]);
+    list($x, $dec_plc) = $speedConvert ($latest_row[6], $wind_plc);
     $metGust = round($x, $dec_plc);
     //$metGust = round(($latest_row[6]/$wind_adjust), 1);
     echo "<td>$metGust</td>";
     $windDir = round($latest_row[7], 0);
     echo "<td>$windDir</td>"; //wind direction degrees
-    list($x, $dec_plc) = $pressConvert ($latest_row[8]);
+    list($x, $dec_plc) = $pressConvert ($latest_row[8], $press_plc);
     $metPress = round($x, $dec_plc);
     //$metPress = round($latest_row[8], 1);
     echo "<td>$metPress</td>";
-    list($x, $dec_plc) = $rainConvert ($rain_row[0]);
+    list($x, $dec_plc) = $rainConvert ($rain_row[0], $rain_plc);
     $metRain = round($x, $dec_plc);
     //$metRain = round($rain_row[0], 2);
     echo "$td_rain $metRain</td></tr>";
@@ -858,27 +892,27 @@ if ($debug>='1') {
     $x = $tempConvert ($stats_row[6]);
     $maxdew = round($x, 1);
     echo "<td>$mindew ($maxdew)</td>";
-    $minhumid = round($stats_row[7], 1);
-    $maxhumid = round($stats_row[8], 1);
+    $minhumid = round($stats_row[7], 0);
+    $maxhumid = round($stats_row[8], 0);
     echo "<td>$minhumid ($maxhumid)</td>";
     ordinalCompass($stats_row[11], $debug);
     echo "<td> $compass</td>"; //wind direction ordinal
-    list($x, $dec_plc) = $speedConvert ($stats_row[9]);
+    list($x, $dec_plc) = $speedConvert ($stats_row[9], $wind_plc);
     $metWind = round($x, $dec_plc);
     //$metWind = round(($stats_row[9]/$wind_adjust), 1);
     echo "<td>$metWind</td>";
-    list($x, $dec_plc) = $speedConvert ($stats_row[10]);
+    list($x, $dec_plc) = $speedConvert ($stats_row[10], $wind_plc);
     $metGust = round($x, $dec_plc);
     //$metGust = round(($stats_row[10]/$wind_adjust), 1);
     echo "<td>$metGust</td>";
     $windDir = round($stats_row[11], 0);
     echo "<td>$windDir</td>"; //wind direction degrees
-    list($x, $dec_plc) = $pressConvert ($stats_row[12]);
+    list($x, $dec_plc) = $pressConvert ($stats_row[12], $press_plc);
     $metPress = round($x, $dec_plc);
     //$metPress = round($stats_row[12], 1);
     echo "<td>$metPress</td>";
     //$metRain = round($stats_row[13], 2);
-    list($x, $dec_plc) = $rainConvert ($rain_row[1]);
+    list($x, $dec_plc) = $rainConvert ($rain_row[1], $rain_plc);
     $metRain = round($x, $dec_plc);
     //$metRain = round($rain_row[1], 2);
     echo "$td_rain $metRain</td></tr>";
@@ -1016,7 +1050,7 @@ if ($debug>='1') {
             $x = $tempConvert ($row[3]);
             $metdew = round($x, 1);
             echo "<td>$metdew</td>";
-            $humid = round($row[4], 1);
+            $humid = round($row[4], 0);
             echo "<td>$humid</td>";
             if ($want_delta) {
                 deltaT($row[1], $row[4], $row[8], $debug);
@@ -1033,22 +1067,22 @@ if ($debug>='1') {
             }
             ordinalCompass($row[7], $debug);
             echo "<td>$compass</td>"; //wind direction ORDINAL
-            list($x, $dec_plc) = $speedConvert ($row[5]);
+            list($x, $dec_plc) = $speedConvert ($row[5], $wind_plc);
             $metWind = round($x, $dec_plc);
             //$metWind = round(($row[5]/$wind_adjust), 1);
             echo "<td>$metWind</td>";
-            list($x, $dec_plc) = $speedConvert ($row[6]);
+            list($x, $dec_plc) = $speedConvert ($row[6], $wind_plc);
             //echo "round(($row[6]/$wind_adjust), 1)<br>";
             //$metGust = round(($row[6]/$wind_adjust), 1);
             $metGust = round($x, $dec_plc);
             echo "<td>$metGust</td>";
             $windDir = round($row[7], 0);
             echo "<td>$windDir</td>"; //wind direction degrees
-            list($x, $dec_plc) = $pressConvert ($row[8]);
+            list($x, $dec_plc) = $pressConvert ($row[8], $press_plc);
             $metPress = round($x, $dec_plc);
             echo "<td>$metPress</td>";
             //$metRain = round($row[9], 2);
-            list($x, $dec_plc) = $rainConvert ($rain_row[1]);
+            list($x, $dec_plc) = $rainConvert ($rain_row[1], $rain_plc);
             $metRain = round($x, $dec_plc);
             echo "$td_rain $metRain</td></tr>";
         }
