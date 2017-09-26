@@ -237,10 +237,12 @@ function ordinalCompass($degr, $debug)
     if ($debug == '5') {
         echo "<p class=\"debug\">degr passed as '$degr'<br>";
     }
-    if ($degr == 0) {
+    // has weewx returned null wind? (zero_wind sets windDir as NULL)
+    if (is_null($degr)) {
+        //$compass = "'$degr' :: CALM";
         $compass = "CALM";
-        if ($debug == '5') {
-            echo "so compass is $compass</p>";
+        if ($debug == '1') {
+            echo "so degree is '$degr': compass is $compass</p>";
         }
         return $compass;
     }
@@ -486,33 +488,33 @@ if ($show_warning) {
 // For report display purposes, prime the decimal place values as if no
 // conversions are to be made.
 if ('$unit.label.barometer' === ' hPa') { //leading space is critical!
-   $press_plc = 1;
+    $press_plc = 1;
 } elseif ('$unit.label.barometer' === ' inHg') { //leading space is critical!
-   $press_plc = 3;
+    $press_plc = 3;
 } elseif ('$unit.label.barometer' === ' mmHg') { //leading space is critical!
-   $press_plc = 2;
+    $press_plc = 2;
 } else {
-   $press_plc = 0;
+    $press_plc = 0;
 }
 
 if ('$unit.label.rain' === ' mm') { //leading space is critical!
-   $rain_plc = 1;
+    $rain_plc = 1;
 } elseif ('$unit.label.rain' === ' cm') { //leading space is critical!
-   $rain_plc = 2;
+    $rain_plc = 2;
 } elseif ('$unit.label.rain' === ' in') { //leading space is critical!
-   $rain_plc = 2;
+    $rain_plc = 2;
 } else {
-   $rain_plc = 0;
+    $rain_plc = 0;
 }
 
 if ('$unit.label.wind' === ' kph') { //leading space is critical!
-   $wind_plc = 0;
+    $wind_plc = 1;
 } elseif ('$unit.label.wind' === ' mph') { //leading space is critical!
-   $wind_plc = 0;
+    $wind_plc = 1;
 } elseif ('$unit.label.wind' === ' m/s') { //leading space is critical!
-   $wind_plc = 0;
+    $wind_plc = 1;
 } else {
-   $wind_plc = 0;
+    $wind_plc = 0;
 }
 
 // Start of Latest observations
@@ -1021,6 +1023,8 @@ if ($debug>='1') {
             $row = $results->fetchArray();
             $rain_row = $rain_avg->fetchArray();
         }
+        // temporary debug for wind / CALM substitution
+        // echo "$row[0], temp = $row[1], speed = $row[5],  direction = $row[7]<br>";
         if ($tr_bgrnd != "wxhint") {
             $tr_bgrnd = "wxhint";
         } else {
