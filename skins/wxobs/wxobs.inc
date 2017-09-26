@@ -547,7 +547,7 @@ if ($debug>='1') {
             $rain_end = $rain_start + 86400 + $arch_interval;
             $t_span = "(since $start_label a.m.)";
             $td_rain = "<td style=\"background-color:#aeaeae\" title=\"".
-                       "Previous Total over 24 hours&#10;starting from ".
+                       "Previous: Running Total&#10;starting ".
                        hDate($rain_start). "\">";
             if ($debug >= 1) {
                 echo "Latest: time_now=".hDate($time_now)." : ".hDate($day_start).
@@ -560,7 +560,7 @@ if ($debug>='1') {
             $rain_end = $rain_start + 86400 + $arch_interval;
             $t_span = "(since $start_label a.m.)";
             $td_rain = "<td style=\"background-color:#d6d6d6\" title=\"".
-                       "Current Total over 24 hours&#10;starting from ".
+                       "Current: Running Total&#10;starting ".
                        hDate($rain_start). "\">";
             if ($debug >= 1) {
                 echo "Latest: time_now=".hDate($time_now)." : ".hDate($day_start).
@@ -573,7 +573,7 @@ if ($debug>='1') {
         $rain_start = $day_start;
         $rain_end = $time_now;
         $t_span = "(since 12 a.m.)";
-        $td_rain = "<td title=\"24 hour rain starting from midnight&#10; on this day: ".
+        $td_rain = "<td title=\"24 hour rain starting midnight&#10; on this day: ".
                    hDate($rain_start). "\">";
         if ($debug >= 1) {
             echo "Latest: 24 hours ".hDate($day_start)." ($day_start day_start
@@ -768,7 +768,7 @@ if ($debug>='1') {
             $rain_end = $past_nine + 86400;
             $t_span = "(since $start_label a.m.)";
             $td_rain = "<td style=\"background-color:#aeaeae\" title=\"".
-                       "Previous Total over 24 hours&#10;starting from ".
+                       "Previous: Running Total&#10;starting ".
                        hDate($rain_start). "\">";
             // start from the $start_label a.m. value
         } elseif ($latest_date > $today_nine) {
@@ -777,14 +777,14 @@ if ($debug>='1') {
             $rain_end = $today_nine + 86400;
             $t_span = "(since $start_label a.m.)";
             $td_rain = "<td style=\"background-color:#d6d6d6\" title=\"".
-                        "Current Total over 24 hours&#10;starting from ".
+                        "Current: Running Total&#10;starting ".
                         hDate($rain_start). "\">";
         }
     } else {
         $rain_start = $start_time;
         $rain_end = $day_end;
         $t_span = "(since 12 a.m.)";
-        $td_rain = "<td title=\"24 hour rain starting from midnight&#10; on this day: ".
+        $td_rain = "<td title=\"24 hour rain starting midnight&#10; on this day: ".
                    hDate($rain_start). "\">";
     }
     if ($debug>='1') {
@@ -962,21 +962,21 @@ if ($debug>='1') {
                  $rain_start = $past_nine;
                  $rain_end = $end_interval;//$past_nine + 86400;
                  $td_rain = "<td style=\"background-color:#aeaeae\" title=\"".
-                            "Previous Total over 24 hours&#10;starting from ".
+                            "Previous: Running Total&#10;starting ".
                             hDate($rain_start)."\">";
                 // start from the $start_label a.m. value
             } elseif ($start_time > $today_nine) {
                  $rain_start =$today_nine;
                  $rain_end = $end_interval;//$today_nine + 86400;
                  $td_rain = "<td style=\"background-color:#d6d6d6\" title=\"".
-                            "Current Total over 24 hours&#10;starting from ".
+                            "Current: Running Total&#10;starting ".
                             hDate($rain_start). "\">";
             }
         } else {
             $rain_start = $pick_start;
             $rain_end = $end_interval;
             $t_span = "(since 12 a.m.)";
-            $td_rain = "<td title=\"Rain starting from midnight&#10; on this day: ".
+            $td_rain = "<td title=\"Rain starting midnight&#10; on this day: ".
                        hDate($rain_start). "\">";
         }
 
