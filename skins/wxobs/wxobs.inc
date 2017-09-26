@@ -241,7 +241,7 @@ function ordinalCompass($degr, $debug)
     if (is_null($degr)) {
         //$compass = "'$degr' :: CALM";
         $compass = "CALM";
-        if ($debug == '1') {
+        if ($debug == '5') {
             echo "so degree is '$degr': compass is $compass</p>";
         }
         return $compass;
