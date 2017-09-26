@@ -1,7 +1,7 @@
 # Update 24th Sept
 Merged the convert branch into the master branch. It now incorporates unit conversions into the php script. It may still be a bit rough around the edges at the moment but it shouldn't break. Testing and feedback is welcomed.
 
-Also switched the australian rain option to accomodate a range of start times - eg : 7 a.m. is 25200 seconds
+Also switched the australian rain option to accomodate a range of start times - eg : 7 a.m. is 25200 seconds (France?)
 
 Version bump to 0.05
 
