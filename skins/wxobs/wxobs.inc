@@ -699,21 +699,17 @@ if ($debug>='1') {
     echo "<td>$compass</td>"; //wind direction ordinal
     list($x, $dec_plc) = $speedConvert ($latest_row[5], $wind_plc);
     $metWind = round($x, $dec_plc);
-    //$metWind = round(($latest_row[5]/$wind_adjust), 1);
     echo "<td>$metWind</td>";
     list($x, $dec_plc) = $speedConvert ($latest_row[6], $wind_plc);
     $metGust = round($x, $dec_plc);
-    //$metGust = round(($latest_row[6]/$wind_adjust), 1);
     echo "<td>$metGust</td>";
     $windDir = round($latest_row[7], 0);
     echo "<td>$windDir</td>"; //wind direction degrees
     list($x, $dec_plc) = $pressConvert ($latest_row[8], $press_plc);
     $metPress = round($x, $dec_plc);
-    //$metPress = round($latest_row[8], 1);
     echo "<td>$metPress</td>";
     list($x, $dec_plc) = $rainConvert ($rain_row[0], $rain_plc);
     $metRain = round($x, $dec_plc);
-    //$metRain = round($rain_row[0], 2);
     echo "$td_rain $metRain</td></tr>";
     echo "</tbody></table>\n<!-- end latest observations -->\n<br><hr>";
 
@@ -799,7 +795,7 @@ if ($debug>='1') {
             "SELECT FROM_UNIXTIME(datetime, '%d-%m-%Y %H:%i'),min(outTemp),
             max(outTemp), min($app_temp), max($app_temp), min(dewPoint),
             max(dewPoint), min(outHumidity), max(outHumidity), avg(windSpeed),
-            avg(windGust), avg(windDir), avg(barometer), sum(rain) FROM archive
+            avg(windGust), avg(windDir), min(barometer), max(barometer) FROM archive
             WHERE dateTime >= $start_time and dateTime < $day_end;"
         );
         $rain_avg = $db->query(
@@ -815,7 +811,7 @@ if ($debug>='1') {
             "SELECT datetime(min(dateTime), 'unixepoch', 'localtime'),min(outTemp),
             max(outTemp), min($app_temp), max($app_temp), min(dewPoint), max(dewPoint),
             min(outHumidity), max(outHumidity), avg(windSpeed), avg(windGust),
-            avg(windDir), avg(barometer), sum(rain) FROM archive WHERE dateTime
+            avg(windDir), min(barometer), max(barometer) FROM archive WHERE dateTime
             >= $start_time and dateTime < $day_end;"
         );
         $rain_avg = $db->query(
@@ -902,22 +898,19 @@ if ($debug>='1') {
     echo "<td> $compass</td>"; //wind direction ordinal
     list($x, $dec_plc) = $speedConvert ($stats_row[9], $wind_plc);
     $metWind = round($x, $dec_plc);
-    //$metWind = round(($stats_row[9]/$wind_adjust), 1);
     echo "<td>$metWind</td>";
     list($x, $dec_plc) = $speedConvert ($stats_row[10], $wind_plc);
     $metGust = round($x, $dec_plc);
-    //$metGust = round(($stats_row[10]/$wind_adjust), 1);
     echo "<td>$metGust</td>";
     $windDir = round($stats_row[11], 0);
     echo "<td>$windDir</td>"; //wind direction degrees
     list($x, $dec_plc) = $pressConvert ($stats_row[12], $press_plc);
-    $metPress = round($x, $dec_plc);
-    //$metPress = round($stats_row[12], 1);
-    echo "<td>$metPress</td>";
-    //$metRain = round($stats_row[13], 2);
+    $minPress = round($x, $dec_plc);
+    list($x, $dec_plc) = $pressConvert ($stats_row[13], $press_plc);
+    $maxPress = round($x, $dec_plc);
+    echo "<td>$minPress ($maxPress)</td>";
     list($x, $dec_plc) = $rainConvert ($rain_row[1], $rain_plc);
     $metRain = round($x, $dec_plc);
-    //$metRain = round($rain_row[1], 2);
     echo "$td_rain $metRain</td></tr>";
     echo "</tbody></table>\n<!-- end snapshot summary observations -->\n";
 
@@ -1074,11 +1067,8 @@ if ($debug>='1') {
             echo "<td>$compass</td>"; //wind direction ORDINAL
             list($x, $dec_plc) = $speedConvert ($row[5], $wind_plc);
             $metWind = round($x, $dec_plc);
-            //$metWind = round(($row[5]/$wind_adjust), 1);
             echo "<td>$metWind</td>";
             list($x, $dec_plc) = $speedConvert ($row[6], $wind_plc);
-            //echo "round(($row[6]/$wind_adjust), 1)<br>";
-            //$metGust = round(($row[6]/$wind_adjust), 1);
             $metGust = round($x, $dec_plc);
             echo "<td>$metGust</td>";
             $windDir = round($row[7], 0);
@@ -1086,7 +1076,6 @@ if ($debug>='1') {
             list($x, $dec_plc) = $pressConvert ($row[8], $press_plc);
             $metPress = round($x, $dec_plc);
             echo "<td>$metPress</td>";
-            //$metRain = round($row[9], 2);
             list($x, $dec_plc) = $rainConvert ($rain_row[1], $rain_plc);
             $metRain = round($x, $dec_plc);
             echo "$td_rain $metRain</td></tr>";
