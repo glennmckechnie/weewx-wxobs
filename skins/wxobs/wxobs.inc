@@ -31,6 +31,7 @@
       </form>
    </div>
 <?php
+$start = microtime(true);
 
 if ((@include '$include_file') === false) {
     echo "<div class=\"alert\">";
@@ -1084,4 +1085,8 @@ if ($debug>='1') {
     echo "</tbody></table></div><!-- end snapshot observations -->";
     $db->close();
     unset($db);
+
+    $end = microtime(true);
+    $creationtime = round(($end - $start), 2);
+    echo "<p class=\"footnote\">Time taken to generate page was $creationtime seconds.</p>";
     ?>
