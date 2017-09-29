@@ -16,14 +16,14 @@
   <div class="widget_title">
    <a class="widget_control_left"
         onclick="toggle_widget('wxobs')">&diams;</a>
-        <a href="index.php?datepicker=$day.dateTime.format('%d-%m-%Y')&submitDate=Show+records" target="_blank">Daily Summary</a>
+        <a href="wxobs/index.php?datepicker=$day.dateTime.format('%d-%M-%Y')&submitDate=Show+records" target="_blank">Daily Summary</a> (wxobs)
         &nbsp;
    <a class="widget_control"
      onclick="toggle_widget('wxobs')">&diams;</a>
   </div>
   <div class="widget_contents">
   <center>
-  Shows todays data.<br>
+  Shows <a href="wxobs/index.php?datepicker=$day.dateTime.format('%d-%M-%Y')&submitDate=Show+records" target="_blank">todays data.</a><br>
   Or select a date to<br>
   extract past data directly<br>
   from the weewx database.

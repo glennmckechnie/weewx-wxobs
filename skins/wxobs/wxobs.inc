@@ -718,19 +718,32 @@ if ($debug>='1') {
     /////////////////////////////
     // Start Min Max summaries
     // Shows the min and max values, averages and rainfall total
-    if ($_REQUEST['datepicker']) {
-        $pick_start =  strtotime($_REQUEST['datepicker']);
-        if ($debug>='1') {
-            echo "<p class=\"debug\">Min (Max)<br> Datepicker returned ",
-                  hDate($pick_start), " ($pick_start) </p>";
-        }
+
+    // Validate the datepickers return value - check for leap year, feb 29
+    // and hopefully other nonsense!
+    list ($dd, $mnth, $yy)  = explode("-", $_REQUEST['datepicker']);
+    $m = date_create('01-'.$mnth); // add any day to fix Feb screwiness
+    $mm = date_format($m, 'm');
+
+    if (checkdate($mm, $dd, $yy))
+    {
+         // Datepicker returns a valid date so we'll use it to fetch data.
+         $pick_start =  strtotime($_REQUEST['datepicker']);
+         if ($debug>='1') {
+             echo "<p class=\"debug\">Min (Max)<br> Datepicker returned ",
+                   hDate($pick_start), " ($pick_start) </p>";
+             echo "Datepicker returns a valid date, we'll use it!<br>";
+         }
     } else {
+        // we generate $day_start so we'll trust and use it in place of an
+        // invalid date
         $pick_start = $day_start;
         if ($debug>='1') {
             echo "<p class=\"debug\">Min (Max)<br> Datepicker returned null,
                  day_start ", hDate($day_start), "( $day_start )
                  has been used</p>";
-        }
+            echo "Wrong date from datepicker, falling back to todays date.<br>";
+            }
     }
 
     // sanity check because dates from the future are pointless (and untidy)
@@ -837,6 +850,8 @@ if ($debug>='1') {
     } else {
         $this_day = date('d-M-Y', $day_start);
     }
+   // $this_day = date('d-M-Y', $day_start);
+   // $this_day = "$_REQUEST[datepicker]";
 
     if ($debug >= 1) {
         echo "Min Max:<br> latest date = ", hDate($latest_date), " : day_start = ",
