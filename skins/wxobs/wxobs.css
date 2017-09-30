@@ -61,11 +61,19 @@ div.wxdata {
     text-align: center;
     /*background-color:#dac0cd;*/
 }
+
 div.alert {
     margin: 0 auto;
     width:70%;
     text-align: left;
     background-color:#dac0cd;
+}
+
+div.info {
+    margin: 0 auto;
+    width:60%;
+    text-align: center;
+    background-color:#c0cdda;
 }
 
 div.wxobs {

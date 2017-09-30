@@ -519,7 +519,8 @@ if ('$unit.label.wind' === ' kph') { //leading space is critical!
 }
 
 // Start of Latest observations
-// Shows the latest record and the rainfall total
+// This always the current date and its data only.
+// Show the latest record in the database and the rainfall total for the day.
     $day_start = mktime('0', '0', '0', date('n'), date('j'), date('Y'));
     $time_now = mktime();
 if ($debug>='1') {
@@ -718,35 +719,67 @@ if ($debug>='1') {
     /////////////////////////////
     // Start Min Max summaries
     // Shows the min and max values, averages and rainfall total
+    //
+    // This value can be passed via the URL so we'll validate the datepickers
+    // return value and make sure it IS a date - also check for leap year, feb 30
+    // and other nonsense.
+    if ($_REQUEST['datepicker']) {
+        $m_numb = '';
+        list ($dd, $m_nth, $yy)  = explode("-", $_REQUEST['datepicker']);
+        //echo "<br>STARTing as m_nth = $m_nth : m_numb = $m_numb<br>";
+        //var_dump((strlen($m_nth))==3);
+        // should be in short month format
+        if ((strlen($m_nth))==3) {
+                for($i=1;$i<=12;$i++){
+                    //var_dump((strtolower(date("M", mktime(0, 0, 0, $i, 1, 0))) == strtolower($m_nth)));
+                    if(strtolower(date("M", mktime(0, 0, 0, $i, 1, 0))) == strtolower($m_nth)){
+                        $m_numb = $i;
+                        //echo "<br>m_nth = $m_nth : m_numb = $m_numb = $i<br>";
+                        break;
+                   }
+                }
+            } else {
+            // but it could also be a padded number
+                $m_numb = intval($m_nth);
+        }
+        //echo " (checkdate($m_numb, $dd, $yy))<br>";
+        // Now we make sure it is a date
+        if (checkdate($m_numb, $dd, $yy))
+        {
+             // Datepicker returns a valid date so we'll use it to fetch data.
 
-    // Validate the datepickers return value - check for leap year, feb 29
-    // and hopefully other nonsense!
-    list ($dd, $mnth, $yy)  = explode("-", $_REQUEST['datepicker']);
-    $m = date_create('01-'.$mnth); // add any day to fix Feb screwiness
-    $mm = date_format($m, 'm');
+             $pick_start =  strtotime($_REQUEST['datepicker']);
+             if ($debug>='1') {
+                 echo "<p class=\"debug\">Min (Max)<br> Datepicker returned ",
+                       hDate($pick_start), " ($pick_start) </p>";
+                 echo "Datepicker returned a valid date, we'll use it!<br>";
+             }
+        } else {
+            // Invalid date format from datepicker or URL bar, we generate
+            // $day_start so we can trust that and use it in place of that
+            // invalid date.
+            $pick_start = $day_start;
+            echo "<div class=\"info\">Datepicker didn't return a valid date,".
+                 " falling back to todays date.<br></div>";
+            if ($debug>='1') {
+                echo "<p class=\"debug\">Min (Max)<br> Datepicker return is invalid,
+                     day_start ", hDate($day_start), "( $day_start )
+                     has been used</p>";
+                }
+        }
+        } else {
+            // we have nothing from datepicker so we'll use our $day_start
+            // to display a report for the current date.
+            $pick_start = $day_start;
+            echo "<div class=\"info\">Using todays date.<br></div>";
+            if ($debug>='1') {
+                echo "<p class=\"debug\">Min (Max)<br> Datepicker returned null,
+                     day_start ", hDate($day_start), "( $day_start )
+                     has been used</p>";
+                }
+        }
 
-    if (checkdate($mm, $dd, $yy))
-    {
-         // Datepicker returns a valid date so we'll use it to fetch data.
-         $pick_start =  strtotime($_REQUEST['datepicker']);
-         if ($debug>='1') {
-             echo "<p class=\"debug\">Min (Max)<br> Datepicker returned ",
-                   hDate($pick_start), " ($pick_start) </p>";
-             echo "Datepicker returns a valid date, we'll use it!<br>";
-         }
-    } else {
-        // we generate $day_start so we'll trust and use it in place of an
-        // invalid date
-        $pick_start = $day_start;
-        if ($debug>='1') {
-            echo "<p class=\"debug\">Min (Max)<br> Datepicker returned null,
-                 day_start ", hDate($day_start), "( $day_start )
-                 has been used</p>";
-            echo "Wrong date from datepicker, falling back to todays date.<br>";
-            }
-    }
-
-    // sanity check because dates from the future are pointless (and untidy)
+    // Sanity check because dates from the future are pointless (and untidy)
     // $latest_date holds the last (latest) entry in database.
     if ($pick_start > $latest_date) {
         if ($debug>='1') {
@@ -757,6 +790,8 @@ if ($debug>='1') {
              "records!<br></p>";
         return;
     }
+
+    // We have lift off! Start to actually work with the dates / times.
 
     $start_time = $pick_start;
     $day_end = $start_time + 86400;
@@ -804,7 +839,6 @@ if ($debug>='1') {
     }
 
     if ($php_dbase === 'mysql') {
-        // error
         $stats_snap = $db->query(
             "SELECT FROM_UNIXTIME(datetime, '%d-%m-%Y %H:%i'),min(outTemp),
             max(outTemp), min($app_temp), max($app_temp), min(dewPoint),
@@ -837,6 +871,7 @@ if ($debug>='1') {
         $rain_row = $rain_avg->fetchArray();
         $stats_row = $stats_snap->fetchArray();
     }
+    // last date / data check. Do we have data for that date?
     $dbase_date = $stats_row[0];
     if ($dbase_date == "") {
         $read_able=date("d-M-Y H:i", $start_time);
@@ -845,13 +880,7 @@ if ($debug>='1') {
              </p></body></html>";
         return;
     }
-    if ($_REQUEST['datepicker']) {
-        $this_day =  $_REQUEST['datepicker'];
-    } else {
-        $this_day = date('d-M-Y', $day_start);
-    }
-   // $this_day = date('d-M-Y', $day_start);
-   // $this_day = "$_REQUEST[datepicker]";
+    $this_day = date('d-M-Y', $pick_start);
 
     if ($debug >= 1) {
         echo "Min Max:<br> latest date = ", hDate($latest_date), " : day_start = ",
