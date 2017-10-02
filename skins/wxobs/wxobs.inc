@@ -749,18 +749,17 @@ if ($debug>='1') {
         //echo " (checkdate($m_numb, $dd, $yy))<br>";
         // Now we make sure it is a date
         if (checkdate($m_numb, $dd, $yy)) {
-             // Datepicker returns a valid date so we'll use it to fetch data.
-
-             $pick_start =  strtotime($_REQUEST['datepicker']);
+            // Datepicker returns a valid date so we'll use it to fetch data.
+            $pick_start =  strtotime($_REQUEST['datepicker']);
             if ($debug>='1') {
                 echo "<p class=\"debug\">Min (Max)<br> Datepicker returned ",
                      hDate($pick_start), " ($pick_start) </p>";
                 echo "Datepicker returned a valid date, we'll use it!<br>";
             }
         } else {
-            // Invalid date format from datepicker or URL bar, we generate
-            // $day_start so we can trust that and use it in place of that
-            // invalid date.
+            // Invalid date format from datepicker or URL bar. We know that
+            // $day_start is good (it's ours!) so we'll trust that and use it
+            // instead.
             $pick_start = $day_start;
             echo "<div class=\"info\">Datepicker didn't return a valid date,".
                  " falling back to todays date.<br></div>";
@@ -771,8 +770,8 @@ if ($debug>='1') {
             }
         }
     } else {
-        // we have nothing from datepicker so we'll use our $day_start
-        // to display a report for the current date.
+        // we have nothing from datepicker so we assume today is wanted.
+        // We'll use our $day_start to display a report for the current date.
         $pick_start = $day_start;
         echo "<div class=\"info\">Using todays date.<br></div>";
         if ($debug>='1') {
