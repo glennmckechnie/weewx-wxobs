@@ -89,21 +89,21 @@ function NTC($x)
 function inHgtomBar($x, $press_plc)
 {
     $x = $x * 33.863881588;
-    $dec_plc = 2;
+    $dec_plc = 1;
     return array($x, $dec_plc);
 }
 
 function inHgtohPa($x, $press_plc)
 {
     $x = $x * 33.863881588;
-    $dec_plc = 2;
+    $dec_plc = 1;
     return array($x, $dec_plc);
 }
 
 function mBartohPa($x, $press_plc)
 {
     $x = $x;
-    $dec_plc = 2;
+    $dec_plc = 1;
     return array($x, $dec_plc);
 }
 
@@ -496,7 +496,7 @@ if ('$unit.label.barometer' === ' hPa') { //leading space is critical!
 } elseif ('$unit.label.barometer' === ' inHg') { //leading space is critical!
     $press_plc = 3;
 } elseif ('$unit.label.barometer' === ' mmHg') { //leading space is critical!
-    $press_plc = 2;
+    $press_plc = 1;
 } else {
     $press_plc = 0;
 }
