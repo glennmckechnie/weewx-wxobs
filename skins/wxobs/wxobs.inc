@@ -228,6 +228,13 @@ function hDate($d)
         return $h_read;
 }
 
+function shDate($d)
+{
+        $h_read = date('d-M', $d);
+        return $h_read;
+}
+
+
 function ordinalCompass($degr, $debug)
 {
     /*
@@ -578,8 +585,8 @@ if ($debug>='1') {
         $rain_start = $day_start;
         $rain_end = $time_now;
         $t_span = "(since 12 a.m.)";
-        $td_rain = "<td title=\"24 hour rain starting midnight&#10; on this day: ".
-                   hDate($rain_start). "\">";
+        $td_rain = "<td title=\"24 hour rain starting at&#10;midnight on: ".
+                   sDate($rain_start). "\">";
         if ($debug >= 1) {
             echo "Latest: 24 hours ".hDate($day_start)." ($day_start day_start
                  & rain_end $rain_end) ". hDate($rain_end)." : rain_start = "
@@ -831,7 +838,7 @@ if ($debug>='1') {
         $rain_start = $start_time;
         $rain_end = $day_end;
         $t_span = "(since 12 a.m.)";
-        $td_rain = "<td title=\"24 hour rain starting midnight&#10; on this day: ".
+        $td_rain = "<td title=\"24 hour rain starting at&#10; midnight on: ".
                    hDate($rain_start). "\">";
     }
     if ($debug>='1') {
@@ -917,7 +924,7 @@ if ($debug>='1') {
         $en_day = hDate($day_end);
         $en_day = "$en_day($day_end)";
     } else {
-        $st_day = "debug times available here if wxobs_debug = 1 in skin.conf";
+        $st_day = "epochtimes available here if wxobs_debug = 1 in skin.conf";
         $en_day = "";
     }
 
@@ -1016,8 +1023,8 @@ if ($debug>='1') {
             $rain_start = $pick_start;
             $rain_end = $end_interval;
             $t_span = "(since 12 a.m.)";
-            $td_rain = "<td title=\"Rain starting midnight&#10; on this day: ".
-                       hDate($rain_start). "\">";
+            $td_rain = "<td title=\"Rain starting at&#10;midnight on: ".
+                       sDate($rain_start). "\">";
         }
 
         if ($debug >= 6) {
