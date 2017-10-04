@@ -519,9 +519,9 @@ if ('$unit.label.rain' === ' mm') { //leading space is critical!
 }
 
 if ('$unit.label.wind' === ' kph') { //leading space is critical!
-    $wind_plc = 1;
+    $wind_plc = 0;
 } elseif ('$unit.label.wind' === ' mph') { //leading space is critical!
-    $wind_plc = 1;
+    $wind_plc = 0;
 } elseif ('$unit.label.wind' === ' m/s') { //leading space is critical!
     $wind_plc = 1;
 } else {
