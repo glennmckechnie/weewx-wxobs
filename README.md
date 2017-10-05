@@ -76,6 +76,7 @@ __DON'T PANIC!__  Read it, follow the directions, make the changes (if required)
 For the current debian installation here, the following remedied that...
    <pre>
    apt-get install php-sqlite3
+   (apt-get install php7.0-sqlite3) # for a raspberry pi
 
    a2enmod php7.0
 
