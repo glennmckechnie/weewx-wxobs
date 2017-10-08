@@ -75,15 +75,25 @@ __DON'T PANIC!__  Read it, follow the directions, make the changes (if required)
 
 For the current debian installation here, the following remedied that...
    <pre>
-   apt-get install php-sqlite3
+   apt-get install php-sqlite3 
+   (apt-get install php7.0-sqlite3) # or this one?
 
    a2enmod php7.0
 
    phpenmod sqlite3
 
    /etc/init.d/apache2 force-reload
+   </pre> 
+   
+   For the raspberry pi here, running lighthttpd, it was a case of 
+   
+   <pre>
+   apt-get install php5-sqlite
+   
+   /etc/init.d/lighttpd restart
    </pre>
-   Hopefully that applies for your setup, or at least gives some direction.
+   
+   Hopefully one of those applies for your setup, or at least gives you some direction.
 
 6. If you run the seasons skin as your main skin ( weewx/seasons ) then the index.php file should pick up seasons.css and won't look so... ordinary?, it will also use the seasons.js so the __links.inc__ widget will work as intended.
 
