@@ -1,19 +1,20 @@
 
 
 # weewx-wxobs
- A skin that integrates with weewx and provides a php driven report page to extract archival data (Daily climatological summaries) from the weewx database. It then presents it as a series of snapshots (currently half-hourly) averaged throughout the chosen day. There is an option to include appTemp, and delta-T ( used for agricultural purposes. )
+ A skin that integrates with weewx and provides a php driven report page to extract archival data (Daily climatological summaries) from the weewx database. It then presents that information as a series of snapshots (default is half-hourly) averaged throughout the chosen day. There is an option to include appTemp, and delta-T ( used for agricultural purposes ) as well as optional  configuration settings
+ 
+If you are familiar with wview, this page would equate with the **Archive Records** or **ARC** txt files that wview generated daily. In this case it's only one page and the results are generated directly from the database. It's a dynamic page rather than an archive of static pages.
 
 It is set out in the style of the _Latest Weather Observations_ pages that the Australian Weather Bureau - BOM provides. eg:- [Ballarat](http://www.bom.gov.au/products/IDV60801/IDV60801.94852.shtml)  I find those pages useful, that one especially when keeping an eye on the accuracy of my station.
 
-It is configured to use the weewx.conf settings as its defaults. It works well with  mysql and although I don't use sqlite, it's been run against a simulator version with US settings and also works correctly there. Feedback, corrections are welcomed on that - or anything here.
-
-**Of Note:** Because it directly access's the weewx database, it won't work remotely. If you use FTP or RSYNC to transfer the web pages to a remote server then you lose the direct database connection. (Which is probably not a bad thing from a security point of view?) It does work brilliantly from the local sever though :-))
+It is configured to use the weewx.conf settings as its defaults. It will detect and load the settings of your default database, mysql or sqlite. 
 
 I've used appTemp for one of the fields, apparently not everyone has this? Consequently this is configurable via skin.conf to return windchill (or another group degree field) for those not setup to store appTemp in their databases. Delta-T is an either or selection, it can be skipped or configured as an additional column.
 
 It reads directly from the database so it doesn't use weewx's internal processes to massage the data to match units. It relies on the database value matching the database units (US, METRIC, METRICWX) and then the [Units][[Groups]]group**** as returned by the skin.conf file being correct. Based on those fields it will attempt to ensure that the optional delta-T uses the required Metric units to get a sensible result.
+If this applies in your case, CHECK THE RESULT and confirm its working as it should. 
 
-If this applies in your case, CHECK THE RESULT and confirm its working as it should. If it doesn't then report the issue and supply a fix (earn a __Legend__ star) or at the least report it (earn a __Contributor__ star) :-)
+**Of Note:** Because it directly access's the weewx database, it won't work remotely. If you use FTP or RSYNC to transfer the web pages to a remote server then you lose the direct database connection. (Which is probably not a bad thing from a security point of view?) It will always work from the local server though.
 
 Thanks to:
 * Powerin (weewx-users) for the initial starting point, from the thread titled [Daily climatological summaries](https://groups.google.com/d/topic/weewx-user/cEAzvxv3T6Q/discussion)
@@ -37,7 +38,9 @@ Thanks to:
    sudo /etc/init.d/weewx start
    </pre>
 
-4. This script no longer generates appTemp, nor delta-T values by default. They are selectable within the skin.conf file. This means it should all work after that restart above (and the report cycle has run to generate the page!). If you select delta-T and your database and units satisfy the requirements then it will be usable without further tweaks. More likely though, is that the database or detected units will differ from delta-T's native units and some configuration will be required. This will start with a set of instructions being displayed on the report page, it should be un-missable!
+4. This script no longer generates appTemp, nor delta-T values by default. They are selectable within the skin.conf file. This means everything should work after that restart above (and the report cycle has run to generate the page!). You will need to check and possibly configure the displayed units to match your preferences. Instructions are in the configuration file - skin.conf.
+If you select delta-T and your database and units satisfy delta_T's requirements then it will be usable without further tweaks. More likely though, is that the database or detected units will differ from delta-T's native units and some configuration will be required. This will start with a set of instructions being displayed on the report page, it should be un-missable!
+
 
 __DON'T PANIC!__  Read it, follow the directions, make the changes (if required) and when done, turn the message off from within the skin.conf file.
 
@@ -76,7 +79,10 @@ For the current debian installation here, the following remedied that...
    
    Hopefully one of those applies for your setup, or at least gives you some direction.
 
-6. If you run the seasons skin as your main skin ( weewx/seasons ) then the index.php file should pick up seasons.css and won't look so... ordinary?, it will also use the seasons.js so the __links.inc__ widget will work as intended.
+6. If you use it with the default weewx skin, it will use the weewx.css file.
+
+If you run the seasons skin as your main skin ( weewx/seasons ) then the index.php file should pick up seasons.css and won't look so... ordinary?, it will also use the seasons.js so the __links.inc__ widget will work as intended.
+
 
    The file wxobs.inc contains the core of the php and form data. If you have a blank template for your skin (everything above and below the &lt;body&gt; &lt;/body&gt; tags) then simply copy the contents of wxobs.inc (or simply add the line #include wxobs.inc so that cheetahGenerator will do all the work) between those tags and it should work and it will be able to use your skins style (you may have to fix a few paths in the headers of the new php file)
    You'll also need to duplicate the datepicker.css, datepicker.js and wxobs.css stanzas into the new &lt;head&gt;.
