@@ -1,7 +1,7 @@
 
 
 # weewx-wxobs
- A skin that integrates with weewx and provides a php driven report page to extract archival data (Daily climatological summaries) from the weewx database. It then presents that information as a series of snapshots (default is half-hourly) averaged throughout the chosen day. There is an option to include appTemp, and delta-T ( used for agricultural purposes ) as well as optional  configuration settings
+ A skin that integrates with [weewx](http://weewx.com) (weather station software) and provides a php driven report page to extract archival data (Daily climatological summaries) from the weewx database. It then presents that information as a series of snapshots (default is half-hourly) averaged throughout the chosen day. There is an option to include appTemp, and delta-T ( used for agricultural purposes ) as well as optional  configuration settings
  
 If you are familiar with wview, this page would equate with the **Archive Records** or **ARC** txt files that wview generated daily. In this case it's only one page and the results are generated directly from the database. It's a dynamic page rather than an archive of static pages.
 
