@@ -9,7 +9,8 @@ It is set out in the style of the _Latest Weather Observations_ pages that the A
 
 It is configured to use the weewx.conf settings as its defaults. It will detect and load the settings of your default database, mysql or sqlite. 
 
-I've used appTemp for one of the fields, apparently not everyone has this though? Consequently this is configurable via skin.conf and so windchill is returned as the default.   If you have appTemp in your database then you can switch it out and use that field. 
+I've used appTemp for one of the fields, apparently not everyone has this though? Consequently this is configurable via skin.conf and so windchill is returned as the default.   If you do have appTemp in your database then you can switch it out and use that field as originally intended.
+
 Delta-T is also configurable but is an an either, or selection. ie: it can be skipped completely (no replacement is offered) or configured as an additional column for those of us who may use it.
 
 Weewx-wxobs reads directly from the database so it doesn't use weewx's internal processes to massage the data to match units. It relies on the database value matching the database units (US, METRIC, METRICWX) and then the [Units][[Groups]]group**** as returned by the skin.conf file being correct. Based on those fields it will attempt to ensure that the optional delta-T uses the required Metric units to get a sensible result.
