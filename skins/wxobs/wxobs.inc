@@ -754,10 +754,21 @@ if ($debug>='1') {
             $m_numb = intval($m_nth);
         }
         //echo " (checkdate($m_numb, $dd, $yy))<br>";
-        // Now we make sure it is a date
+        // Now we make sure it is an valid date
+        // but checkdate is buggy so we'll force the input to be integers. This will
+        // remove any garbage strings from injection attempts
+        //$yy = (checkdate(11, 16, 2017' aND BeNChMaRK(2999999,Md5(NoW())) AnD '1))
+        //echo "<br><br>Valid:  yy = (checkdate($m_numb, $dd, $yy))<br>";
+        $m_numb = intval($m_numb);
+        $dd = intval($dd);
+        $yy = intval($yy);
+        //echo "<br><br>Valid & intval:  yy = (checkdate($m_numb, $dd, $yy))<br>";
         if (checkdate($m_numb, $dd, $yy)) {
-            // Datepicker returns a valid date so we'll use it to fetch data.
-            $pick_start =  strtotime($_REQUEST['datepicker']);
+            // Datepicker returns a valid date so we'll use the now sanatized result to
+            // return a constructed date BUT we'll now ignore datepicker in case an
+            // injection attempt was made
+            //$pick_start =  strtotime($_REQUEST['datepicker']);
+            $pick_start = mktime('0', '0', '0', $m_numb, $dd, $yy);
             if ($debug>='1') {
                 echo "<p class=\"debug\">Min (Max)<br> Datepicker returned ",
                      hDate($pick_start), " ($pick_start) </p>";
@@ -886,7 +897,7 @@ if ($debug>='1') {
         $read_able=date("d-M-Y H:i", $start_time);
         echo "<div class=\"alert\"><p>That date appears to be invalid, no data to
              display.<br> $start_time was given as the starting date ($read_able)
-             </p></div></body></html>";
+             </p></div></div></body></html>";
         return;
     }
     $this_day = date('d-M-Y', $pick_start);
@@ -1141,5 +1152,5 @@ if ($debug>='1') {
 
     $end = microtime(true);
     $creationtime = round(($end - $start), 2);
-    echo "<p class=\"footnote\">Time taken to generate page was $creationtime seconds.</p>";
+    echo "<p class=\"footnote\">Time taken to generate page was $creationtime seconds.</p></div>";
     ?>

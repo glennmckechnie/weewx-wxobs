@@ -22,10 +22,11 @@
     <link rel="stylesheet" type="text/css" href="../seasons.css"/>
     <!-- while this one is for the actual php report page -->
     <link rel="stylesheet" href="wxobs.css"/>
-    <script type="text/javascript" src="../seasons.js"></script>
+    <script src="../seasons.js"></script>
+    <script src="../standard.js"></script>
     <!-- Date picker -->
     <link rel="stylesheet" type="text/css" href="datepicker.css"/>
-    <script type="text/javascript" src="datepicker.js"></script>
+    <script src="datepicker.js"></script>
   </head>
 
   <body onload="setup();">
@@ -36,11 +37,12 @@
         <p class="lastupdate">$current.dateTime</p>
        </div>
       </div>
+ </div>
       <p><a href="../index.html">&#10096; Current Conditions</a></p>
       <!-- the following section is redundant as it calls itself. It's a working example for inclusion in the season skins index.html.tmpl file -->
       <!--
       <div id="widget_group">
-        <!-- ##include "links.inc" -->
+        hash-include "links.inc"
       </div>
       -->
       <!-- the above section is redundant as it calls itself. It's a working example for inclusion in the seasons skins index.html.tmpl file -->
