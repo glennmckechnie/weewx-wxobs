@@ -1152,5 +1152,5 @@ if ($debug>='1') {
 
     $end = microtime(true);
     $creationtime = round(($end - $start), 2);
-    echo "<p class=\"footnote\">Time taken to generate page was $creationtime seconds.</p></div>";
+    echo "<p class=\"footnote\">Time taken to generate page was $creationtime seconds.</p>";
     ?>
