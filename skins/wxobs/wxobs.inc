@@ -754,9 +754,10 @@ if ($debug>='1') {
             $m_numb = intval($m_nth);
         }
         //echo " (checkdate($m_numb, $dd, $yy))<br>";
-        // Now we make sure it is an valid date
-        // but checkdate is buggy so we'll force the input to be integers. This will
-        // remove any garbage strings from injection attempts
+        // Now we make sure it is a valid date but checkdate works with integer
+        // inputs so we'll convert the input to integers first and store the values for
+        // later use. This removes any garbage strings from injection attempts.
+        // https://bugs.php.net/bug.php?id=48906
         //$yy = (checkdate(11, 16, 2017' aND BeNChMaRK(2999999,Md5(NoW())) AnD '1))
         //echo "<br><br>Valid:  yy = (checkdate($m_numb, $dd, $yy))<br>";
         $m_numb = intval($m_numb);
@@ -764,8 +765,8 @@ if ($debug>='1') {
         $yy = intval($yy);
         //echo "<br><br>Valid & intval:  yy = (checkdate($m_numb, $dd, $yy))<br>";
         if (checkdate($m_numb, $dd, $yy)) {
-            // Datepicker returns a valid date so we'll use the now sanatized result to
-            // return a constructed date BUT we'll now ignore datepicker in case an
+            // Datepicker returned a valid date, we'll now use the sanitized inputs
+            // to reconstruct the date. We will ignore the datepicker input in case an
             // injection attempt was made
             //$pick_start =  strtotime($_REQUEST['datepicker']);
             $pick_start = mktime('0', '0', '0', $m_numb, $dd, $yy);
