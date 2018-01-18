@@ -113,6 +113,10 @@ p.s. datepicker's origins are unknown but a search of github will turn up many v
 
 # Changes
 
+**Update: 18th Jan 2018**
+A quirk in checkdate can allow strings to be passed through to the underlying code. Lame injection attempts highlighted the need for this trivial fix so we now do a better job of sanitizing the checkdate input.
+All was fine before, but it's even better now.
+
 **Update: 30th Sept 2017**
 With security still uppermost, the script now checks that the datepicker returns a valid date. If it does find a problem it displays a warning and falls back to using the current day instead. Anything the datepicker generates obviously (eg: 01-Sep-2017) passes the test. Short number format (01-09-2017) will also pass.
 
