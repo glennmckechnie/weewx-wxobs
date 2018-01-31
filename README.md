@@ -1,7 +1,16 @@
 
 
 # weewx-wxobs
- A skin that integrates with [weewx](http://weewx.com) (weather station software) and provides a php driven report page to extract archival data (Daily climatological summaries) from the weewx database. It then presents that information as a series of snapshots (default is half-hourly) averaged throughout the chosen day. There is an option to include appTemp, and delta-T ( used for agricultural purposes ) as well as optional  configuration settings
+
+**Update: Jan 2018** Rsync is now included as an option if you are 
+1. Transferring the web data to a remote server.
+2. Using the sqlite database.
+3. Able to setup password access for ssh, an example of which [is here](http://github.com/weewx/weewx/wiki/Using-the-RSYNC-skin-as-a-backup-solution#Create_the_passwordless_access)
+
+When configured it will transfer the database to the same location (/var/lib to /var/lib) on the remote machine. This will hopefully make be acheivable at the remote end. If it's not suitable (permissions, accessability) then the location will need to be changed to something more suitable within weewx.conf ie: SQLITE_ROOT = /a_directory/you_can_access/remotely
+It also transfers the include file to the equivalent location. The include file can be relocated from the default location to somewhere, perhaps more suitable (usually due to permission problems.)
+
+This is a skin that integrates with [weewx](http://weewx.com) (weather station software) and provides a php driven report page to extract archival data (Daily climatological summaries) from the weewx database. It then presents that information as a series of snapshots (default is half-hourly) averaged throughout the chosen day. There is an option to include appTemp, and delta-T ( used for agricultural purposes ) as well as optional configuration settings.
  
  There is a working example available at Messmate Farms [wxobs page](http://203.213.243.61/weewx/wxobs/index.php) of which a screenshot is included below. ![alt text](https://github.com/glennmckechnie/rorpi-wiki/raw/master/weewx-wxobs-26nov2017.png "wxobs example screenshot")
 If you are familiar with wview, this page would roughly equate with the **Archive Records** or **ARC** txt files that wview generated daily. In this case, it's a single page which directly queries the database and then returns the result to the user. It's a dynamic page rather than an archive of static pages.
@@ -16,10 +25,6 @@ Delta-T is also configurable but is an an either, or selection. ie: it can be sk
 
 Weewx-wxobs reads directly from the database so it doesn't use weewx's internal processes to massage the data to match units. It relies on the database value matching the database units (US, METRIC, METRICWX) and then the [Units][[Groups]]group**** as returned by the skin.conf file being correct. Based on those fields it will attempt to ensure that the optional delta-T uses the required Metric units to get a sensible result.
 If this applies in your case, CHECK THE RESULT and confirm its working as it should. 
-
-**Of Note:** Because it directly access's the weewx database, it won't work remotely. If you use FTP or RSYNC to transfer the web pages to a remote server then you lose the direct database connection. (Which is probably not a bad thing from a security point of view?) It will always work from the local server though.
-
-Having said that it won't work remotely, there is a SLE here [weewx-sqlitedupe](https://github.com/glennmckechnie/weewx-sqlitedupe) that I use to duplicate my local database and I send that, using RSYNC, to the web facing weewx install where the wxobs skin there, can access it.
 
 Thanks to:
 * Powerin (weewx-users) for the initial starting point, from the thread titled [Daily climatological summaries](https://groups.google.com/d/topic/weewx-user/cEAzvxv3T6Q/discussion)
