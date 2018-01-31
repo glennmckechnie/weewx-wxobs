@@ -41,8 +41,8 @@ def rsync(rsync_user, rsync_remote, rsync_loc_dir, rsync_rem_str, wxobs_debug, l
     t1 = time.time()
     # construct the command argument
     cmd = ['rsync']
-    #cmd.extend(["-ac"])
-    cmd.extend(["-tOJrl"])
+    cmd.extend(["-ac"])
+    #cmd.extend(["-tOJrl"])
     # provide some stats on the transfer
     cmd.extend(["--stats"])
     cmd.extend(["--compress"])
@@ -53,7 +53,7 @@ def rsync(rsync_user, rsync_remote, rsync_loc_dir, rsync_rem_str, wxobs_debug, l
         # perform the actual rsync transfer...
         if wxobs_debug >= 2:
             logdbg("rsync cmd is ... %s" % (cmd))
-        #loginf("rsync cmd is ... %s" % (cmd))
+        loginf("rsync cmd is ... %s" % (cmd))
         rsynccmd = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         stdout = rsynccmd.communicate()[0]
         stroutput = stdout.encode("utf-8").strip()
@@ -80,9 +80,10 @@ def rsync(rsync_user, rsync_remote, rsync_loc_dir, rsync_rem_str, wxobs_debug, l
             else:
                 N = rsyncinfo['Number of files transferred']
 
-            Nbytes = rsyncinfo['Total transferred file size']
+            Nbytes = rsyncinfo['Total file size']
+            Nsent = rsyncinfo['Literal data']
             if N is not None and Nbytes is not None:
-                rsync_message = "rsync'd %s files (%s) in %%0.2f seconds" % (N, Nbytes)
+                rsync_message = "rsync'd %s bytes in %s files (%s) in %%0.2f seconds" % (Nsent, N, Nbytes)
             else:
                 rsync_message = "rsync executed in %0.2f seconds"
         except:
@@ -281,9 +282,9 @@ class wxobs(SearchList):
 
         # used for sqlite databases transfer to remote machines
         self.rsync_user = self.generator.skin_dict['wxobs']['Remote'].get(
-            'rsync_user', None)
+            'rsync_user', '')
         self.rsync_remote = self.generator.skin_dict['wxobs']['Remote'].get(
-            'rsync_machine', None)
+            'rsync_machine', '')
         self.log_success = to_bool(self.generator.skin_dict['wxobs']['Remote'].get(
             'log_success', True))
 
@@ -354,17 +355,17 @@ class wxobs(SearchList):
         self.sqlite_db = ("%s/%s" %(self.sq_root, self.sq_dbase))
 
         # use rsync to transfer database remotely, ONLY if requested
-        if (def_dbase == 'archive_sqlite') and (self.rsync_user is not None) and (self.rsync_remote is not None):
-            # construct strings for remote transfers
+        if def_dbase == 'archive_sqlite' and self.rsync_user != ''  \
+                                          and self.rsync_remote != '':
             # database transfer
-            if len(self.rsync_user.strip()) > 0:
-                db_loc_dir = "%s" % (self.sqlite_db)
-                db_rem_str = "%s@%s:%s" % (self.rsync_user, self.rsync_remote, self.sq_root)
+            #if len(self.rsync_user.strip()) > 0:
+            db_loc_dir = "%s" % (self.sqlite_db)
+            db_rem_str = "%s@%s:%s" % (self.rsync_user, self.rsync_remote, self.sq_root)
             rsync(self.rsync_user, self.rsync_remote, db_loc_dir, db_rem_str,
                   self.wxobs_debug, self.log_success)
             # include file transfer
-            if len(self.rsync_user.strip()) > 0:
-                inc_loc_dir = "%s" % (self.include_file)
-                inc_rem_str = "%s@%s:%s" % (self.rsync_user, self.rsync_remote, inc_path)
+            #if len(self.rsync_user.strip()) > 0:
+            inc_loc_dir = "%s" % (self.include_file)
+            inc_rem_str = "%s@%s:%s" % (self.rsync_user, self.rsync_remote, inc_path)
             rsync(self.rsync_user, self.rsync_remote, inc_loc_dir, inc_rem_str,
                   self.wxobs_debug, self.log_success)
