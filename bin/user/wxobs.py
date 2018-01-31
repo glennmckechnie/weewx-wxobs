@@ -345,14 +345,15 @@ class wxobs(SearchList):
         php_inc.writelines(v_al)
         php_inc.close()
 
-        # for testing, bypass mysql lockout
-        def_dbase = 'archive_sqlite'
-        self.dbase = 'sqlite'
-        self.sq_dbase = self.generator.config_dict['Databases'] \
-            [def_dbase].get('database_name')
-        self.sq_root = self.generator.config_dict['DatabaseTypes'] \
-            ['SQLite'].get('SQLITE_ROOT')
-        self.sqlite_db = ("%s/%s" %(self.sq_root, self.sq_dbase))
+# COMMENT OUT FOR RELEASE!
+        # for testing, to bypass mysql lockout.
+        #def_dbase = 'archive_sqlite'
+        #self.dbase = 'sqlite'
+        #self.sq_dbase = self.generator.config_dict['Databases'] \
+        #    [def_dbase].get('database_name')
+        #self.sq_root = self.generator.config_dict['DatabaseTypes'] \
+        #    ['SQLite'].get('SQLITE_ROOT')
+        #self.sqlite_db = ("%s/%s" %(self.sq_root, self.sq_dbase))
 
         # use rsync to transfer database remotely, ONLY if requested
         if def_dbase == 'archive_sqlite' and self.rsync_user != ''  \
