@@ -18,7 +18,9 @@
 ##            chosen by the user. aus_rain becomes shift_rain, now configurable for
 ##            other areas
 ## 30-09-2017 Add checkdate and logic to validate entered dates.
-## Version 0.05
+## 31-01-2018 Add rsync capabilities for sqlite database and include file relocation
+##            when [FTP] or [RSYNC] are used to relocate the server pages elsewhere.
+## Version 0.06
 
    <!-- wxobs version $wxobs_version -->
    <!-- This weewx extension is available at github: https://github.com/glennmckechnie/weewx-wxobs -->

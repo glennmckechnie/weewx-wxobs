@@ -11,7 +11,7 @@ def loader():
 class wxobsInstaller(ExtensionInstaller):
     def __init__(self):
         super(wxobsInstaller, self).__init__(
-            version="0.05",
+            version="0.06",
             name='wxobs',
             description='Generates weewx report page that uses php to extract'
                'archival data (Daily climatological summaries) from the weewx'
