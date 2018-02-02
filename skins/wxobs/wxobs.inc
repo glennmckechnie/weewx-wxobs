@@ -18,7 +18,8 @@
 ##            chosen by the user. aus_rain becomes shift_rain, now configurable for
 ##            other areas
 ## 30-09-2017 Add checkdate and logic to validate entered dates.
-## Version 0.05
+## 02-02-2018 Fix sDate -> shDate. replace ** with pow() for php versions < 5.6
+## Version 0.5.1
 
    <!-- wxobs version $wxobs_version -->
    <!-- This weewx extension is available at github: https://github.com/glennmckechnie/weewx-wxobs -->
@@ -57,7 +58,7 @@ if ((@include '$include_file') === false) {
 }
 require '$include_file';
 
-/**
+/*
 * ToDo ??
 * stackoverflow.com/questions/9866139/database-locked-while-trying-to-access-from-php-script
 *  $db->exec('PRAGMA journal_mode = wal;');
@@ -318,11 +319,17 @@ function deltaT($Tc, $RH, $P, $debug)
     }
 
     $Tdc = (($Tc - (14.55 + 0.114 * $Tc) * (1 - (0.01 * $RH)) -
-        ((2.5 + 0.007 * $Tc) * (1 - (0.01 * $RH))) ** 3 -
-        (15.9 + 0.117 * $Tc) * (1 - (0.01 * $RH)) ** 14));
-    $E = (6.11 * 10 ** (7.5 * $Tdc / (237.7 + $Tdc)));
-    $WBc = (((0.00066 * $P) * $Tc) + ((4098 * $E) / (($Tdc + 237.7) ** 2)
-        * $Tdc)) / ((0.00066 * $P) + (4098 * $E) / (($Tdc + 237.7) ** 2));
+       pow(((2.5 + 0.007 * $Tc) * (1 - (0.01 * $RH))), 3) -
+        (15.9 + 0.117 * $Tc) * pow((1 - (0.01 * $RH)), 14)));
+    $E = (6.11 * pow(10, (7.5 * $Tdc / (237.7 + $Tdc))));
+    $WBc = (((0.00066 * $P) * $Tc) + ((4098 * $E) / (pow(($Tdc + 237.7), 2))
+        * $Tdc)) / ((0.00066 * $P) + (4098 * $E) / (pow(($Tdc + 237.7), 2)));
+//    $Tdc = (pow(($Tc - (14.55 + 0.114 * $Tc) * (1 - (0.01 * $RH)) -
+//        pow(((2.5 + 0.007 * $Tc) * (1 - (0.01 * $RH)), 3) -
+//        (15.9 + 0.117 * $Tc) * (1 - (0.01 * $RH)), 14)));
+//    $E = (6.11 * pow(10 (7.5 * $Tdc / (237.7 + $Tdc))));
+//    $WBc = (((0.00066 * $P) * $Tc) + ((4098 * $E) /(pow(($Tdc + 237.7), 2))
+//        * $Tdc)) / ((0.00066 * $P) + (4098 * $E) /( pow(($Tdc + 237.7), 2)));
     // $WetBulb = "%.1f" % $WBc + $unit.label.outTemp
     // $WetBulb = "%.1f" % ($WBc*9/5+32) + $unit.label.outTemp // degrees F
     //echo "Tdc = $Tdc E = $E WBc = $WBc :: T=$Tc : RH=$RH : P=$P<br>";

@@ -14,7 +14,7 @@ import syslog
 from weeutil.weeutil import to_bool
 from weewx.cheetahgenerator import SearchList
 
-wxobs_version = "0.05"
+wxobs_version = "0.5.1"
 
 def logmsg(level, msg):
     syslog.syslog(level, '%s' % msg)
