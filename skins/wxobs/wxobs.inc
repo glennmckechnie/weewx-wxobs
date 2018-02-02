@@ -20,6 +20,7 @@
 ## 30-09-2017 Add checkdate and logic to validate entered dates.
 ## 31-01-2018 Add rsync capabilities for sqlite database and include file relocation
 ##            when [FTP] or [RSYNC] are used to relocate the server pages elsewhere.
+## 02-02-2018 Fix sDate -> shDate. replace ** with pow() for php versions < 5.6
 ## Version 0.06
 
    <!-- wxobs version $wxobs_version -->
@@ -34,8 +35,8 @@
       </form>
    </div>
 <?php
-ini_set('display_errors', 1);
-error_reporting(~0);
+//ini_set('display_errors', 1);
+//error_reporting(~0);
 $start = microtime(true);
 
 if ((@include '$include_file') === false) {
@@ -320,11 +321,16 @@ function deltaT($Tc, $RH, $P, $debug)
     }
 
     $Tdc = (($Tc - (14.55 + 0.114 * $Tc) * (1 - (0.01 * $RH)) -
-        ((2.5 + 0.007 * $Tc) * (1 - (0.01 * $RH))) ** 3 -
-        (15.9 + 0.117 * $Tc) * (1 - (0.01 * $RH)) ** 14));
-    $E = (6.11 * 10 ** (7.5 * $Tdc / (237.7 + $Tdc)));
-    $WBc = (((0.00066 * $P) * $Tc) + ((4098 * $E) / (($Tdc + 237.7) ** 2)
-        * $Tdc)) / ((0.00066 * $P) + (4098 * $E) / (($Tdc + 237.7) ** 2));
+       pow(((2.5 + 0.007 * $Tc) * (1 - (0.01 * $RH))), 3) -
+        (15.9 + 0.117 * $Tc) * pow((1 - (0.01 * $RH)), 14)));
+    $E = (6.11 * pow(10, (7.5 * $Tdc / (237.7 + $Tdc))));
+    $WBc = (((0.00066 * $P) * $Tc) + ((4098 * $E) / (pow(($Tdc + 237.7), 2))
+        * $Tdc)) / ((0.00066 * $P) + (4098 * $E) / (pow(($Tdc + 237.7), 2)));
+//        ((2.5 + 0.007 * $Tc) * (1 - (0.01 * $RH))) ** 3 -
+//        (15.9 + 0.117 * $Tc) * (1 - (0.01 * $RH)) ** 14));
+//    $E = (6.11 * 10 ** (7.5 * $Tdc / (237.7 + $Tdc)));
+//    $WBc = (((0.00066 * $P) * $Tc) + ((4098 * $E) / (($Tdc + 237.7) ** 2)
+//        * $Tdc)) / ((0.00066 * $P) + (4098 * $E) / (($Tdc + 237.7) ** 2));
     // $WetBulb = "%.1f" % $WBc + $unit.label.outTemp
     // $WetBulb = "%.1f" % ($WBc*9/5+32) + $unit.label.outTemp // degrees F
     //echo "Tdc = $Tdc E = $E WBc = $WBc :: T=$Tc : RH=$RH : P=$P<br>";
@@ -588,7 +594,7 @@ if ($debug>='1') {
         $rain_end = $time_now;
         $t_span = "(since 12 a.m.)";
         $td_rain = "<td title=\"24 hour rain starting at&#10;midnight on: ".
-                   sDate($rain_start). "\">";
+                   shDate($rain_start). "\">";
         if ($debug >= 1) {
             echo "Latest: 24 hours ".hDate($day_start)." ($day_start day_start
                  & rain_end $rain_end) ". hDate($rain_end)." : rain_start = "
@@ -1038,7 +1044,7 @@ if ($debug>='1') {
             $rain_end = $end_interval;
             $t_span = "(since 12 a.m.)";
             $td_rain = "<td title=\"Rain starting at&#10;midnight on: ".
-                       sDate($rain_start). "\">";
+                       shDate($rain_start). "\">";
         }
 
         if ($debug >= 6) {
