@@ -22,7 +22,7 @@ import weewx.engine
 from weeutil.weeutil import to_bool
 from weewx.cheetahgenerator import SearchList
 
-wxobs_version = "0.06"
+wxobs_version = "0.6.1"
 
 def logmsg(level, msg):
     syslog.syslog(level, '%s' % msg)
@@ -51,9 +51,8 @@ def rsync(rsync_user, rsync_remote, rsync_loc_dir, rsync_rem_str, wxobs_debug, l
 
     try:
         # perform the actual rsync transfer...
-        if wxobs_debug >= 2:
-            logdbg("wxobs: rsync cmd is ... %s" % (cmd))
-        loginf("wxobs: rsync cmd is ... %s" % (cmd))
+        if wxobs_debug == 2:
+            loginf("wxobs: rsync cmd is ... %s" % (cmd))
         rsynccmd = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         stdout = rsynccmd.communicate()[0]
         stroutput = stdout.encode("utf-8").strip()
@@ -97,9 +96,9 @@ def rsync(rsync_user, rsync_remote, rsync_loc_dir, rsync_rem_str, wxobs_debug, l
         stroutput = stroutput.replace("\r", "")
         # Attempt to catch a few errors that may occur and deal with them
         # see man rsync for EXIT VALUES
-        rsync_message = "rsync command failed after %0.2f seconds (set 'wxobs_debug = 1'),"
+        rsync_message = "rsync command failed after %0.2f secs (set 'wxobs_debug = 2' in skin.conf),"
         if "code 1)" in stroutput:
-            if wxobs_debug >= 2:
+            if wxobs_debug == 2:
                 logerr("wxobs: rsync code 1 - %s" % stroutput)
             rsync_message = "syntax error in rsync command - set debug = 1 - ! FIX ME !"
             loginf("wxobs:  ERR %s " % (rsync_message))
@@ -109,26 +108,26 @@ def rsync(rsync_user, rsync_remote, rsync_loc_dir, rsync_rem_str, wxobs_debug, l
             # read-only file system
             # sadly, won't be detected until after first succesful transfer
             # but it's useful then!
-            if wxobs_debug >= 2:
+            if wxobs_debug == 2:
                 logerr("wxobs: rsync code 23 - %s" % stroutput)
             loginf("wxobs: ERR Read only file system ! FIX ME !")
             rsync_message = "code 23, read-only, rsync failed executed in %0.2f seconds"
         elif ("code 23" and "link_stat") in stroutput:
             # likely to be that a local path doesn't exist - possible typo?
-            if wxobs_debug >= 2:
+            if wxobs_debug == 2:
                 logdbg("wxobs: rsync code 23 found %s" % stroutput)
             rsync_message = "rsync code 23 : is %s correct? ! FIXME !" % (rsync_loc_dir)
             loginf("wxobs:  ERR %s " % rsync_message)
             rsync_message = "code 23, link_stat, rsync failed executed in %0.2f seconds"
 
         elif ("code 12") and ("Permission denied") in stroutput:
-            if wxobs_debug >= 2:
+            if wxobs_debug == 2:
                 logdbg("wxobs: rsync code 12 - %s" % stroutput)
             rsync_message = "Permission error in rsync command, probably at remote end authentication ! FIX ME !"
             loginf("wxobs:  ERR %s " % (rsync_message))
             rsync_message = "code 12, rsync failed, executed in % 0.2f seconds"
         elif ("code 12") and ("No route to host") in stroutput:
-            if wxobs_debug >= 2:
+            if wxobs_debug == 2:
                 logdbg("wxobs-rsync: rsync code 12 - %s" % stroutput)
             rsync_message = "No route to host error in rsync command ! FIX ME !"
             loginf("wxobs:  ERR %s " % (rsync_message))
@@ -216,9 +215,11 @@ class wxobs(SearchList):
 
         wxobs_debug: Allow index.php to include debugging info if set to...
         1 and above is low level, variables, some logic.
+        2 is for wxobs remote cmds etc.
         3 only for delta-T final values (low level - if enabled)
         4 only for delta-T unit conversion calcs (verbose) - if enabled
         5 only for ordinalCompass conversion calcs (N, NE...CALM) (verbose)
+        6 is for database debugging
 
         [[DeltaT]]
         calculate_deltaT: Whether to generate deltaT for the report page.
@@ -301,13 +302,14 @@ class wxobs(SearchList):
         # prepare the database details and write the include file
         def_dbase = self.generator.config_dict['DataBindings'] \
             ['wx_binding'].get('database')
-        if self.wxobs_debug >= 5:
+        if self.wxobs_debug == 5:
             logdbg("database is %s" %  def_dbase)
 
         if def_dbase == 'archive_mysql':
             self.dbase = 'mysql'
             self.mysql_base = self.generator.config_dict['Databases'] \
                 [def_dbase].get('database_name')
+            id_match = self.mysql_base
             self.mysql_host = self.generator.config_dict['DatabaseTypes'] \
                 ['MySQL'].get('host')
             self.mysql_user = self.generator.config_dict['DatabaseTypes'] \
@@ -319,7 +321,7 @@ class wxobs(SearchList):
                     " $php_mysql_pass = '%s';\n" %
                     (self.dbase, self.mysql_base, self.mysql_host,
                      self.mysql_user, self.mysql_pass)]
-            if self.wxobs_debug >= 5:
+            if self.wxobs_debug == 6:
                 loginf("mysql database is %s, %s, %s, %s" % (
                     self.mysql_base, self.mysql_host,
                     self.mysql_user, self.mysql_pass))
@@ -327,6 +329,7 @@ class wxobs(SearchList):
             self.dbase = 'sqlite'
             self.sq_dbase = self.generator.config_dict['Databases'] \
                 [def_dbase].get('database_name')
+            id_match = self.sq_dbase[:-4]
             self.sq_root = self.generator.config_dict['DatabaseTypes'] \
                 ['SQLite'].get('SQLITE_ROOT')
 
@@ -334,15 +337,26 @@ class wxobs(SearchList):
             v_al = ["<?php\n $php_dbase = 'sqlite';\n $php_sqlite_db = '%s';\n" %
                     self.sqlite_db]
 
-            if self.wxobs_debug >= 5:
+            if self.wxobs_debug == 6:
                 loginf("sqlite database is %s, %s, %s" % (
                     self.sq_dbase, self.sq_root, self.sqlite_db))
 
+# MAINTAINER ONLY: COMMENT OUT BELOW FOR RELEASE!
+        # # for testing sqlite, to bypass mysql lockout.
+        #def_dbase = 'archive_sqlite'
+        #self.dbase = 'sqlite'
+        #self.sq_dbase = self.generator.config_dict['Databases'] \
+        #    [def_dbase].get('database_name')
+        #id_match = self.sq_dbase[:-4]
+        #self.sq_root = self.generator.config_dict['DatabaseTypes'] \
+        #    ['SQLite'].get('SQLITE_ROOT')
+        #self.sqlite_db = ("%s/%s" %(self.sq_root, self.sq_dbase))
+# MAINTAINER ONLY: COMMENT OUT ABOVE FOR RELEASE!
 
         # phpinfo.php shows include_path as .:/usr/share/php, we'll put it
         # in there and hopefully that will work for most users.
         # I use/prefer /tmp/wxobs_inc.inc
-        inc_file = 'wxobs_incl.inc'
+        inc_file = ("wxobs_%s.inc" % id_match)
         inc_path = self.generator.skin_dict['wxobs'].get(
             'include_path', '/usr/share/php')
         self.include_file = ("%s/%s" % (inc_path, inc_file))
@@ -355,16 +369,6 @@ class wxobs(SearchList):
             php_inc.write(t_z)
         php_inc.close()
 
-# COMMENT OUT BELOW FOR RELEASE!
-        # # for testing, to bypass mysql lockout.
-        #def_dbase = 'archive_sqlite'
-        #self.dbase = 'sqlite'
-        #self.sq_dbase = self.generator.config_dict['Databases'] \
-        #    [def_dbase].get('database_name')
-        #self.sq_root = self.generator.config_dict['DatabaseTypes'] \
-        #    ['SQLite'].get('SQLITE_ROOT')
-        #self.sqlite_db = ("%s/%s" %(self.sq_root, self.sq_dbase))
-# COMMENT OUT ABOVE FOR RELEASE!
 
         # use rsync to transfer database remotely, ONLY if requested
         if def_dbase == 'archive_sqlite' and self.rsync_user != ''  \

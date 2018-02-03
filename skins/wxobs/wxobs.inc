@@ -21,7 +21,8 @@
 ## 31-01-2018 Add rsync capabilities for sqlite database and include file relocation
 ##            when [FTP] or [RSYNC] are used to relocate the server pages elsewhere.
 ## 02-02-2018 Fix sDate -> shDate. replace ** with pow() for php versions < 5.6
-## Version 0.06
+## 04-02-2018 rename include file to reflect database name. (allows parallel setups)
+## Version 0.6.1
 
    <!-- wxobs version $wxobs_version -->
    <!-- This weewx extension is available at github: https://github.com/glennmckechnie/weewx-wxobs -->
@@ -51,7 +52,7 @@ if ((@include '$include_file') === false) {
     echo "If the problem persists, consider changing";
     echo " its location as ";
     echo "wxobs/skin.conf will accept<br>";
-    echo "<i>include_file = /new_path/name</i><br>";
+    echo "<i>include_path = /tmp</i> or <i>include_path = /new_path/your_choice</i><br>";
     echo "where the path and name can be anything";
     echo " allowable by php.ini and preferably secure.<br>";
     echo "That means keeping it away from the webserver, if possible.<br>";
@@ -410,9 +411,8 @@ if ($php_dbase === 'mysql') {
     );
     if ($db->connect_errno) {
         echo ("<div class=\"alert\"><p>Connection to mysql database failed:<br>
-            Has it been configured correctly - these were the values sent<br>
-            host=$php_mysql_host,user=$php_mysql_user,
-            pass=$php_mysql_pass,base=$php_mysql_base<br>
+            Has it been configured correctly? The values used are in the file at<br>
+            $include_file<br>
      $db->connect_error</p></div>");
         return;
     }
@@ -644,13 +644,13 @@ if ($debug>='1') {
                        " indicator for agricultural spraying conditions, the ideal".
                        " conditions are between the values of 2 &amp; 8\">".
                        "delta&dash;T<br>&#176;C</a></th>";
-        if ($debug>='3') {
+        if ($debug =='3') {
             echo "<p class=\"debug\">want_delta is $want_delta so label is...<br>
                  $delta_label";
         }
     } else {
         $delta_label="";
-        if ($debug>='3') {
+        if ($debug =='3') {
             echo "<p class=\"debug\">want_delta is $want_delta so label is...<br>
                  '$delta_label'";
         }
@@ -705,12 +705,12 @@ if ($debug>='1') {
     if ($want_delta) {
         deltaT($latest_row[1], $latest_row[4], $latest_row[8], $debug);
         echo "<td>$dT</td>";
-        if ($debug=='3') {
+        if ($debug == '3') {
             echo "<p class=\"debug\">want_delta is $want_delta so ...<br>";
             echo "delta_data is '$dT'</p>";
         }
     } else {
-        if ($debug=='3') {
+        if ($debug == '3') {
             echo "<p class=\"debug\">want_delta is $want_delta so ...<br>";
             echo "delta_data is 'null'</p>";
         }
@@ -1127,12 +1127,12 @@ if ($debug>='1') {
             if ($want_delta) {
                 deltaT($row[1], $row[4], $row[8], $debug);
                 echo "<td>$dT</td>";
-                if ($debug=='3') {
+                if ($debug =='3') {
                     echo "<p class=\"debug\">want_delta is $want_delta so ...<br>";
                     echo "delta_data is '$dT'</p>";
                 }
             } else {
-                if ($debug=='3') {
+                if ($debug =='3') {
                     echo "<p class=\"debug\">want_delta is $want_delta so ...<br>";
                     echo "delta_data is 'null'</p>";
                 }
