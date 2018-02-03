@@ -182,6 +182,12 @@ class wxobs(SearchList):
         The default is to use windchill.
         Keep it to the group_degrees (because the label is hard coded in.)
 
+        timezone: If the date or time displayed is not being displayed correctly
+        we'll assume it's a php issue and pass a timezone string to the script.
+        This can be done by adding your time zone as the following example
+        indicates.  Replace the string with your zone description
+        timezone = Melbourne/Australia
+
         [[Remote]]
         This is used to transfer the include file and the database to a remote
         machine (as used in weewx.conf [FTP] or [RSYNC] section)
@@ -248,6 +254,8 @@ class wxobs(SearchList):
                 .get('archive_interval')
         self.app_temp = self.generator.skin_dict['wxobs'].get(
             'app_Temp', 'windchill')
+        self.php_zone = self.generator.skin_dict['wxobs'].get(
+            'timezone', '')
         self.show_warning = to_bool(self.generator.skin_dict['wxobs']['DeltaT'] \
             .get('show_warning', True))
         self.want_delta = to_bool(self.generator.skin_dict['wxobs']['DeltaT'] \
@@ -288,9 +296,6 @@ class wxobs(SearchList):
             'rsync_machine', '')
         self.log_success = to_bool(self.generator.skin_dict['wxobs']['Remote'].get(
             'log_success', True))
-
-
-
 
 
         # prepare the database details and write the include file
@@ -344,10 +349,14 @@ class wxobs(SearchList):
 
         php_inc = open(self.include_file, 'w')
         php_inc.writelines(v_al)
+        if self.php_zone != '':
+            t_z = (" ini_set(\"date.timezone\", \"%s\");" % self.php_zone)
+            loginf("wxobs: timezone is %s" % t_z)
+            php_inc.write(t_z)
         php_inc.close()
 
 # COMMENT OUT BELOW FOR RELEASE!
-        ## for testing, to bypass mysql lockout.
+        # # for testing, to bypass mysql lockout.
         #def_dbase = 'archive_sqlite'
         #self.dbase = 'sqlite'
         #self.sq_dbase = self.generator.config_dict['Databases'] \
