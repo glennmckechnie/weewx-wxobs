@@ -52,15 +52,15 @@ def rsync(rsync_user, rsync_remote, rsync_loc_dir, rsync_rem_str, wxobs_debug, l
     try:
         # perform the actual rsync transfer...
         if wxobs_debug >= 2:
-            logdbg("rsync cmd is ... %s" % (cmd))
-        loginf("rsync cmd is ... %s" % (cmd))
+            logdbg("wxobs: rsync cmd is ... %s" % (cmd))
+        loginf("wxobs: rsync cmd is ... %s" % (cmd))
         rsynccmd = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         stdout = rsynccmd.communicate()[0]
         stroutput = stdout.encode("utf-8").strip()
     except OSError, e:
             #print "EXCEPTION"
         if e.errno == errno.ENOENT:
-            logerr("wxobs-rsync: rsync does not appear to be installed on this system. \
+            logerr("wxobs: rsync does not appear to be installed on this system. \
                    (errno %d, \"%s\")" % (e.errno, e.strerror))
         raise
 
@@ -86,8 +86,10 @@ def rsync(rsync_user, rsync_remote, rsync_loc_dir, rsync_rem_str, wxobs_debug, l
                 rsync_message = "rsync'd %s bytes in %s files (%s) in %%0.2f seconds" % (Nsent, N, Nbytes)
             else:
                 rsync_message = "rsync executed in %0.2f seconds"
+            #loginf("wxobs: %s " % (rsync_message))
         except:
-            rsync_message = "rsync :exception raised: executed in %0.2f seconds"
+            rsync_message = "rsync exception raised: executed in %0.2f seconds"
+            loginf("wxobs:  ERR %s " % (rsync_message))
     else:
         # suspect we have an rsync error so tidy stroutput
         # and display a message
@@ -98,9 +100,9 @@ def rsync(rsync_user, rsync_remote, rsync_loc_dir, rsync_rem_str, wxobs_debug, l
         rsync_message = "rsync command failed after %0.2f seconds (set 'wxobs_debug = 1'),"
         if "code 1)" in stroutput:
             if wxobs_debug >= 2:
-                logerr("wxobs-rsync: rsync code 1 - %s" % stroutput)
+                logerr("wxobs: rsync code 1 - %s" % stroutput)
             rsync_message = "syntax error in rsync command - set debug = 1 - ! FIX ME !"
-            loginf("wxobs-rsync:  ERR %s " % (rsync_message))
+            loginf("wxobs:  ERR %s " % (rsync_message))
             rsync_message = "code 1, syntax error, failed rsync executed in %0.2f seconds"
 
         elif ("code 23" and "Read-only file system") in stroutput:
@@ -108,32 +110,31 @@ def rsync(rsync_user, rsync_remote, rsync_loc_dir, rsync_rem_str, wxobs_debug, l
             # sadly, won't be detected until after first succesful transfer
             # but it's useful then!
             if wxobs_debug >= 2:
-                logerr("wxobs-rsync: rsync code 23 - %s" % stroutput)
-            loginf("ERR Read only file system ! FIX ME !")
+                logerr("wxobs: rsync code 23 - %s" % stroutput)
+            loginf("wxobs: ERR Read only file system ! FIX ME !")
             rsync_message = "code 23, read-only, rsync failed executed in %0.2f seconds"
         elif ("code 23" and "link_stat") in stroutput:
             # likely to be that a local path doesn't exist - possible typo?
             if wxobs_debug >= 2:
-                logdbg("wxobs-rsync: rsync code 23 found %s" % stroutput)
+                logdbg("wxobs: rsync code 23 found %s" % stroutput)
             rsync_message = "rsync code 23 : is %s correct? ! FIXME !" % (rsync_loc_dir)
-            loginf("wxobs-rsync:  ERR %s " % rsync_message)
+            loginf("wxobs:  ERR %s " % rsync_message)
             rsync_message = "code 23, link_stat, rsync failed executed in %0.2f seconds"
 
         elif ("code 12") and ("Permission denied") in stroutput:
             if wxobs_debug >= 2:
-                logdbg("wxobs-rsync: rsync code 12 - %s" % stroutput)
-            rsync_message = "Permission error in rsync command, probably remote \
-                             authentication ! FIX ME !"
-            loginf("wxobs-rsync:  ERR %s " % (rsync_message))
+                logdbg("wxobs: rsync code 12 - %s" % stroutput)
+            rsync_message = "Permission error in rsync command, probably at remote end authentication ! FIX ME !"
+            loginf("wxobs:  ERR %s " % (rsync_message))
             rsync_message = "code 12, rsync failed, executed in % 0.2f seconds"
         elif ("code 12") and ("No route to host") in stroutput:
             if wxobs_debug >= 2:
                 logdbg("wxobs-rsync: rsync code 12 - %s" % stroutput)
             rsync_message = "No route to host error in rsync command ! FIX ME !"
-            loginf("wxobs-rsync:  ERR %s " % (rsync_message))
+            loginf("wxobs:  ERR %s " % (rsync_message))
             rsync_message = "code 12, rsync failed, executed in % 0.2f seconds"
         else:
-            logerr("ERROR: wxobs-rsync: [%s] reported this error: %s" % (cmd, stroutput))
+            logerr("ERROR: wxobs: rsync [%s] reported this error: %s" % (cmd, stroutput))
 
     if log_success:
         if wxobs_debug == 0:
@@ -142,7 +143,7 @@ def rsync(rsync_user, rsync_remote, rsync_loc_dir, rsync_rem_str, wxobs_debug, l
         else:
             to = ' to '
         t2= time.time()
-        loginf("wxobs-rsync: %s" % rsync_message % (t2-t1) + to + rsync_rem_str)
+        loginf("wxobs: %s" % rsync_message % (t2-t1) + to + rsync_rem_str)
 
 class wxobs(SearchList):
 
@@ -345,8 +346,8 @@ class wxobs(SearchList):
         php_inc.writelines(v_al)
         php_inc.close()
 
-# COMMENT OUT FOR RELEASE!
-        # for testing, to bypass mysql lockout.
+# COMMENT OUT BELOW FOR RELEASE!
+        ## for testing, to bypass mysql lockout.
         #def_dbase = 'archive_sqlite'
         #self.dbase = 'sqlite'
         #self.sq_dbase = self.generator.config_dict['Databases'] \
@@ -354,6 +355,7 @@ class wxobs(SearchList):
         #self.sq_root = self.generator.config_dict['DatabaseTypes'] \
         #    ['SQLite'].get('SQLITE_ROOT')
         #self.sqlite_db = ("%s/%s" %(self.sq_root, self.sq_dbase))
+# COMMENT OUT ABOVE FOR RELEASE!
 
         # use rsync to transfer database remotely, ONLY if requested
         if def_dbase == 'archive_sqlite' and self.rsync_user != ''  \
