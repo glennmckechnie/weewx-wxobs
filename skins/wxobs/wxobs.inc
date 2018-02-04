@@ -404,7 +404,7 @@ $st_degr = "<th class=\"wxheadr\"><a title=\"Direction the wind comes from in ".
            "degrees\">Direction<br>$unit.label.windDir</a></th>";
 
 if ($php_dbase === 'mysql') {
-    if ($debug>='1') {
+    if ($debug=='1') {
         echo "<p class=\"debug\">database is $dbase with the name: $mysql_base</p>";
     }
     $db = new mysqli(
@@ -421,7 +421,7 @@ if ($php_dbase === 'mysql') {
         return;
     }
 } elseif ($php_dbase === 'sqlite') {
-    if ($debug>='1') {
+    if ($debug=='1') {
         echo "<p class=\"debug\">database is $dbase with path/name: $sqlite_db</p>";
     }
     $db = new SQLite3($php_sqlite_db);
@@ -441,12 +441,12 @@ if ('$app_temp' === 'appTemp') {
     $app_label = '$unit.label.outTemp';
 }
 
-if ($debug>='1') {
+if ($debug=='1') {
     echo "<p class=\"debug\">ext_interval is $ext_interval <br>".
          "arch_interval is $arch_interval<br> appTemp is defined ".
          "as $app_temp with $app_label used as the units.</p>";
 }
-if ($debug>='1') {
+if ($debug=='1') {
     echo "<p class=\"debug\">want delta is $want_delta with show warning".
          "of $show_warning<br>".
          "('$targ_unit' === 'US' || '$unit.label.outTemp' !== '&#176;C' ||".
@@ -915,7 +915,7 @@ if ($debug =='1') {
     }
     $this_day = date('d-M-Y', $pick_start);
 
-    if ($debug == 1) {
+    if ($debug == '1') {
         echo "Min Max:<br> latest date = ", hDate($latest_date), " : day_start = ",
            hDate($day_start), "<br> start_time = ", hDate($start_time),
            " : day_end = ", hDate($day_end), "<br>rain_start = ",
@@ -1105,7 +1105,7 @@ if ($debug =='1') {
         $dbase_date = $row[0];
 
         // Values enclosed in comments within generated html tables
-        if ($debug >= 1) {
+        if ($debug == '1') {
             $st_day = hDate($start_time);
             $st_day = "$st_day($start_time)";
             $en_day = hDate($end_interval);

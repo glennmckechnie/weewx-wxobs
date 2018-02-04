@@ -83,7 +83,7 @@ def rsync(rsync_user, rsync_remote, rsync_loc_dir, rsync_rem_str, wxobs_debug, l
             Nbytes = rsyncinfo['Total file size']
             Nsent = rsyncinfo['Literal data']
             if N is not None and Nbytes is not None:
-                rsync_message = "rsync'd %s bytes in %s files (%s) in %%0.2f seconds" % (Nsent, N, Nbytes)
+                rsync_message = "rsync'd %s of %s files (%s) in %%0.2f seconds" % (Nsent, N, Nbytes)
             else:
                 rsync_message = "rsync executed in %0.2f seconds"
             #loginf("wxobs: %s " % (rsync_message))
@@ -192,10 +192,10 @@ class wxobs(SearchList):
         This is used to transfer the include file and the database to a remote
         machine (as used in weewx.conf [FTP] or [RSYNC] section)
         rsync_user = user_name for rsync command
-        rsync_machine = ip address of remote nachine
+        rsync_machine = ip address of the remote machine
         send_include = True #This is the default, set to False if you don't want
         to send the include file repeatedly to the server. Use with caution
-        (ie: remember ythis setting when things stop workin
+        (ie: remember this setting when things stop working, it might be the cure)
 
         [[RainTiming]]
         shift_rain: For rain accounting times other than midnight to midnight
