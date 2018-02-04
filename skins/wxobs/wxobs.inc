@@ -36,8 +36,11 @@
       </form>
    </div>
 <?php
-//ini_set('display_errors', 1);
-//error_reporting(~0);
+/**
+*X
+*ini_set('display_errors', 1);
+*error_reporting(~0);
+*/
 $start = microtime(true);
 
 if ((@include '$include_file') === false) {
@@ -57,11 +60,12 @@ if ((@include '$include_file') === false) {
     echo " allowable by php.ini and preferably secure.<br>";
     echo "That means keeping it away from the webserver, if possible.<br>";
     echo "If all else fails, report the problem as an issue";
-    echo " - to its github site.</p></div>";
+    echo " - to its github site.<br>";
+    echo "<a href=\"https://github.com/glennmckechnie/weewx-wxobs/wiki/Remote-installation\"Wiki notes for a remote setup</a></p></div>";
 }
 require '$include_file';
 
-/**
+/*
 * ToDo ??
 * stackoverflow.com/questions/9866139/database-locked-while-trying-to-access-from-php-script
 *  $db->exec('PRAGMA journal_mode = wal;');
@@ -327,11 +331,11 @@ function deltaT($Tc, $RH, $P, $debug)
     $E = (6.11 * pow(10, (7.5 * $Tdc / (237.7 + $Tdc))));
     $WBc = (((0.00066 * $P) * $Tc) + ((4098 * $E) / (pow(($Tdc + 237.7), 2))
         * $Tdc)) / ((0.00066 * $P) + (4098 * $E) / (pow(($Tdc + 237.7), 2)));
-//        ((2.5 + 0.007 * $Tc) * (1 - (0.01 * $RH))) ** 3 -
-//        (15.9 + 0.117 * $Tc) * (1 - (0.01 * $RH)) ** 14));
-//    $E = (6.11 * 10 ** (7.5 * $Tdc / (237.7 + $Tdc)));
-//    $WBc = (((0.00066 * $P) * $Tc) + ((4098 * $E) / (($Tdc + 237.7) ** 2)
-//        * $Tdc)) / ((0.00066 * $P) + (4098 * $E) / (($Tdc + 237.7) ** 2));
+    //        ((2.5 + 0.007 * $Tc) * (1 - (0.01 * $RH))) ** 3 -
+    //        (15.9 + 0.117 * $Tc) * (1 - (0.01 * $RH)) ** 14));
+    //    $E = (6.11 * 10 ** (7.5 * $Tdc / (237.7 + $Tdc)));
+    //    $WBc = (((0.00066 * $P) * $Tc) + ((4098 * $E) / (($Tdc + 237.7) ** 2)
+    //        * $Tdc)) / ((0.00066 * $P) + (4098 * $E) / (($Tdc + 237.7) ** 2));
     // $WetBulb = "%.1f" % $WBc + $unit.label.outTemp
     // $WetBulb = "%.1f" % ($WBc*9/5+32) + $unit.label.outTemp // degrees F
     //echo "Tdc = $Tdc E = $E WBc = $WBc :: T=$Tc : RH=$RH : P=$P<br>";
@@ -439,7 +443,7 @@ if ('$app_temp' === 'appTemp') {
 
 if ($debug>='1') {
     echo "<p class=\"debug\">ext_interval is $ext_interval <br>".
-         "arch_interval is $arch_interval<br> appTemp is defined".
+         "arch_interval is $arch_interval<br> appTemp is defined ".
          "as $app_temp with $app_label used as the units.</p>";
 }
 if ($debug>='1') {
@@ -541,7 +545,7 @@ if ('$unit.label.wind' === ' kph') { //leading space is critical!
 // Show the latest record in the database and the rainfall total for the day.
     $day_start = mktime('0', '0', '0', date('n'), date('j'), date('Y'));
     $time_now = time();
-if ($debug>='1') {
+if ($debug =='1') {
     echo "<p>Latest Observations:<br>day_start = ", hDate($day_start),
      "($day_start)<br> time_now uses the time_now value ", hDate($time_now),
      " ( $time_now )</p>";
@@ -569,7 +573,7 @@ if ($debug>='1') {
             $td_rain = "<td style=\"background-color:#aeaeae\" title=\"".
                        "Previous: Running Total&#10;starting ".
                        hDate($rain_start). "\">";
-            if ($debug >= 1) {
+            if ($debug == 1) {
                 echo "Latest: time_now=".hDate($time_now)." : ".hDate($day_start).
                  " ($day_start day_start < today_nine $today_nine) ".
                  hDate($today_nine)." : rain_start = ".hDate($rain_start).
@@ -582,7 +586,7 @@ if ($debug>='1') {
             $td_rain = "<td style=\"background-color:#d6d6d6\" title=\"".
                        "Current: Running Total&#10;starting ".
                        hDate($rain_start). "\">";
-            if ($debug >= 1) {
+            if ($debug == 1) {
                 echo "Latest: time_now=".hDate($time_now)." : ".hDate($day_start).
                  " ($day_start day_start >= today_nine $today_nine) ".
                  hDate($today_nine)." : rain_start = ".hDate($rain_start).
@@ -595,7 +599,7 @@ if ($debug>='1') {
         $t_span = "(since 12 a.m.)";
         $td_rain = "<td title=\"24 hour rain starting at&#10;midnight on: ".
                    shDate($rain_start). "\">";
-        if ($debug >= 1) {
+        if ($debug == 1) {
             echo "Latest: 24 hours ".hDate($day_start)." ($day_start day_start
                  & rain_end $rain_end) ". hDate($rain_end)." : rain_start = "
                  .hDate($rain_start)."<br>";
@@ -628,7 +632,7 @@ if ($debug>='1') {
         $rain_row = $rain_total->fetchArray();
     }
 
-    if ($debug>='1') {
+    if ($debug =='1') {
         echo "latest date = ", hDate($latest_date), " : day_start = ",
              hDate($day_start), " : time_now = ", hDate($time_now), "<br>";
         echo "latest rain_start = ", hDate($rain_start), " : ($rain_start)".
@@ -681,7 +685,7 @@ if ($debug>='1') {
   </tr>
  </thead><tbody>";
 
-    if ($debug >= 1) {
+    if ($debug == 1) {
         $st_day = hDate($latest_date);
         $st_day = "$st_day($latest_date)";
     } else {
@@ -778,7 +782,7 @@ if ($debug>='1') {
             // injection attempt was made
             //$pick_start =  strtotime($_REQUEST['datepicker']);
             $pick_start = mktime('0', '0', '0', $m_numb, $dd, $yy);
-            if ($debug>='1') {
+            if ($debug =='1') {
                 echo "<p class=\"debug\">Min (Max)<br> Datepicker returned ",
                      hDate($pick_start), " ($pick_start) </p>";
                 echo "Datepicker returned a valid date, we'll use it!<br>";
@@ -790,7 +794,7 @@ if ($debug>='1') {
             $pick_start = $day_start;
             echo "<div class=\"info\">Datepicker didn't return a valid date,".
                  " falling back to todays date.<br></div>";
-            if ($debug>='1') {
+            if ($debug =='1') {
                 echo "<p class=\"debug\">Min (Max)<br> Datepicker return is invalid,
                      day_start ", hDate($day_start), "( $day_start )
                      has been used</p>";
@@ -801,7 +805,7 @@ if ($debug>='1') {
         // We'll use our $day_start to display a report for the current date.
         $pick_start = $day_start;
         echo "<div class=\"info\">Using todays date.<br></div>";
-        if ($debug>='1') {
+        if ($debug =='1') {
             echo "<p class=\"debug\">Min (Max)<br> Datepicker returned null,
                      day_start ", hDate($day_start), "( $day_start )
                      has been used</p>";
@@ -811,7 +815,7 @@ if ($debug>='1') {
     // Sanity check because dates from the future are pointless (and untidy)
     // $latest_date holds the last (latest) entry in database.
     if ($pick_start > $latest_date) {
-        if ($debug>='1') {
+        if ($debug =='1') {
             echo "<p class=\"debug\"> pick_start ( $pick_start ) is > ".
                  "latest_date ( $latest_date ) </p>";
         }
@@ -829,7 +833,7 @@ if ($debug>='1') {
         // Calculate start day for rain calcs - some recordings start at $start_label a.m.
         $today_nine = $start_time + $rainday_start; // $start_label am today
         $past_nine = $start_time - (86400 - $rainday_start); // $start_label am yesterday
-        if ($debug>='1') {
+        if ($debug =='1') {
             echo "Rain: Min Max today_nine = ". hDate($today_nine).
                  " ($today_nine) <br>";
             echo "Rain: Min Max past_nine = ". hDate($past_nine).
@@ -861,7 +865,7 @@ if ($debug>='1') {
         $td_rain = "<td title=\"24 hour rain starting at&#10; midnight on: ".
                    hDate($rain_start). "\">";
     }
-    if ($debug>='1') {
+    if ($debug =='1') {
         echo "<p class=\"debug\">Min (Max) and Periodic Stats<br> start_time is now
              = pick_start ". hDate($pick_start). "( $pick_start ) and day_end is + 86400 "
              .hDate($day_end)." ( $day_end )</p>";
@@ -911,7 +915,7 @@ if ($debug>='1') {
     }
     $this_day = date('d-M-Y', $pick_start);
 
-    if ($debug >= 1) {
+    if ($debug == 1) {
         echo "Min Max:<br> latest date = ", hDate($latest_date), " : day_start = ",
            hDate($day_start), "<br> start_time = ", hDate($start_time),
            " : day_end = ", hDate($day_end), "<br>rain_start = ",
@@ -938,7 +942,7 @@ if ($debug>='1') {
   </tr>
  </thead><tbody>";
 
-    if ($debug >= 1) {
+    if ($debug == 1) {
         $st_day = hDate($start_time);
         $st_day = "$st_day($start_time)";
         $en_day = hDate($day_end);

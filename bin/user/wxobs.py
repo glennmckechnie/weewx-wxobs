@@ -193,6 +193,9 @@ class wxobs(SearchList):
         machine (as used in weewx.conf [FTP] or [RSYNC] section)
         rsync_user = user_name for rsync command
         rsync_machine = ip address of remote nachine
+        send_include = True #This is the default, set to False if you don't want
+        to send the include file repeatedly to the server. Use with caution
+        (ie: remember ythis setting when things stop workin
 
         [[RainTiming]]
         shift_rain: For rain accounting times other than midnight to midnight
@@ -298,6 +301,8 @@ class wxobs(SearchList):
             'rsync_machine', '')
         self.log_success = to_bool(self.generator.skin_dict['wxobs']['Remote'].get(
             'log_success', True))
+        self.send_inc = to_bool(self.generator.skin_dict['wxobs']['Remote'] \
+            .get('send_include', True))
 
 
         # prepare the database details and write the include file
@@ -305,7 +310,11 @@ class wxobs(SearchList):
             ['wx_binding'].get('database')
         if self.wxobs_debug == 5:
             logdbg("database is %s" %  def_dbase)
-
+#########################
+# MAINTAINER ONLY: COMMENT OUT BELOW FOR RELEASE!
+        def_dbase = 'archive_sqlite'
+# MAINTAINER ONLY: COMMENT OUT ABOVE FOR RELEASE!
+#########################
         if def_dbase == 'archive_mysql':
             self.dbase = 'mysql'
             self.mysql_base = self.generator.config_dict['Databases'] \
@@ -342,17 +351,6 @@ class wxobs(SearchList):
                 loginf("sqlite database is %s, %s, %s" % (
                     self.sq_dbase, self.sq_root, self.sqlite_db))
 
-# MAINTAINER ONLY: COMMENT OUT BELOW FOR RELEASE!
-        # # for testing sqlite, to bypass mysql lockout.
-        #def_dbase = 'archive_sqlite'
-        #self.dbase = 'sqlite'
-        #self.sq_dbase = self.generator.config_dict['Databases'] \
-        #    [def_dbase].get('database_name')
-        #id_match = self.sq_dbase[:-4]
-        #self.sq_root = self.generator.config_dict['DatabaseTypes'] \
-        #    ['SQLite'].get('SQLITE_ROOT')
-        #self.sqlite_db = ("%s/%s" %(self.sq_root, self.sq_dbase))
-# MAINTAINER ONLY: COMMENT OUT ABOVE FOR RELEASE!
 
         # phpinfo.php shows include_path as .:/usr/share/php, we'll put it
         # in there and hopefully that will work for most users.
@@ -366,7 +364,8 @@ class wxobs(SearchList):
         php_inc.writelines(v_al)
         if self.php_zone != '':
             t_z = (" ini_set(\"date.timezone\", \"%s\");" % self.php_zone)
-            loginf("wxobs: timezone is %s" % t_z)
+            if self.wxobs_debug == 2:
+                loginf("wxobs: timezone is set to %s" % t_z)
             php_inc.write(t_z)
         php_inc.close()
 
@@ -380,9 +379,11 @@ class wxobs(SearchList):
             db_rem_str = "%s@%s:%s" % (self.rsync_user, self.rsync_remote, self.sq_root)
             rsync(self.rsync_user, self.rsync_remote, db_loc_dir, db_rem_str,
                   self.wxobs_debug, self.log_success)
-            # include file transfer
-            #if len(self.rsync_user.strip()) > 0:
-            inc_loc_dir = "%s" % (self.include_file)
-            inc_rem_str = "%s@%s:%s" % (self.rsync_user, self.rsync_remote, inc_path)
-            rsync(self.rsync_user, self.rsync_remote, inc_loc_dir, inc_rem_str,
-                  self.wxobs_debug, self.log_success)
+
+            if self.send_inc:
+                # perform include file transfer if wanted
+                # if len(self.rsync_user.strip()) > 0:
+                inc_loc_dir = "%s" % (self.include_file)
+                inc_rem_str = "%s@%s:%s" % (self.rsync_user, self.rsync_remote, inc_path)
+                rsync(self.rsync_user, self.rsync_remote, inc_loc_dir, inc_rem_str,
+                      self.wxobs_debug, self.log_success)
