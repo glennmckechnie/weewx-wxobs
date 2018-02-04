@@ -41,9 +41,7 @@ def rsync(rsync_user, rsync_remote, rsync_loc_dir, rsync_rem_str, wxobs_debug, l
     t1 = time.time()
     # construct the command argument
     cmd = ['rsync']
-    #cmd.extend(["-ac"])
-    # dry run only
-    cmd.extend(["-acn"])
+    cmd.extend(["-ac"])
 
     #cmd.extend(["-tOJrl"])
     # provide some stats on the transfer
