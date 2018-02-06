@@ -16,6 +16,7 @@ import syslog
 import subprocess
 import time
 import errno
+import os
 
 import weewx.engine
 
@@ -36,7 +37,7 @@ def logerr(msg):
 def logdbg(msg):
     logmsg(syslog.LOG_DEBUG, msg)
 
-def rsync(rsync_user, rsync_remote, rsync_loc_dir, rsync_rem_str, wxobs_debug, log_success):
+def rsync(rsync_user, rsync_server, rsync_loc_dir, rsync_rem_str, rem_path, wxobs_debug, log_success):
 
     t1 = time.time()
     # construct the command argument
@@ -120,6 +121,27 @@ def rsync(rsync_user, rsync_remote, rsync_loc_dir, rsync_rem_str, wxobs_debug, l
             rsync_message = "rsync code 23 : is %s correct? ! FIXME !" % (rsync_loc_dir)
             loginf("wxobs:  ERR %s " % rsync_message)
             rsync_message = "code 23, link_stat, rsync failed executed in %0.2f seconds"
+        elif "code 11" in stroutput:
+            # directory structure at remote end is missing - needs creating
+            # on this pass. Should be Ok on next pass.
+            if wxobs_debug == 2:
+                loginf("wxobs: rsync code 11 - %s" % stroutput)
+            rsync_message = "rsync code 11 found Creating %s as a fix?" % (rem_path)
+            loginf("wxobs: %s"  % rsync_message)
+            # laborious but apparently necessary, the only way the command will run!?
+            # build the ssh command - n.b:  spaces cause wobblies!
+            cmd = ['ssh']
+            cmd.extend(["%s@%s" % (rsync_user, rsync_server)])
+            mkdirstr = "mkdir -p"
+            cmd.extend([mkdirstr])
+            cmd.extend([rem_path])
+            if wxobs_debug == 2:
+                loginf("sshcmd %s" % cmd)
+            subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            rsync_rem_str = rem_path
+            rsync_message = "code 11, rsync mkdir cmd executed in % 0.2f seconds"
+#            rsync_message = "rsync executed in %0.2f seconds, built destination (remote) directories"
+
 
         elif ("code 12") and ("Permission denied") in stroutput:
             if wxobs_debug == 2:
@@ -159,8 +181,21 @@ class wxobs(SearchList):
 
         In wxobs/skin.conf:
 
-        inlcude_path: the directory where the php include file will be stored
+        send_inc: An option to stop sending the include file/s.These contain the
+        database configuration values, timezone and oprional debugging stanzas
+        for the php script to operate. Needless to say you need to send them at
+        least once.
+        If you can't think of a reason why you'd need this then you don't need
+        to implement it.
+        I run a mysql database locally and export an sqlite to the remote. This
+        allows me to do that without too much trouble (remembering to set up the
+        symlinks is the biggest issue)
+
+        include_path: the directory where the php include file will be stored
         this holds the database configuration as sourced from weewx.conf
+        If you store them locally you can change that path using this option.
+        If you send the files to another server you can change this path using
+        dest_directory (which will affect the database also.)
 
         ext_interval: is the spacing between records; 1800 is a half-hour
         and is the default
@@ -250,6 +285,11 @@ class wxobs(SearchList):
         self.wxobs_debug = int(self.generator.skin_dict['wxobs'].get(
             'wxobs_debug', '0'))
 
+        self.send_inc = to_bool(self.generator.skin_dict['wxobs'].get(
+            'send_include', True))
+        self.inc_path = self.generator.skin_dict['wxobs'].get(
+            'include_path', '/usr/share/php')
+
         self.ext_interval = self.generator.skin_dict['wxobs'].get(
             'ext_interval', '1800')
         self.arch_interval = self.generator.skin_dict['wxobs'].get(
@@ -297,12 +337,12 @@ class wxobs(SearchList):
         # used for sqlite databases transfer to remote machines
         self.rsync_user = self.generator.skin_dict['wxobs']['Remote'].get(
             'rsync_user', '')
-        self.rsync_remote = self.generator.skin_dict['wxobs']['Remote'].get(
+        self.rsync_server = self.generator.skin_dict['wxobs']['Remote'].get(
             'rsync_machine', '')
         self.log_success = to_bool(self.generator.skin_dict['wxobs']['Remote'].get(
             'log_success', True))
-        self.send_inc = to_bool(self.generator.skin_dict['wxobs']['Remote'] \
-            .get('send_include', True))
+        self.dest_dir = self.generator.skin_dict['wxobs']['Remote'].get(
+            'dest_directory', '')
 
 
         # prepare the database details and write the include file
@@ -311,9 +351,16 @@ class wxobs(SearchList):
         if self.wxobs_debug == 5:
             logdbg("database is %s" %  def_dbase)
 #########################
-# MAINTAINER ONLY: COMMENT OUT BELOW FOR RELEASE!
-        def_dbase = 'archive_sqlite'
-# MAINTAINER ONLY: COMMENT OUT ABOVE FOR RELEASE!
+# BEGIN TESTING ONLY:
+# For use when testing sqlite transfer when a mysql database is the default archive
+# Our normal mode of operation is False - ie: don't change a bloody thing!
+# It won't be mentioned in the skin.conf description. You'll need to have seen this
+# to know the switch exists!
+        test_sqlite = to_bool(self.generator.skin_dict['wxobs']['Remote'].get(
+            'test_withmysql', False))
+        if test_sqlite:
+            def_dbase = 'archive_sqlite'
+# END TESTING ONLY:
 #########################
         if def_dbase == 'archive_mysql':
             self.dbase = 'mysql'
@@ -356,34 +403,60 @@ class wxobs(SearchList):
         # in there and hopefully that will work for most users.
         # I use/prefer /tmp/wxobs_inc.inc
         inc_file = ("wxobs_%s.inc" % id_match)
-        inc_path = self.generator.skin_dict['wxobs'].get(
-            'include_path', '/usr/share/php')
-        self.include_file = ("%s/%s" % (inc_path, inc_file))
+        if self.dest_dir and self.rsync_user != '' and self.rsync_server != '':
+            # we are rsyncing remotely
+            # And going to change all the remote paths, the include_path has lost
+            # its precedence.
+            #loginf("self.dest_dir is TRUE - %s " % self.dest_dir)
+            self.inc_path = self.dest_dir
+            self.include_file = ("%s/%s" % (self.inc_path, inc_file))
+            # preempt inevitable warning/exception when using test_sqlite = False
+            self.sq_dbase = self.generator.config_dict['Databases'] \
+                [def_dbase].get('database_name')
+            v_al = ["<?php\n $php_dbase = 'sqlite';\n $php_sqlite_db = '%s/%s';\n" %
+                    (self.dest_dir, self.sq_dbase)]
+            try:
+                if not os.access(self.include_file, os.W_OK):
+                    os.makedirs(self.inc_path)
+            except OSError, e:
+                if e.errno == os.errno.EEXIST:
+                    pass
+        else:
+            # All other cases, local or remote...
+            # we are going to retain the defaults values, maybe a slight tweak.
+            # use the skin.conf include_path, either default or the override.
+            #loginf("self.dest_dir is FALSE - %s " % self.dest_dir)
+            self.inc_path = self.generator.skin_dict['wxobs'].get(
+                'include_path', '/usr/share/php')
+            self.include_file = ("%s/%s" % (self.inc_path, inc_file))
 
-        php_inc = open(self.include_file, 'w')
-        php_inc.writelines(v_al)
-        if self.php_zone != '':
-            t_z = (" ini_set(\"date.timezone\", \"%s\");" % self.php_zone)
-            if self.wxobs_debug == 2:
-                loginf("wxobs: timezone is set to %s" % t_z)
-            php_inc.write(t_z)
-        php_inc.close()
+        if self.send_inc:
+            php_inc = open(self.include_file, 'w')
+            php_inc.writelines(v_al)
+            if self.php_zone != '':
+                t_z = (" ini_set(\"date.timezone\", \"%s\");" % self.php_zone)
+                if self.wxobs_debug == 2:
+                    loginf("wxobs: timezone is set to %s" % t_z)
+                php_inc.write(t_z)
+            php_inc.close()
 
 
         # use rsync to transfer database remotely, ONLY if requested
         if def_dbase == 'archive_sqlite' and self.rsync_user != ''  \
-                                          and self.rsync_remote != '':
+                                          and self.rsync_server != '':
+            # honor request to move destination directories (same for both)
+            # create and redefine as appropriate
+            if self.dest_dir:
+                self.sq_root = self.dest_dir
             # database transfer
-            #if len(self.rsync_user.strip()) > 0:
+            db_rem_str = "%s@%s:%s/" % (self.rsync_user, self.rsync_server, self.sq_root)
             db_loc_dir = "%s" % (self.sqlite_db)
-            db_rem_str = "%s@%s:%s" % (self.rsync_user, self.rsync_remote, self.sq_root)
-            rsync(self.rsync_user, self.rsync_remote, db_loc_dir, db_rem_str,
-                  self.wxobs_debug, self.log_success)
+            rsync(self.rsync_user, self.rsync_server, db_loc_dir, db_rem_str,
+                  self.sq_root, self.wxobs_debug, self.log_success)
 
             if self.send_inc:
                 # perform include file transfer if wanted
-                # if len(self.rsync_user.strip()) > 0:
                 inc_loc_dir = "%s" % (self.include_file)
-                inc_rem_str = "%s@%s:%s" % (self.rsync_user, self.rsync_remote, inc_path)
-                rsync(self.rsync_user, self.rsync_remote, inc_loc_dir, inc_rem_str,
-                      self.wxobs_debug, self.log_success)
+                inc_rem_str = "%s@%s:%s/" % (self.rsync_user, self.rsync_server, self.inc_path)
+                rsync(self.rsync_user, self.rsync_server, inc_loc_dir, inc_rem_str,
+                      self.inc_path, self.wxobs_debug, self.log_success)

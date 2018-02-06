@@ -45,25 +45,22 @@ $start = microtime(true);
 
 if ((@include '$include_file') === false) {
     echo "<div class=\"alert\">";
-    echo "<p>The database config file has gone missing!<br>";
-    echo "&nbsp;&nbsp;&nbsp;That shouldn't happen.</p>";
-    echo "We are using the php default for includes of /usr/share/php<br>";
-    echo "Check that the directory /usr/share/php exists, if not create it.<br>";
+    echo "<p>The database config file has gone missing! &nbsp;&nbsp;&nbsp; That shouldn't happen.</p>";
+    echo "We use a php default for include files of /usr/share/php, but we can use <i>include_path</i> in <b>wxobs/skin.conf</b> to change that.<br>";
     echo "The file should have been accessable as<br> <i>$include_file</i><br>";
-    echo "It will be regenerated on weewx's next report run,";
-    echo " or when report_timing allows.<br>";
+    echo "Check that the directory $inc_path exists, if it doesn't then create it. Check its read | write permissions<br>";
+    echo" The include file will be regenerated on weewx's next report run, (unless you're using the undocumented feature - ";
+    echo " view the source Luke.)<br> Or when report_timing allows.<br>";
     echo "If the problem persists, consider changing";
-    echo " its location as ";
-    echo "wxobs/skin.conf will accept<br>";
+    echo " its location as <b>wxobs/skin.conf</b> will accept<br>";
     echo "<i>include_path = /tmp</i> or <i>include_path = /new_path/your_choice</i><br>";
-    echo "where the path and name can be anything";
-    echo " allowable by php.ini and preferably secure.<br>";
-    echo "That means keeping it away from the webserver, if possible.<br>";
+    echo "where the path and name can be anything allowable by php, readable by the webserver, and preferably secure.<br>";
     echo "If all else fails, report the problem as an issue";
-    echo " - to its github site.<br>";
-    echo "<a href=\"https://github.com/glennmckechnie/weewx-wxobs/wiki/Remote-installation\"Wiki notes for a remote setup</a></p></div>";
+    echo " - to <a href=\"https://github.com/glennmckechnie/weewx-wxobs/issues\">its github site, or contact me directly.</a><br>";
+    echo "There are also <a href=\"https://github.com/glennmckechnie/weewx-wxobs/wiki/Remote-installation\">Wiki notes</a> for this, and setting up remote servers which may help.</p></div>";
 }
 require '$include_file';
+ echo "$include_file";
 
 /*
 * ToDo ??
