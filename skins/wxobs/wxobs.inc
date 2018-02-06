@@ -57,7 +57,7 @@ if ((@include '$include_file') === false) {
     echo "where the path and name can be anything allowable by php, readable by the webserver, and preferably secure.<br>";
     echo "If all else fails, report the problem as an issue";
     echo " - to <a href=\"https://github.com/glennmckechnie/weewx-wxobs/issues\">its github site, or contact me directly.</a><br>";
-    echo "There are also <a href=\"https://github.com/glennmckechnie/weewx-wxobs/wiki/Remote-installation\">Wiki notes</a> for this, and setting up remote servers which may help.</p></div>";
+    echo "There are also <a href=\"https://github.com/glennmckechnie/weewx-wxobs/wiki/Remote-installation\">Wiki notes</a> that may help for this, and setting up remote servers.</p></div>";
 }
 require '$include_file';
  echo "$include_file";
