@@ -22,12 +22,17 @@
 ##            when [FTP] or [RSYNC] are used to relocate the server pages elsewhere.
 ## 02-02-2018 Fix sDate -> shDate. replace ** with pow() for php versions < 5.6
 ## 04-02-2018 rename include file to reflect database name. (allows parallel setups)
-## Version 0.6.1
+## 06-02-2018 allow both files to be moved as a set, to any writable position, create
+##              nested directories on first pass. add tooltip
+## Version 0.6.2
 
    <!-- wxobs version $wxobs_version -->
    <!-- This weewx extension is available at github: https://github.com/glennmckechnie/weewx-wxobs -->
    <div class="wxobs">
-      Use the following to select a date for archived records
+     <div class="tooltip">
+       Use the following to select a date for archived records
+       <span class="tooltiptext"> Date Format can be either 01-Feb-2018 or 01-02-2018 ( DD-MM-YYYY )</span>
+     </div>
       <!-- insert the javascript date picker -->
       <form name="form" method="POST" action="index.php">
       Choose the date:
