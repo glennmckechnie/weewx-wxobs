@@ -31,7 +31,7 @@
    <div class="wxobs">
      <div class="tooltip">
        Use the following to select a date for archived records
-       <span class="tooltiptext"> Date Format can be either 01-Feb-2018 or 01-02-2018 ( DD-MM-YYYY )</span>
+       <span class="tooltiptext"> Date style can be either 01-Feb-2018 or 01-02-2018 ( DD-MM-YYYY )</span>
      </div>
       <!-- insert the javascript date picker -->
       <form name="form" method="POST" action="index.php">
