@@ -1,5 +1,12 @@
 
 
+
+This branch is not being actively worked on.
+
+The main activity is in the Remote branch. Visit the drop down box in the mid, upper left of this repository and select the remote branch from the drop down list.
+
+That version allows weewx installations with sqlite databases to be used on remote servers. If you transfer your web pages with RSYNC or FTP then that branch should interest you.
+
 # weewx-wxobs
  A skin that integrates with [weewx](http://weewx.com) (weather station software) and provides a php driven report page to extract archival data (Daily climatological summaries) from the weewx database. It then presents that information as a series of snapshots (default is half-hourly) averaged throughout the chosen day. There is an option to include appTemp, and delta-T ( used for agricultural purposes ) as well as optional  configuration settings
  
