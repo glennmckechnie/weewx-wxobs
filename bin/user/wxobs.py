@@ -23,7 +23,7 @@ import weewx.engine
 from weeutil.weeutil import to_bool
 from weewx.cheetahgenerator import SearchList
 
-wxobs_version = "0.6.2"
+wxobs_version = "0.6.3"
 
 def logmsg(level, msg):
     syslog.syslog(level, '%s' % msg)
@@ -231,7 +231,7 @@ class wxobs(SearchList):
         send_include = True #This is the default, set to False if you don't want
         to send the include file repeatedly to the server. Use with caution
         (ie: remember this setting when things stop working, it might be the cure)
-        rsync_options: Not documented in the skin.confDefault is '-ac'. Use with,
+        rsync_options: Not documented in the skin.conf Default is '-ac'. Use with,
         caution and no spaces allowed.
         dest_directory: An option to allow transfer of BOTH include and database
         files to the same directory as specified with this. If using multiple
@@ -459,14 +459,16 @@ class wxobs(SearchList):
             # database transfer
             db_loc_file = "%s" % (self.sqlite_db)
             db_ssh_str = "%s@%s:%s/" % (self.rsync_user, self.rsync_server,
-                                        rsync_options, self.sq_root)
-            Rsync(self.rsync_user, self.rsync_server, db_loc_file, db_ssh_str,
-                  self.sq_root, self.wxobs_debug, self.log_success)
+                                        self.sq_root)
+            Rsync(self.rsync_user, self.rsync_server, self.rsync_options,
+                  db_loc_file, db_ssh_str, self.sq_root, self.wxobs_debug,
+                  self.log_success)
 
             if self.send_inc:
                 # perform include file transfer if wanted
                 inc_loc_file = "%s" % (self.include_file)
                 inc_ssh_str = "%s@%s:%s/" % (self.rsync_user, self.rsync_server,
-                                             rsync_option, sself.inc_path)
-                Rsync(self.rsync_user, self.rsync_server, inc_loc_file, inc_ssh_str,
-                      self.inc_path, self.wxobs_debug, self.log_success)
+                                             self.inc_path)
+                Rsync(self.rsync_user, self.rsync_server, self.rsync_option,
+                      inc_loc_file, inc_ssh_str, self.inc_path, self.wxobs_debug,
+                      self.log_success)

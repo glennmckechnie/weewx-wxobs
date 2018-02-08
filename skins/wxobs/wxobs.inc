@@ -24,7 +24,8 @@
 ## 04-02-2018 rename include file to reflect database name. (allows parallel setups)
 ## 06-02-2018 allow both files to be moved as a set, to any writable position, create
 ##              nested directories on first pass. add tooltip
-## Version 0.6.2
+## 08-02-2018 Tweak display, add rsync_options (undocumented except in wxobs.py)
+## Version 0.6.3
 
    <!-- wxobs version $wxobs_version -->
    <!-- This weewx extension is available at github: https://github.com/glennmckechnie/weewx-wxobs -->
@@ -37,7 +38,7 @@
       <form name="form" method="POST" action="index.php">
       Choose the date:
       <input id="start_dt" name="datepicker" class="datepicker">
-      <input type="submit" name="submitDate" value="Show records">
+      <input type="submit" name="submitDate" placeholder="25-12-2017" value="Show records" >
       </form>
    </div>
 <?php
@@ -65,7 +66,7 @@ if ((@include '$include_file') === false) {
     echo "There are also <a href=\"https://github.com/glennmckechnie/weewx-wxobs/wiki/Remote-installation\">Wiki notes</a> that may help for this, and setting up remote servers.</p></div>";
 }
 require '$include_file';
- echo "$include_file";
+/* echo "$include_file";*/
 
 /*
 * ToDo ??
@@ -915,7 +916,9 @@ if ($debug =='1') {
              </p></div></div></body></html>";
         return;
     }
-    $this_day = date('d-M-Y', $pick_start);
+    /* Return day-month-year only */
+    /* $this_day = date('d-M-Y', $pick_start); */
+    $minmax_day = date('d-m-Y');
 
     if ($debug == '1') {
         echo "Min Max:<br> latest date = ", hDate($latest_date), " : day_start = ",
@@ -930,7 +933,7 @@ if ($debug =='1') {
     // Create Min Max table headers - ugly layout but ok in html source
     echo "<!-- start snapshot summary observations -->
  <h2>Historical Observations for $this_day</h2>
- <h3><a title=\"Lowest and Highest observations for the nominated day.\">Min (Max) Stats</a></h3>
+ <h3><a title=\"Lowest and Highest observations for the nominated day.\">Stats for the day : Min (Max) or Averages</a></h3>
  <table class=\"wxdata\">
   <thead>
   <tr>
@@ -955,7 +958,9 @@ if ($debug =='1') {
     }
 
 
-    echo "<tr><td> $dbase_date<!-- $st_day : $en_day --></td>";
+    /* Return day-month-year only
+    echo "<tr><td> $dbase_date<!-- $st_day : $en_day --></td>"; */
+    echo "<tr><td> $minmax_day &nbsp;&nbsp;- -:- - <!-- $st_day : $en_day --></td>";
     $x = $tempConvert ($stats_row[1]);
     $minTemp = round($x, 1);
     $x = $tempConvert ($stats_row[2]);
