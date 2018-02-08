@@ -37,19 +37,19 @@ def logerr(msg):
 def logdbg(msg):
     logmsg(syslog.LOG_DEBUG, msg)
 
-def rsync(rsync_user, rsync_server, rsync_loc_dir, rsync_rem_str, rem_path, wxobs_debug, log_success):
+def Rsync(rsync_user, rsync_server, rsync_options, rsync_loc_file, rsync_ssh_str, rem_path, wxobs_debug, log_success):
 
     t1 = time.time()
     # construct the command argument
     cmd = ['rsync']
-    cmd.extend(["-ac"])
+    cmd.extend([rsync_options])
 
     #cmd.extend(["-tOJrl"])
     # provide some stats on the transfer
     cmd.extend(["--stats"])
     cmd.extend(["--compress"])
-    cmd.extend([rsync_loc_dir])
-    cmd.extend([rsync_rem_str])
+    cmd.extend([rsync_loc_file])
+    cmd.extend([rsync_ssh_str])
 
     try:
         # perform the actual rsync transfer...
@@ -118,7 +118,7 @@ def rsync(rsync_user, rsync_server, rsync_loc_dir, rsync_rem_str, rem_path, wxob
             # likely to be that a local path doesn't exist - possible typo?
             if wxobs_debug == 2:
                 logdbg("wxobs: rsync code 23 found %s" % stroutput)
-            rsync_message = "rsync code 23 : is %s correct? ! FIXME !" % (rsync_loc_dir)
+            rsync_message = "rsync code 23 : is %s correct? ! FIXME !" % (rsync_loc_file)
             loginf("wxobs:  ERR %s " % rsync_message)
             rsync_message = "code 23, link_stat, rsync failed executed in %0.2f seconds"
         elif "code 11" in stroutput:
@@ -138,7 +138,7 @@ def rsync(rsync_user, rsync_server, rsync_loc_dir, rsync_rem_str, rem_path, wxob
             if wxobs_debug == 2:
                 loginf("sshcmd %s" % cmd)
             subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            rsync_rem_str = rem_path
+            rsync_ssh_str = rem_path
             rsync_message = "code 11, rsync mkdir cmd executed in % 0.2f seconds"
 #            rsync_message = "rsync executed in %0.2f seconds, built destination (remote) directories"
 
@@ -161,11 +161,11 @@ def rsync(rsync_user, rsync_server, rsync_loc_dir, rsync_rem_str, rem_path, wxob
     if log_success:
         if wxobs_debug == 0:
             to = ''
-            rsync_rem_str = ''
+            rsync_ssh_str = ''
         else:
             to = ' to '
         t2= time.time()
-        loginf("wxobs: %s" % rsync_message % (t2-t1) + to + rsync_rem_str)
+        loginf("wxobs: %s" % rsync_message % (t2-t1) + to + rsync_ssh_str)
 
 class wxobs(SearchList):
 
@@ -231,6 +231,12 @@ class wxobs(SearchList):
         send_include = True #This is the default, set to False if you don't want
         to send the include file repeatedly to the server. Use with caution
         (ie: remember this setting when things stop working, it might be the cure)
+        rsync_options: Not documented in the skin.confDefault is '-ac'. Use with,
+        caution and no spaces allowed.
+        dest_directory: An option to allow transfer of BOTH include and database
+        files to the same directory as specified with this. If using multiple
+        databases and include files make sure they are unique if you are
+        transferring from multiple machine.
 
         [[RainTiming]]
         shift_rain: For rain accounting times other than midnight to midnight
@@ -339,6 +345,8 @@ class wxobs(SearchList):
             'rsync_user', '')
         self.rsync_server = self.generator.skin_dict['wxobs']['Remote'].get(
             'rsync_machine', '')
+        self.rsync_options = self.generator.skin_dict['wxobs']['Remote'].get(
+            'rsync_options', '-ac')
         self.log_success = to_bool(self.generator.skin_dict['wxobs']['Remote'].get(
             'log_success', True))
         self.dest_dir = self.generator.skin_dict['wxobs']['Remote'].get(
@@ -449,14 +457,16 @@ class wxobs(SearchList):
             if self.dest_dir:
                 self.sq_root = self.dest_dir
             # database transfer
-            db_rem_str = "%s@%s:%s/" % (self.rsync_user, self.rsync_server, self.sq_root)
-            db_loc_dir = "%s" % (self.sqlite_db)
-            rsync(self.rsync_user, self.rsync_server, db_loc_dir, db_rem_str,
+            db_loc_file = "%s" % (self.sqlite_db)
+            db_ssh_str = "%s@%s:%s/" % (self.rsync_user, self.rsync_server,
+                                        rsync_options, self.sq_root)
+            Rsync(self.rsync_user, self.rsync_server, db_loc_file, db_ssh_str,
                   self.sq_root, self.wxobs_debug, self.log_success)
 
             if self.send_inc:
                 # perform include file transfer if wanted
-                inc_loc_dir = "%s" % (self.include_file)
-                inc_rem_str = "%s@%s:%s/" % (self.rsync_user, self.rsync_server, self.inc_path)
-                rsync(self.rsync_user, self.rsync_server, inc_loc_dir, inc_rem_str,
+                inc_loc_file = "%s" % (self.include_file)
+                inc_ssh_str = "%s@%s:%s/" % (self.rsync_user, self.rsync_server,
+                                             rsync_option, sself.inc_path)
+                Rsync(self.rsync_user, self.rsync_server, inc_loc_file, inc_ssh_str,
                       self.inc_path, self.wxobs_debug, self.log_success)
