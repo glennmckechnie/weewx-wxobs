@@ -469,6 +469,6 @@ class wxobs(SearchList):
                 inc_loc_file = "%s" % (self.include_file)
                 inc_ssh_str = "%s@%s:%s/" % (self.rsync_user, self.rsync_server,
                                              self.inc_path)
-                Rsync(self.rsync_user, self.rsync_server, self.rsync_option,
+                Rsync(self.rsync_user, self.rsync_server, self.rsync_options,
                       inc_loc_file, inc_ssh_str, self.inc_path, self.wxobs_debug,
                       self.log_success)
