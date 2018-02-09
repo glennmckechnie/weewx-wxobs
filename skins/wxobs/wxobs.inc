@@ -917,8 +917,8 @@ if ($debug =='1') {
         return;
     }
     /* Return day-month-year only */
-    /* $this_day = date('d-M-Y', $pick_start); */
-    $minmax_day = date('d-m-Y');
+    $this_day = date('d-M-Y', $pick_start);
+    /* $minmax_day = date('d-m-Y'); */
 
     if ($debug == '1') {
         echo "Min Max:<br> latest date = ", hDate($latest_date), " : day_start = ",
@@ -960,7 +960,7 @@ if ($debug =='1') {
 
     /* Return day-month-year only
     echo "<tr><td> $dbase_date<!-- $st_day : $en_day --></td>"; */
-    echo "<tr><td> $minmax_day &nbsp;&nbsp;- -:- - <!-- $st_day : $en_day --></td>";
+    echo "<tr><td> $this_day &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <!-- $st_day : $en_day --></td>";
     $x = $tempConvert ($stats_row[1]);
     $minTemp = round($x, 1);
     $x = $tempConvert ($stats_row[2]);
