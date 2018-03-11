@@ -18,45 +18,55 @@
 ##            chosen by the user. aus_rain becomes shift_rain, now configurable for
 ##            other areas
 ## 30-09-2017 Add checkdate and logic to validate entered dates.
+## 31-01-2018 Add rsync capabilities for sqlite database and include file relocation
+##            when [FTP] or [RSYNC] are used to relocate the server pages elsewhere.
 ## 02-02-2018 Fix sDate -> shDate. replace ** with pow() for php versions < 5.6
-## Version 0.5.1
+## 04-02-2018 rename include file to reflect database name. (allows parallel setups)
+## 06-02-2018 allow both files to be moved as a set, to any writable position, create
+##              nested directories on first pass. add tooltip
+## 08-02-2018 Tweak display, add rsync_options (undocumented except in wxobs.py)
+## Version 0.6.3
 
    <!-- wxobs version $wxobs_version -->
    <!-- This weewx extension is available at github: https://github.com/glennmckechnie/weewx-wxobs -->
    <div class="wxobs">
-      Use the following to select a date for archived records
+     <div class="tooltip">
+       Use the following to select a date for archived records
+       <span class="tooltiptext"> Date style can be either 01-Feb-2018 or 01-02-2018 ( DD-MM-YYYY )</span>
+     </div>
       <!-- insert the javascript date picker -->
       <form name="form" method="POST" action="index.php">
       Choose the date:
       <input id="start_dt" name="datepicker" class="datepicker">
-      <input type="submit" name="submitDate" value="Show records">
+      <input type="submit" name="submitDate" placeholder="25-12-2017" value="Show records" >
       </form>
    </div>
 <?php
-//ini_set('display_errors', 1);
-//error_reporting(~0);
+/**
+*X
+*ini_set('display_errors', 1);
+*error_reporting(~0);
+*/
 $start = microtime(true);
 
 if ((@include '$include_file') === false) {
     echo "<div class=\"alert\">";
-    echo "<p>The database config file has gone missing!<br>";
-    echo "&nbsp;&nbsp;&nbsp;That shouldn't happen.</p>";
-    echo "We are using the php default for includes of /usr/share/php<br>";
-    echo "Check that the directory /usr/share/php exists, if not create it.<br>";
+    echo "<p>The database config file has gone missing! &nbsp;&nbsp;&nbsp; That shouldn't happen.</p>";
+    echo "We use a php default for include files of /usr/share/php, but we can use <i>include_path</i> in <b>wxobs/skin.conf</b> to change that.<br>";
     echo "The file should have been accessable as<br> <i>$include_file</i><br>";
-    echo "It will be regenerated on weewx's next report run,";
-    echo " or when report_timing allows.<br>";
+    echo "Check that the directory $inc_path exists, if it doesn't then create it. Check its read | write permissions<br>";
+    echo" The include file will be regenerated on weewx's next report run, (unless you're using the undocumented feature - ";
+    echo " view the source Luke.)<br> Or when report_timing allows.<br>";
     echo "If the problem persists, consider changing";
-    echo " its location as ";
-    echo "wxobs/skin.conf will accept<br>";
-    echo "<i>include_file = /new_path/name</i><br>";
-    echo "where the path and name can be anything";
-    echo " allowable by php.ini and preferably secure.<br>";
-    echo "That means keeping it away from the webserver, if possible.<br>";
+    echo " its location as <b>wxobs/skin.conf</b> will accept<br>";
+    echo "<i>include_path = /tmp</i> or <i>include_path = /new_path/your_choice</i><br>";
+    echo "where the path and name can be anything allowable by php, readable by the webserver, and preferably secure.<br>";
     echo "If all else fails, report the problem as an issue";
-    echo " - to its github site.</p></div>";
+    echo " - to <a href=\"https://github.com/glennmckechnie/weewx-wxobs/issues\">its github site, or contact me directly.</a><br>";
+    echo "There are also <a href=\"https://github.com/glennmckechnie/weewx-wxobs/wiki/Remote-installation\">Wiki notes</a> that may help for this, and setting up remote servers.</p></div>";
 }
 require '$include_file';
+/* echo "$include_file";*/
 
 /*
 * ToDo ??
@@ -324,12 +334,11 @@ function deltaT($Tc, $RH, $P, $debug)
     $E = (6.11 * pow(10, (7.5 * $Tdc / (237.7 + $Tdc))));
     $WBc = (((0.00066 * $P) * $Tc) + ((4098 * $E) / (pow(($Tdc + 237.7), 2))
         * $Tdc)) / ((0.00066 * $P) + (4098 * $E) / (pow(($Tdc + 237.7), 2)));
-//    $Tdc = (pow(($Tc - (14.55 + 0.114 * $Tc) * (1 - (0.01 * $RH)) -
-//        pow(((2.5 + 0.007 * $Tc) * (1 - (0.01 * $RH)), 3) -
-//        (15.9 + 0.117 * $Tc) * (1 - (0.01 * $RH)), 14)));
-//    $E = (6.11 * pow(10 (7.5 * $Tdc / (237.7 + $Tdc))));
-//    $WBc = (((0.00066 * $P) * $Tc) + ((4098 * $E) /(pow(($Tdc + 237.7), 2))
-//        * $Tdc)) / ((0.00066 * $P) + (4098 * $E) /( pow(($Tdc + 237.7), 2)));
+    //        ((2.5 + 0.007 * $Tc) * (1 - (0.01 * $RH))) ** 3 -
+    //        (15.9 + 0.117 * $Tc) * (1 - (0.01 * $RH)) ** 14));
+    //    $E = (6.11 * 10 ** (7.5 * $Tdc / (237.7 + $Tdc)));
+    //    $WBc = (((0.00066 * $P) * $Tc) + ((4098 * $E) / (($Tdc + 237.7) ** 2)
+    //        * $Tdc)) / ((0.00066 * $P) + (4098 * $E) / (($Tdc + 237.7) ** 2));
     // $WetBulb = "%.1f" % $WBc + $unit.label.outTemp
     // $WetBulb = "%.1f" % ($WBc*9/5+32) + $unit.label.outTemp // degrees F
     //echo "Tdc = $Tdc E = $E WBc = $WBc :: T=$Tc : RH=$RH : P=$P<br>";
@@ -398,7 +407,7 @@ $st_degr = "<th class=\"wxheadr\"><a title=\"Direction the wind comes from in ".
            "degrees\">Direction<br>$unit.label.windDir</a></th>";
 
 if ($php_dbase === 'mysql') {
-    if ($debug>='1') {
+    if ($debug=='1') {
         echo "<p class=\"debug\">database is $dbase with the name: $mysql_base</p>";
     }
     $db = new mysqli(
@@ -409,14 +418,13 @@ if ($php_dbase === 'mysql') {
     );
     if ($db->connect_errno) {
         echo ("<div class=\"alert\"><p>Connection to mysql database failed:<br>
-            Has it been configured correctly - these were the values sent<br>
-            host=$php_mysql_host,user=$php_mysql_user,
-            pass=$php_mysql_pass,base=$php_mysql_base<br>
+            Has it been configured correctly? The values used are in the file at<br>
+            $include_file<br>
      $db->connect_error</p></div>");
         return;
     }
 } elseif ($php_dbase === 'sqlite') {
-    if ($debug>='1') {
+    if ($debug=='1') {
         echo "<p class=\"debug\">database is $dbase with path/name: $sqlite_db</p>";
     }
     $db = new SQLite3($php_sqlite_db);
@@ -436,12 +444,12 @@ if ('$app_temp' === 'appTemp') {
     $app_label = '$unit.label.outTemp';
 }
 
-if ($debug>='1') {
+if ($debug=='1') {
     echo "<p class=\"debug\">ext_interval is $ext_interval <br>".
-         "arch_interval is $arch_interval<br> appTemp is defined".
+         "arch_interval is $arch_interval<br> appTemp is defined ".
          "as $app_temp with $app_label used as the units.</p>";
 }
-if ($debug>='1') {
+if ($debug=='1') {
     echo "<p class=\"debug\">want delta is $want_delta with show warning".
          "of $show_warning<br>".
          "('$targ_unit' === 'US' || '$unit.label.outTemp' !== '&#176;C' ||".
@@ -540,7 +548,7 @@ if ('$unit.label.wind' === ' kph') { //leading space is critical!
 // Show the latest record in the database and the rainfall total for the day.
     $day_start = mktime('0', '0', '0', date('n'), date('j'), date('Y'));
     $time_now = time();
-if ($debug>='1') {
+if ($debug =='1') {
     echo "<p>Latest Observations:<br>day_start = ", hDate($day_start),
      "($day_start)<br> time_now uses the time_now value ", hDate($time_now),
      " ( $time_now )</p>";
@@ -568,7 +576,7 @@ if ($debug>='1') {
             $td_rain = "<td style=\"background-color:#aeaeae\" title=\"".
                        "Previous: Running Total&#10;starting ".
                        hDate($rain_start). "\">";
-            if ($debug >= 1) {
+            if ($debug == 1) {
                 echo "Latest: time_now=".hDate($time_now)." : ".hDate($day_start).
                  " ($day_start day_start < today_nine $today_nine) ".
                  hDate($today_nine)." : rain_start = ".hDate($rain_start).
@@ -581,7 +589,7 @@ if ($debug>='1') {
             $td_rain = "<td style=\"background-color:#d6d6d6\" title=\"".
                        "Current: Running Total&#10;starting ".
                        hDate($rain_start). "\">";
-            if ($debug >= 1) {
+            if ($debug == 1) {
                 echo "Latest: time_now=".hDate($time_now)." : ".hDate($day_start).
                  " ($day_start day_start >= today_nine $today_nine) ".
                  hDate($today_nine)." : rain_start = ".hDate($rain_start).
@@ -594,7 +602,7 @@ if ($debug>='1') {
         $t_span = "(since 12 a.m.)";
         $td_rain = "<td title=\"24 hour rain starting at&#10;midnight on: ".
                    shDate($rain_start). "\">";
-        if ($debug >= 1) {
+        if ($debug == 1) {
             echo "Latest: 24 hours ".hDate($day_start)." ($day_start day_start
                  & rain_end $rain_end) ". hDate($rain_end)." : rain_start = "
                  .hDate($rain_start)."<br>";
@@ -627,7 +635,7 @@ if ($debug>='1') {
         $rain_row = $rain_total->fetchArray();
     }
 
-    if ($debug>='1') {
+    if ($debug =='1') {
         echo "latest date = ", hDate($latest_date), " : day_start = ",
              hDate($day_start), " : time_now = ", hDate($time_now), "<br>";
         echo "latest rain_start = ", hDate($rain_start), " : ($rain_start)".
@@ -643,13 +651,13 @@ if ($debug>='1') {
                        " indicator for agricultural spraying conditions, the ideal".
                        " conditions are between the values of 2 &amp; 8\">".
                        "delta&dash;T<br>&#176;C</a></th>";
-        if ($debug>='3') {
+        if ($debug =='3') {
             echo "<p class=\"debug\">want_delta is $want_delta so label is...<br>
                  $delta_label";
         }
     } else {
         $delta_label="";
-        if ($debug>='3') {
+        if ($debug =='3') {
             echo "<p class=\"debug\">want_delta is $want_delta so label is...<br>
                  '$delta_label'";
         }
@@ -680,7 +688,7 @@ if ($debug>='1') {
   </tr>
  </thead><tbody>";
 
-    if ($debug >= 1) {
+    if ($debug == 1) {
         $st_day = hDate($latest_date);
         $st_day = "$st_day($latest_date)";
     } else {
@@ -704,12 +712,12 @@ if ($debug>='1') {
     if ($want_delta) {
         deltaT($latest_row[1], $latest_row[4], $latest_row[8], $debug);
         echo "<td>$dT</td>";
-        if ($debug=='3') {
+        if ($debug == '3') {
             echo "<p class=\"debug\">want_delta is $want_delta so ...<br>";
             echo "delta_data is '$dT'</p>";
         }
     } else {
-        if ($debug=='3') {
+        if ($debug == '3') {
             echo "<p class=\"debug\">want_delta is $want_delta so ...<br>";
             echo "delta_data is 'null'</p>";
         }
@@ -777,7 +785,7 @@ if ($debug>='1') {
             // injection attempt was made
             //$pick_start =  strtotime($_REQUEST['datepicker']);
             $pick_start = mktime('0', '0', '0', $m_numb, $dd, $yy);
-            if ($debug>='1') {
+            if ($debug =='1') {
                 echo "<p class=\"debug\">Min (Max)<br> Datepicker returned ",
                      hDate($pick_start), " ($pick_start) </p>";
                 echo "Datepicker returned a valid date, we'll use it!<br>";
@@ -789,7 +797,7 @@ if ($debug>='1') {
             $pick_start = $day_start;
             echo "<div class=\"info\">Datepicker didn't return a valid date,".
                  " falling back to todays date.<br></div>";
-            if ($debug>='1') {
+            if ($debug =='1') {
                 echo "<p class=\"debug\">Min (Max)<br> Datepicker return is invalid,
                      day_start ", hDate($day_start), "( $day_start )
                      has been used</p>";
@@ -800,7 +808,7 @@ if ($debug>='1') {
         // We'll use our $day_start to display a report for the current date.
         $pick_start = $day_start;
         echo "<div class=\"info\">Using todays date.<br></div>";
-        if ($debug>='1') {
+        if ($debug =='1') {
             echo "<p class=\"debug\">Min (Max)<br> Datepicker returned null,
                      day_start ", hDate($day_start), "( $day_start )
                      has been used</p>";
@@ -810,7 +818,7 @@ if ($debug>='1') {
     // Sanity check because dates from the future are pointless (and untidy)
     // $latest_date holds the last (latest) entry in database.
     if ($pick_start > $latest_date) {
-        if ($debug>='1') {
+        if ($debug =='1') {
             echo "<p class=\"debug\"> pick_start ( $pick_start ) is > ".
                  "latest_date ( $latest_date ) </p>";
         }
@@ -828,7 +836,7 @@ if ($debug>='1') {
         // Calculate start day for rain calcs - some recordings start at $start_label a.m.
         $today_nine = $start_time + $rainday_start; // $start_label am today
         $past_nine = $start_time - (86400 - $rainday_start); // $start_label am yesterday
-        if ($debug>='1') {
+        if ($debug =='1') {
             echo "Rain: Min Max today_nine = ". hDate($today_nine).
                  " ($today_nine) <br>";
             echo "Rain: Min Max past_nine = ". hDate($past_nine).
@@ -860,7 +868,7 @@ if ($debug>='1') {
         $td_rain = "<td title=\"24 hour rain starting at&#10; midnight on: ".
                    hDate($rain_start). "\">";
     }
-    if ($debug>='1') {
+    if ($debug =='1') {
         echo "<p class=\"debug\">Min (Max) and Periodic Stats<br> start_time is now
              = pick_start ". hDate($pick_start). "( $pick_start ) and day_end is + 86400 "
              .hDate($day_end)." ( $day_end )</p>";
@@ -908,9 +916,11 @@ if ($debug>='1') {
              </p></div></div></body></html>";
         return;
     }
+    /* Return day-month-year only */
     $this_day = date('d-M-Y', $pick_start);
+    /* $minmax_day = date('d-m-Y'); */
 
-    if ($debug >= 1) {
+    if ($debug == '1') {
         echo "Min Max:<br> latest date = ", hDate($latest_date), " : day_start = ",
            hDate($day_start), "<br> start_time = ", hDate($start_time),
            " : day_end = ", hDate($day_end), "<br>rain_start = ",
@@ -923,7 +933,7 @@ if ($debug>='1') {
     // Create Min Max table headers - ugly layout but ok in html source
     echo "<!-- start snapshot summary observations -->
  <h2>Historical Observations for $this_day</h2>
- <h3><a title=\"Lowest and Highest observations for the nominated day.\">Min (Max) Stats</a></h3>
+ <h3><a title=\"Lowest and Highest observations for the nominated day.\">Stats for the day : Min (Max) or Averages</a></h3>
  <table class=\"wxdata\">
   <thead>
   <tr>
@@ -937,7 +947,7 @@ if ($debug>='1') {
   </tr>
  </thead><tbody>";
 
-    if ($debug >= 1) {
+    if ($debug == 1) {
         $st_day = hDate($start_time);
         $st_day = "$st_day($start_time)";
         $en_day = hDate($day_end);
@@ -948,7 +958,9 @@ if ($debug>='1') {
     }
 
 
-    echo "<tr><td> $dbase_date<!-- $st_day : $en_day --></td>";
+    /* Return day-month-year only
+    echo "<tr><td> $dbase_date<!-- $st_day : $en_day --></td>"; */
+    echo "<tr><td> $this_day &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <!-- $st_day : $en_day --></td>";
     $x = $tempConvert ($stats_row[1]);
     $minTemp = round($x, 1);
     $x = $tempConvert ($stats_row[2]);
@@ -1100,7 +1112,7 @@ if ($debug>='1') {
         $dbase_date = $row[0];
 
         // Values enclosed in comments within generated html tables
-        if ($debug >= 1) {
+        if ($debug == '1') {
             $st_day = hDate($start_time);
             $st_day = "$st_day($start_time)";
             $en_day = hDate($end_interval);
@@ -1126,12 +1138,12 @@ if ($debug>='1') {
             if ($want_delta) {
                 deltaT($row[1], $row[4], $row[8], $debug);
                 echo "<td>$dT</td>";
-                if ($debug=='3') {
+                if ($debug =='3') {
                     echo "<p class=\"debug\">want_delta is $want_delta so ...<br>";
                     echo "delta_data is '$dT'</p>";
                 }
             } else {
-                if ($debug=='3') {
+                if ($debug =='3') {
                     echo "<p class=\"debug\">want_delta is $want_delta so ...<br>";
                     echo "delta_data is 'null'</p>";
                 }

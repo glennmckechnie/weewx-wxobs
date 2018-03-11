@@ -1,0 +1,428 @@
+/* CSS for the weewx Standard skin
+ * Copyright (c) 2015 Tom Keffer <tkeffer@gmail.com>
+ * See the file LICENSE.txt for your rights.
+ */
+
+/* these are the elements in the color scheme
+
+                             grey   blue orange
+          highlight color: 222222 4282b4 b44842
+ element background color: dddddd d2e8ef ffe8d2
+     section border color: aaaaaa
+        cell border color: dddddd
+                     link:        4282b4 ff8800
+                  visited:        4282b4 ff8800
+                    hover:        4282b4 ff8800
+*/
+
+/* use the fonts from google */
+/* @import url('https://fonts.googleapis.com/css?family=Open+Sans'); */
+
+/* use the local fonts */
+@font-face {
+    font-family: 'Open Sans';
+    src: url('font/OpenSans.woff') format('woff'),
+    url('font/OpenSans.woff2') format('woff2');
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-family: 'Open Sans', arial, sans-serif;
+    background-color: #ffffff;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:link {
+    color: #4282b4;
+}
+a:visited {
+    color: #4282b4;
+}
+a:hover {
+    color: #4282b4;
+}
+
+#widget_group {
+    /*float: left;*/
+    float: right;
+    margin-right: 40px;
+}
+
+#plot_group {
+    overflow: hidden;
+}
+
+#xtra_plot_group {
+    overflow: hidden;
+}
+
+#title_bar {
+    overflow: auto;
+    margin-bottom: 5px;
+    background-color: #b2d8e8;
+    border: 1px solid #aaaaaa;
+}
+
+#contents {
+    clear: both;
+    margin: 20px;
+}
+
+#title {
+    float: left;
+    margin-left: 10px;
+}
+
+#rss_link {
+    float: right;
+    margin-top: 6px;
+    margin-right: 20px;
+    padding-left: 8px;
+    padding-right: 8px;
+    background-color: #ffffff;
+    border: 1px solid #aaaaaa;
+    webkit-radius: 5px;
+    moz-radius: 5px;
+    border-radius: 5px;
+}
+
+#reports {
+    float: right;
+    margin-top: 5px;
+    margin-right: 10px;
+    margin-bottom: 5px;
+    text-align: right;
+}
+
+.footnote {
+    font-size: 80%;
+    font-style: italic;
+    clear: both;
+    padding-left: 20px;
+}
+
+.page_title {
+    font-size: 140%;
+    line-height: 50%;
+}
+
+.lastupdate {
+    font-size: 80%;
+    line-height: 50%;
+}
+
+.widget {
+    margin-bottom: 30px;
+    clear: both;
+}
+
+.widget_title {
+    font-weight: bold;
+    padding: 2px 10px 2px 10px;
+    /* underlined titles */
+    border-bottom: 2px solid #aaaaaa;
+    /* outlined titles */
+/*
+    background-color: #dddddd;
+    border: 1px solid #aaaaaa;
+*/
+}
+
+.widget_title_cent {
+    text-align: "center";
+    font-weight: bold;
+    padding: 2px 10px 2px 10px;
+    /* underlined titles */
+    border-bottom: 2px solid #aaaaaa;
+    /* outlined titles */
+/*
+    background-color: #dddddd;
+    border: 1px solid #aaaaaa;
+*/
+}
+
+.scale{
+    background-size: 10px;
+    vertical-align: middle;
+}
+
+.label {
+    font-size: 80%;
+    vertical-align: top;
+    text-align: right;
+    padding-top: 4px;
+    padding-right: 5px;
+}
+
+.data {
+    font-weight: bold;
+    font-size: 80%;
+    text-align: left;
+    padding-top: 4px;
+}
+
+.units {
+    font-size: 80%;
+    vertical-align: top;
+    padding-top: 4px;
+}
+
+.timestamp {
+    font-size: 80%;
+    font-weight: normal;
+}
+
+.hival {
+    color: #aa4444;
+}
+
+.loval {
+    color: #4444aa;
+}
+
+.status_ok {
+    color: #44aa44;
+}
+
+.status_low {
+    color: #aa4444;
+}
+.uvlow{
+    color: limegreen;
+    font-weight: bold;
+    font-size: 90%;
+    text-align: left;
+    padding-top: 4px;
+}
+.uvmid{
+    color: brown;
+    font-weight: bold;
+    font-size: 90%;
+    text-align: left;
+    padding-top: 4px;
+
+}
+.uvhi{
+    color: orange;
+    font-weight: bold;
+    font-size: 100%;
+    text-align: left;
+    padding-top: 4px;
+    }
+.uvext{
+    color:red;
+    font-weight: bold;
+    font-size: 110%;
+    text-align: left;
+    padding-top: 4px;
+}
+.uvhaz{
+    color: violet;
+    font-weight: bold;
+    font-size: 120%;
+    text-align: left;
+    padding-top: 4px;
+}
+.button {
+    cursor: pointer;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    /* rounded box buttons */
+/*
+    border: 1px solid #aaaaaa;
+    webkit-radius: 3px;
+    moz-radius: 3px;
+    border-radius: 3px;
+*/
+}
+
+.button_selected {
+    cursor: pointer;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    /* underlined buttons */
+    border-bottom: 5px solid #4282b4;
+    /* rounded box buttons */
+/*
+    background-color: #bbbbbb;
+    border: 1px solid #aaaaaa;
+    webkit-radius: 3px;
+    moz-radius: 3px;
+    border-radius: 3px;
+*/
+}
+
+.widget_control {
+    float: right;
+    cursor: pointer;
+    margin-left: 20px;
+    margin-right: 5px;
+}
+
+.widget_control_left {
+    float: left;
+    cursor: pointer;
+    margin-left: 20px;
+    margin-right: 5px;
+}
+
+.widget_center {
+    float: center;
+}
+
+
+/* breaks exoand collapse control
+.forecastwidget img {
+    width: 35px;
+    border: 1px solid #aaaaaa;
+    margin-top: 4px;
+} */
+
+.widget img {
+    /*width: 350px; forces all images to size*/
+    /* border: 1px solid #aaaaaa; */
+    border: 0;
+    margin-top: 4px;
+}
+img.twilight {
+width: 300px;
+}
+
+.new_row {
+    border-top: 1px solid #dddddd;
+}
+
+.celestial_body {
+    margin-bottom: 30px;
+    float: left;
+}
+
+.forecastwidget table th {
+    font-weight: normal;
+    text-align: right;
+    border-bottom: 1px solid #dddddd;
+}
+
+.widget table th {
+    font-weight: normal;
+    text-align: right;
+    border-bottom: 1px solid #dddddd;
+}
+
+#hilo_widget table th {
+    font-size: 80%;
+    text-align: right;
+    border-bottom: none;
+}
+
+#hilo_widget .data {
+    font-weight: bold;
+    font-size: 80%;
+    text-align: right;
+    padding-left: 10px;
+}
+
+#sensors_widget table th {
+    padding-top: 10px;
+}
+
+#history_widget img {
+    border: none;
+    margin-bottom: 10px;
+    width: 750px; /* should match the image width in skin.conf */
+}
+
+#nohistory_widget img {
+    border: none;
+    margin-bottom: 10px;
+    /*width: 750px; should match the image width in skin.conf */
+}
+
+#history_widget.widget_title {
+    min-width: 500px;
+}
+
+#nohistory_widget.widget_title {
+    min-width: 500px;
+}
+
+.plot_container {
+    margin-top: 4px;
+}
+
+#map_canvas {
+    width: 350px;
+    height: 350px;
+    margin-top: 4px;
+}
+
+
+@media (max-width:800px) {
+    #plot_group { overflow: visible; float: left; }
+}
+@media (min-width:801px) {
+    #plot_group { overflow: hidden; float: none; }
+}
+@media (max-width:80px) {
+    #xtra_plot_group { overflow: visible; float: left; }
+}
+@media (min-width:81px) {
+    #xtra_plot_group { overflow: hidden; float: none; }
+}
+
+/* 
+# is an id 
+. is a class */
+
+.tabforecast {
+    width: 80%;
+    min-width: 200px
+    max-width: 600px;
+}
+
+.tdcent {
+    vertical-align: middle;
+    padding-left: 10px;
+/* align: center; */
+}
+
+.tdleft {
+    width:10%;
+   /* min-width:40px;*/
+}
+
+.tdright {
+    width:50%;
+    min-width:100px;
+}
+
+/*
+.thtext {
+    text-align: "right";
+    //*text-align: "center";*/
+/*}
+*/
+
+.imgbar {
+    float: right;
+    /*margin-top: -51.5%;*/
+    margin-left: 5px;
+}
+
+.txtcol {
+    /* to match title background*/
+    color: #4282b4;
+    font-weight: bold;
+   /* font-size: 80%;*/
+    text-align: left;
+    padding-left: 10px;
+}
