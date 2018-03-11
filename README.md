@@ -1,7 +1,8 @@
 
 
 # weewx-wxobs
-**Update: March 2018**
+**Update: March 2018**  ---  Available as [release 0.6.4](https://github.com/glennmckechnie/weewx-wxobs/releases/tag/v0.6.4)
+
 The 'remote' branch has now been merged with the master branch. (bumped to version 0.6.4)
 
 This means that the changes required to install weewx-wxobs on a remote server, and transfer the sqlite database have been incorporated into the current version. 
