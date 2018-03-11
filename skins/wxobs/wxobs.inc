@@ -25,7 +25,8 @@
 ## 06-02-2018 allow both files to be moved as a set, to any writable position, create
 ##              nested directories on first pass. add tooltip
 ## 08-02-2018 Tweak display, add rsync_options (undocumented except in wxobs.py)
-## Version 0.6.3
+## 11-03-2018 Merge with the master branch - bump Version
+## Version 0.6.4
 
    <!-- wxobs version $wxobs_version -->
    <!-- This weewx extension is available at github: https://github.com/glennmckechnie/weewx-wxobs -->

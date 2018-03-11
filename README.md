@@ -2,7 +2,7 @@
 
 # weewx-wxobs
 **Update: March 2018**
-The 'remote' branch has now been merged with the master branch. (bumped to version 0.6.3)
+The 'remote' branch has now been merged with the master branch. (bumped to version 0.6.4)
 
 This means that the changes required to install weewx-wxobs on a remote server, and transfer the sqlite database have been incorporated into the current version. 
 
