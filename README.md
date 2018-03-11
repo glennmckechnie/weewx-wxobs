@@ -1,12 +1,5 @@
 
 
-
-This branch is not being actively worked on.
-
-The main activity is in the Remote branch. Visit the drop down box in the mid, upper left of this repository and select the remote branch from the drop down list.
-
-That version allows weewx installations with sqlite databases to be used on remote servers. If you transfer your web pages with RSYNC or FTP then that branch should interest you.
-
 # weewx-wxobs
 
 **Update: Jan 2018** Rsync is now included as an option if you are 
