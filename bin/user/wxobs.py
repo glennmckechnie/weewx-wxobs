@@ -1,5 +1,5 @@
 #
-#    Copyright (c) 2017 Glenn McKechnie glenn.mckechnie@gmail.com>
+#    Copyright (c) 2017 Glenn McKechnie <glenn.mckechnie@gmail.com>
 #    Credit to Tom Keffer <tkeffer@gmail.com>, Matthew Wall and the core
 #    weewx team, all from whom I've borrowed heavily.
 #    Mistakes are mine, corrections and or improvements welcomed
@@ -55,9 +55,16 @@ def Rsync(rsync_user, rsync_server, rsync_options, rsync_loc_file, rsync_ssh_str
         # perform the actual rsync transfer...
         if wxobs_debug == 2:
             loginf("wxobs: rsync cmd is ... %s" % (cmd))
+        #rsynccmd = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=True)
         rsynccmd = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         stdout = rsynccmd.communicate()[0]
         stroutput = stdout.encode("utf-8").strip()
+        #rsyncpid = rsynccmd.pid
+        #loginf("      pre.wait rsync pid is %s" % rsyncpid)
+        #rsynccmd.wait()
+        #rsyncpid = rsynccmd.pid
+        #loginf("     post.wait rsync pid is %s" % rsyncpid)
+        #subprocess.call( ('ps', '-l') )
     except OSError, e:
             #print "EXCEPTION"
         if e.errno == errno.ENOENT:
