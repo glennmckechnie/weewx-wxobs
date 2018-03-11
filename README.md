@@ -22,8 +22,9 @@ The weewx-user group is also a starting point for queries.
 2. Using the sqlite database.
 3. Able to setup password-less access for ssh, an example of which [is here](http://github.com/weewx/weewx/wiki/Using-the-RSYNC-skin-as-a-backup-solution#Create_the_passwordless_access)
 
-When configured it will transfer the database to the same location (/var/lib/weewx to /var/lib/weewx) on the remote machine. This will hopefully be acheivable at the remote end. If that is bot the case, due to permissions, accessability, etc then the location will need to be changed to something more suitable within weewx.conf ie: *SQLITE_ROOT = /a_directory/you_can_access/remotely* however the default should work well, but you may need to create the directory first.
-It also transfers the include file to its equivalent location. The include file can be relocated from the default location to somewhere, perhaps more suitable (usually required due to permission problems.) 
+When configured it will transfer the database to the same location (/var/lib/weewx to /var/lib/weewx) on the remote machine (or see version 0.6.3 for other options). This will hopefully be achievable at the remote end. If that is not the case, due to permissions, accessibility, etc then the location will need to be changed to something more suitable within weewx.conf ie: *SQLITE_ROOT = /a_directory/you_can_access/remotely* however the default should work well, but you may need to create the directory first.
+It also transfers the include file to its equivalent location. The include file can be relocated from the default location to somewhere, perhaps more suitable (usually required due to permission problems.) (Other options now exist - see version 0.6.3)
+
 
 The skin.conf file has the required configuration settings and a brief outline. The wiki page titled [Remote installation](https://github.com/glennmckechnie/weewx-wxobs/wiki/Remote-installation) has further information and trouble shooting tips.
 
