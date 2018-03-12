@@ -131,6 +131,27 @@ If you run the seasons skin as your main skin ( weewx/seasons ) then the index.p
    sudo /etc/init.d/weewx start
    </pre>
 
+8. Upgrading
+   
+   You can use the steps from above:- step 7. to uninstall, followed by step 2. to install - to upgrade using a newly downloaded  file. 
+   
+   That is the safest and surest way of making sure everything gets updated. 
+   
+   If you wish to, you can save copies of the existing files by renaming them to something unique - eg:- append .last to the end of the filename.
+   
+    Anytime you use wee_extension, weewx will always need to be restarted for any changes to take affect
+   
+   With wewwx restarted you can then, in the vast majority of cases, make changes to a weewx skin.conf file as those changes will be re-read and actioned on the next report cycle (equivalent to your archive interval timing).
+   
+   If the skin.conf file suggests uncommenting or altering a variable , it's safe to assume that the next report run will act on that change.
+   
+   A xxx.tmpl or xxx.inc file can also be edited and re-saved while weewx is running. The results of that change will be available after the next report cycle has run.
+   
+   Any other file will require a restart of weewx to take affect, in particular any xxx.py file.
+   
+   If in doubt, restart weewx.
+
+
 __Note:__  If you are using the seasons skin. datepicker.js doesn't (didn't) play well with the seasons javascript file (seasons.js) when you are using the widget side menus. The toggle feature on the #includes was disrupted and didn't behave as it should. I've edited datepicker.js and removed __window.onload=null;__ from the  _function onDOMReady_
 
 Nothing seems to have broken (for me). It fixed the problem but I'm not knowledgable enough to know what side-effects I've invoked. YMMV. Expert knowledge and/or fixes welcomed.
