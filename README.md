@@ -1,6 +1,5 @@
 
 
-# weewx-wxobs
 **Update: March 2018**  ---  Available as [release 0.6.4](https://github.com/glennmckechnie/weewx-wxobs/releases/tag/v0.6.4)
 
 The 'remote' branch has now been merged with the master branch. (bumped to version 0.6.4)
@@ -18,14 +17,10 @@ The remote installation centers around rsyncing an sqlite database to the remote
 
 The weewx-user group is also a starting point for queries.
 
-**Update: Jan 2018** Rsync is now included as an option if you are 
-1. Transferring the web data to a remote server.
-2. Using the sqlite database.
-3. Able to setup password-less access for ssh, an example of which [is here](http://github.com/weewx/weewx/wiki/Using-the-RSYNC-skin-as-a-backup-solution#Create_the_passwordless_access)
+see below for previous changes.
 
-When configured it will transfer the database to the same location (/var/lib/weewx to /var/lib/weewx) on the remote machine (or see version 0.6.3 for other options). This will hopefully be achievable at the remote end. If that is not the case, due to permissions, accessibility, etc then the location will need to be changed to something more suitable within weewx.conf ie: *SQLITE_ROOT = /a_directory/you_can_access/remotely* however the default should work well, but you may need to create the directory first.
-It also transfers the include file to its equivalent location. The include file can be relocated from the default location to somewhere, perhaps more suitable (usually required due to permission problems.) (Other options now exist - see version 0.6.3)
 
+# weewx-wxobs
 
 The skin.conf file has the required configuration settings and a brief outline. The wiki page titled [Remote installation](https://github.com/glennmckechnie/weewx-wxobs/wiki/Remote-installation) has further information and trouble shooting tips.
 
@@ -159,6 +154,13 @@ Nothing seems to have broken (for me). It fixed the problem but I'm not knowledg
 p.s. datepicker's origins are unknown but a search of github will turn up many versions. I'll find one that matches this one and give a link - [This one](https://github.com/chrishulbert/datepicker) is very close to it.
 
 # Changes
+**Update: Jan 2018** Rsync is now included as an option if you are 
+1. Transferring the web data to a remote server.
+2. Using the sqlite database.
+3. Able to setup password-less access for ssh, an example of which [is here](http://github.com/weewx/weewx/wiki/Using-the-RSYNC-skin-as-a-backup-solution#Create_the_passwordless_access)
+
+When configured it will transfer the database to the same location (/var/lib/weewx to /var/lib/weewx) on the remote machine (or see version 0.6.3 for other options). This will hopefully be achievable at the remote end. If that is not the case, due to permissions, accessibility, etc then the location will need to be changed to something more suitable within weewx.conf ie: *SQLITE_ROOT = /a_directory/you_can_access/remotely* however the default should work well, but you may need to create the directory first.
+It also transfers the include file to its equivalent location. The include file can be relocated from the default location to somewhere, perhaps more suitable (usually required due to permission problems.) (Other options now exist - see version 0.6.3)
 
 **Update: 18th Jan 2018**
 A quirk in checkdate can allow strings to be passed through to the underlying code. Lame injection attempts highlighted the need for this trivial fix so we now do a better job of sanitizing the checkdate input.
