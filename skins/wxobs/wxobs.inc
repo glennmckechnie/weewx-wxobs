@@ -347,6 +347,14 @@ function deltaT($Tc, $RH, $P, $debug)
     $dT = abs(round($Tc - $WBc, 1));
 }
 
+function theader($avflag)
+{
+    $st_wind = "<th class=\"wxheadr\" colspan=\"4\"><a title=\"".
+               "Wind stats $avflag over each period.\">Wind $avflag </a></th>";
+    $st_spd = "<th class=\"wxheadr\"><a title=\"Wind speed $avflag\">Speed<br>$unit.label.wind</a></th>";
+    $st_gust = "<th class=\"wxheadr\"><a title=\"Wind gust speed $avflag\">Gust<br>$unit.label.wind</a></th>";
+    return array ($st_wind, $st_spd, $st_gust);
+}
 
 /*
 * Note; double quoted variables are values that will be passed from the SLE,
@@ -380,6 +388,13 @@ if ($php_dbase === 'mysql') {
               "Date (in year-month-day format) and Time.\">".
               "Date&nbsp;&nbsp;&nbsp;&nbsp; Time</a></th>";
 }
+
+// Latest wind Observations are always single readings
+$tmp_flag=$avflag;
+$avflag="";
+list ($st_wind, $st_spd, $st_gust) = theader($avflag);
+$avflag=$tmp_flag;
+
 $st_temp ="<th class=\"wxheadr\" rowspan=\"2\"><a title=\"".
           "Outside temperature\">Out Temp<br>$unit.label.outTemp</a></th>";
 $st_dew = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"".
@@ -387,8 +402,6 @@ $st_dew = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"".
           "Dew Point<br>$unit.label.dewpoint</a></th>";
 $st_rh = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"".
          "Relative Humidity\">Humidity<br>$unit.label.outHumidity</a></th>";
-$st_wind = "<th class=\"wxheadr\" colspan=\"4\"><a title=\"".
-           "Wind stats as averaged over each period.\">Wind $avflag </a></th>";
 $st_baro = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"".
            "Barometric pressure\">Pressure<br>$unit.label.barometer</a></th>";
 if ($shift_rain) {
@@ -402,8 +415,6 @@ if ($shift_rain) {
 }
 $st_comp = "<th class=\"wxheadr\"><a title=\"Direction the wind comes from as\n".
            " cardinal (compass) values\">Direction<br>compass</a></th>";
-$st_spd = "<th class=\"wxheadr\">Speed<br>$unit.label.wind</th>";
-$st_gust = "<th class=\"wxheadr\">Gust<br>$unit.label.wind</th>";
 $st_degr = "<th class=\"wxheadr\"><a title=\"Direction the wind comes from in ".
            "degrees\">Direction<br>$unit.label.windDir</a></th>";
 
@@ -932,9 +943,16 @@ if ($debug =='1') {
     //////////////////////////
     // Build Min (Max) Obs html
     // Create Min Max table headers - ugly layout but ok in html source
+
+    //Min (max) wind Observations are always average readings
+    $tmp_flag=$avflag;
+    $avflag="(Average)";
+    list ($st_wind, $st_spd, $st_gust) = theader($avflag);
+    $avflag=$tmp_flag;
+
     echo "<!-- start snapshot summary observations -->
  <h2>Historical Observations for $this_day</h2>
- <h3><a title=\"Lowest and Highest observations for the nominated day.\">Stats for the day : Min (Max) or Averages</a></h3>
+ <h3><a title=\"Wind speed $avflag , Lowest [Highest] observations for the nominated day.\">Stats for the day : Min (Max) or Averages</a></h3>
  <table class=\"wxdata\">
   <thead>
   <tr>
@@ -1006,6 +1024,10 @@ if ($debug =='1') {
     // Shows the (average) periodic values for a given (arch_interval) snapshot,
     // averages and rainfall total for that period.
     // Create Min Max table headers - ugly layout but ok in html source
+
+    // Periodic wind Observations are dependant on skin setting.
+    list ($st_wind, $st_spd, $st_gust) = theader($avflag);
+
     echo "<!-- start snapshot observations -->
  <h3><a title=\"Time stamped observations throughout the nominated day.\">Periodic Stats $iflag</a></h3>
  <table class=\"wxdata\">
