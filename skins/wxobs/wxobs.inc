@@ -350,7 +350,7 @@ function deltaT($Tc, $RH, $P, $debug)
 function theader($avflag)
 {
     $st_wind = "<th class=\"wxheadr\" colspan=\"4\"><a title=\"".
-               "Wind stats $avflag over each period.\">Wind $avflag </a></th>";
+               "Wind stats $avflag for each interval.\">Wind $avflag </a></th>";
     $st_spd = "<th class=\"wxheadr\"><a title=\"Wind speed $avflag\">Speed<br>$unit.label.wind</a></th>";
     $st_gust = "<th class=\"wxheadr\"><a title=\"Wind gust speed $avflag\">Gust<br>$unit.label.wind</a></th>";
     return array ($st_wind, $st_spd, $st_gust);
@@ -952,7 +952,7 @@ if ($debug =='1') {
 
     echo "<!-- start snapshot summary observations -->
  <h2>Historical Observations for $this_day</h2>
- <h3><a title=\"Wind speed $avflag , Lowest [Highest] observations for the nominated day.\">Stats for the day : Min (Max) or Averages</a></h3>
+ <h3><a title=\"Wind speed $avflag, Lowest [Highest] observations for the nominated day.\">Stats for the day : Min (Max) or Averages</a></h3>
  <table class=\"wxdata\">
   <thead>
   <tr>
@@ -1189,6 +1189,7 @@ if ($debug =='1') {
             echo "$td_rain $metRain</td></tr>";
         }
     }
+    echo "<!-- (debug values) arch_int = $arch_interval ext_int = $ext_interval -->";
     echo "</tbody></table></div><!-- end snapshot observations -->";
     $db->close();
     unset($db);
