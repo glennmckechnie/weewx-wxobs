@@ -434,7 +434,7 @@ class wxobs(SearchList):
 
             # symlink database to new, offsite location (allows local usage)
             org_location = (self.sq_root+"/"+self.sq_dbase)
-            if self.wxobs_debug == 6:
+            if self.wxobs_debug == 2:
                 loginf("database \'symlink %s %s\'" % (org_location, new_location))
             if not os.path.isfile(new_location):
                 try:
