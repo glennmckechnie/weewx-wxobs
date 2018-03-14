@@ -26,7 +26,10 @@
 ##              nested directories on first pass. add tooltip
 ## 08-02-2018 Tweak display, add rsync_options (undocumented except in wxobs.py)
 ## 11-03-2018 Merge with the master branch - bump Version
-## Version 0.6.4
+## 12-03-2018 Bug fix -  was missing the creation of the local database symlink when
+##            using the remote feature.
+##
+## Version 0.6.5
 
    <!-- wxobs version $wxobs_version -->
    <!-- This weewx extension is available at github: https://github.com/glennmckechnie/weewx-wxobs -->
