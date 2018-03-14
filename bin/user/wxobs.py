@@ -428,8 +428,20 @@ class wxobs(SearchList):
             # preempt inevitable warning/exception when using test_sqlite = False
             self.sq_dbase = self.generator.config_dict['Databases'] \
                 [def_dbase].get('database_name')
+            new_location = (self.dest_dir+"/"+ self.sq_dbase)
             v_al = ["<?php\n $php_dbase = 'sqlite';\n $php_sqlite_db = '%s/%s';\n" %
                     (self.dest_dir, self.sq_dbase)]
+
+            # symlink database to new, offsite location (allows local usage)
+            org_location = (self.sq_root+"/"+self.sq_dbase)
+            if self.wxobs_debug == 6:
+                loginf("database \'symlink %s %s\'" % (org_location, new_location))
+            if not os.path.isfile(new_location):
+                try:
+                    os.symlink(org_location, new_location)
+                except OSError, e:
+                    logerr("error creating database symlink %s" % e)
+
             try:
                 if not os.access(self.include_file, os.W_OK):
                     os.makedirs(self.inc_path)
