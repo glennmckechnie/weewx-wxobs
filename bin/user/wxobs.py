@@ -359,7 +359,7 @@ class wxobs(SearchList):
 
         # used for rsync of sqlite databases and include file to remote machines
         self.dest_dir = self.generator.skin_dict['wxobs']['Remote'].get(
-            'dest_directory')
+            'dest_directory', '')
         if self.dest_dir:
             self.rsync_user = self.generator.skin_dict['wxobs']['Remote'].get(
                 'rsync_user')
@@ -441,8 +441,7 @@ class wxobs(SearchList):
         # in there and hopefully that will work for most users.
         # I use/prefer /tmp/wxobs_inc.inc
         inc_file = ("wxobs_%s.inc" % id_match)
-        #if self.dest_dir and self.rsync_user != '' and self.rsync_server != '':
-        if self.dest_dir:
+        if self.dest_dir != '':
             # we are rsyncing remotely
             # And going to change all the remote paths, the include_path has lost
             # its precedence.
@@ -481,7 +480,7 @@ class wxobs(SearchList):
                 'include_path', '/usr/share/php')
             self.include_file = ("%s/%s" % (self.inc_path, inc_file))
 
-        if self.send_inc:
+        if self.send_inc and self.dest_dir != '':
             php_inc = open(self.include_file, 'w')
             php_inc.writelines(v_al)
             if self.php_zone != '':
@@ -492,9 +491,8 @@ class wxobs(SearchList):
             php_inc.close()
 
 
-        # use rsync to transfer database remotely, ONLY if requested
-        if def_dbase == 'archive_sqlite' and self.rsync_user != ''  \
-                                          and self.rsync_server != '':
+        # use rsync to transfer database remotely, but ONLY if requested
+        if def_dbase == 'archive_sqlite' and self.dest_dir != '':
             # honor request to move destination directories (same for both)
             # create and redefine as appropriate
             if self.dest_dir:
