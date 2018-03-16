@@ -23,10 +23,10 @@ import weewx.engine
 from weeutil.weeutil import to_bool
 from weewx.cheetahgenerator import SearchList
 
-wxobs_version = "0.6.5"
+wxobs_version = "0.7.0"
 
 def logmsg(level, msg):
-    syslog.syslog(level, '%s' % msg)
+    syslog.syslog(level,'wxobs: %s' % msg)
 
 def loginf(msg):
     logmsg(syslog.LOG_INFO, msg)
@@ -54,7 +54,7 @@ def Rsync(rsync_user, rsync_server, rsync_options, rsync_loc_file, rsync_ssh_str
     try:
         # perform the actual rsync transfer...
         if wxobs_debug == 2:
-            loginf("wxobs: rsync cmd is ... %s" % (cmd))
+            loginf("rsync cmd is ... %s" % (cmd))
         #rsynccmd = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=True)
         rsynccmd = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         stdout = rsynccmd.communicate()[0]
@@ -68,7 +68,7 @@ def Rsync(rsync_user, rsync_server, rsync_options, rsync_loc_file, rsync_ssh_str
     except OSError, e:
             #print "EXCEPTION"
         if e.errno == errno.ENOENT:
-            logerr("wxobs: rsync does not appear to be installed on this system. \
+            logerr("rsync does not appear to be installed on this system. \
                    (errno %d, \"%s\")" % (e.errno, e.strerror))
         raise
 
@@ -94,10 +94,10 @@ def Rsync(rsync_user, rsync_server, rsync_options, rsync_loc_file, rsync_ssh_str
                 rsync_message = "rsync'd %s of %s files (%s) in %%0.2f seconds" % (Nsent, N, Nbytes)
             else:
                 rsync_message = "rsync executed in %0.2f seconds"
-            #loginf("wxobs: %s " % (rsync_message))
+            #loginf("%s " % (rsync_message))
         except:
             rsync_message = "rsync exception raised: executed in %0.2f seconds"
-            loginf("wxobs:  ERR %s " % (rsync_message))
+            loginf(" ERR %s " % (rsync_message))
     else:
         # suspect we have an rsync error so tidy stroutput
         # and display a message
@@ -108,9 +108,9 @@ def Rsync(rsync_user, rsync_server, rsync_options, rsync_loc_file, rsync_ssh_str
         rsync_message = "rsync command failed after %0.2f secs (set 'wxobs_debug = 2' in skin.conf),"
         if "code 1)" in stroutput:
             if wxobs_debug == 2:
-                logerr("wxobs: rsync code 1 - %s" % stroutput)
+                logerr("rsync code 1 - %s" % stroutput)
             rsync_message = "syntax error in rsync command - set debug = 1 - ! FIX ME !"
-            loginf("wxobs:  ERR %s " % (rsync_message))
+            loginf(" ERR %s " % (rsync_message))
             rsync_message = "code 1, syntax error, failed rsync executed in %0.2f seconds"
 
         elif ("code 23" and "Read-only file system") in stroutput:
@@ -118,23 +118,23 @@ def Rsync(rsync_user, rsync_server, rsync_options, rsync_loc_file, rsync_ssh_str
             # sadly, won't be detected until after first succesful transfer
             # but it's useful then!
             if wxobs_debug == 2:
-                logerr("wxobs: rsync code 23 - %s" % stroutput)
-            loginf("wxobs: ERR Read only file system ! FIX ME !")
+                logerr("rsync code 23 - %s" % stroutput)
+            loginf("ERR Read only file system ! FIX ME !")
             rsync_message = "code 23, read-only, rsync failed executed in %0.2f seconds"
         elif ("code 23" and "link_stat") in stroutput:
             # likely to be that a local path doesn't exist - possible typo?
             if wxobs_debug == 2:
-                logdbg("wxobs: rsync code 23 found %s" % stroutput)
+                logdbg("rsync code 23 found %s" % stroutput)
             rsync_message = "rsync code 23 : is %s correct? ! FIXME !" % (rsync_loc_file)
-            loginf("wxobs:  ERR %s " % rsync_message)
+            loginf(" ERR %s " % rsync_message)
             rsync_message = "code 23, link_stat, rsync failed executed in %0.2f seconds"
         elif "code 11" in stroutput:
             # directory structure at remote end is missing - needs creating
             # on this pass. Should be Ok on next pass.
             if wxobs_debug == 2:
-                loginf("wxobs: rsync code 11 - %s" % stroutput)
+                loginf("rsync code 11 - %s" % stroutput)
             rsync_message = "rsync code 11 found Creating %s as a fix?" % (rem_path)
-            loginf("wxobs: %s"  % rsync_message)
+            loginf("%s"  % rsync_message)
             # laborious but apparently necessary, the only way the command will run!?
             # build the ssh command - n.b:  spaces cause wobblies!
             cmd = ['ssh']
@@ -152,18 +152,18 @@ def Rsync(rsync_user, rsync_server, rsync_options, rsync_loc_file, rsync_ssh_str
 
         elif ("code 12") and ("Permission denied") in stroutput:
             if wxobs_debug == 2:
-                logdbg("wxobs: rsync code 12 - %s" % stroutput)
+                logdbg("rsync code 12 - %s" % stroutput)
             rsync_message = "Permission error in rsync command, probably at remote end authentication ! FIX ME !"
-            loginf("wxobs:  ERR %s " % (rsync_message))
+            loginf(" ERR %s " % (rsync_message))
             rsync_message = "code 12, rsync failed, executed in % 0.2f seconds"
         elif ("code 12") and ("No route to host") in stroutput:
             if wxobs_debug == 2:
-                logdbg("wxobs-rsync: rsync code 12 - %s" % stroutput)
+                logdbg("rsync code 12 - %s" % stroutput)
             rsync_message = "No route to host error in rsync command ! FIX ME !"
-            loginf("wxobs:  ERR %s " % (rsync_message))
+            loginf(" ERR %s " % (rsync_message))
             rsync_message = "code 12, rsync failed, executed in % 0.2f seconds"
         else:
-            logerr("ERROR: wxobs: rsync [%s] reported this error: %s" % (cmd, stroutput))
+            logerr("rsync [%s] reported this error: %s" % (cmd, stroutput))
 
     if log_success:
         if wxobs_debug == 0:
@@ -172,7 +172,7 @@ def Rsync(rsync_user, rsync_server, rsync_options, rsync_loc_file, rsync_ssh_str
         else:
             to = ' to '
         t2= time.time()
-        loginf("wxobs: %s" % rsync_message % (t2-t1) + to + rsync_ssh_str)
+        loginf("%s" % rsync_message % (t2-t1) + to + rsync_ssh_str)
 
 class wxobs(SearchList):
 
@@ -204,18 +204,13 @@ class wxobs(SearchList):
         If you send the files to another server you can change this path using
         dest_directory (which will affect the database also.)
 
-        ext_interval: is the spacing between records; 1800 is a half-hour
+        disp_interval: is the time between displayed records; 1800 is a half-hour
         and is the default
 
-        arch_interval: is the number of records to averge over. The default is
-        to use the weewx.conf value for archive_interval which will return the
-        equivalent of: one observation taken at that archive time.
-        You could choose to set another value?
-
-        The other alternative is to set the $arch_interval to be equal to the
-        value for $ext_interval. This will ensure that all records for the day
-        will be involved in the calcs and the average will be returned as the
-        result.
+        display_type: 'single' (default) or 'average'
+        Whether to return the timestamped entry for the value displayed in the
+        periodic Stats table (single), or average it over all the database
+        entries between it and the previous one that was displayed. (average)
 
         app_Temp: This is a recent addition to weewx and is not enabled by
         default. The calculation is performed but there is no field in the
@@ -233,6 +228,9 @@ class wxobs(SearchList):
         [[Remote]]
         This is used to transfer the include file and the database to a remote
         machine (as used in weewx.conf [FTP] or [RSYNC] section)
+	It will attempt to get the rsync user and server from the [RSYNC] section
+	of weewx.conf. If it can't do that it will then look in the wxobs/skin.conf
+	file and use those values
         rsync_user = user_name for rsync command
         rsync_machine = ip address of the remote machine
         send_include = True #This is the default, set to False if you don't want
@@ -303,13 +301,24 @@ class wxobs(SearchList):
         self.inc_path = self.generator.skin_dict['wxobs'].get(
             'include_path', '/usr/share/php')
 
-        self.ext_interval = self.generator.skin_dict['wxobs'].get(
-            'ext_interval', '1800')
-        self.arch_interval = self.generator.skin_dict['wxobs'].get(
-            'arch_interval')
-        if not self.arch_interval:
-            self.arch_interval = self.generator.config_dict['StdArchive'] \
+        # intervals for display of results
+        self.disp_interval = self.generator.skin_dict['wxobs'].get(
+            'display_interval', '1800')
+        self.arch_interval = self.generator.config_dict['StdArchive'] \
                 .get('archive_interval')
+        # now decide whether intermediate reading will be averaged or ignored.
+        self.display_type = self.generator.skin_dict['wxobs'].get(
+            'display_type', 'single')
+        if self.display_type == 'single':
+            self.disp_single = to_bool(True)
+#            loginf("              %s single readings, %s " % (self.disp_single, self.display_type))
+        elif self.display_type == 'average':
+            self.disp_single = to_bool(False)
+            self.arch_interval = self.disp_interval
+#            loginf("              %s average readings, %s " % (self.disp_single, self.display_type))
+        else:
+#            loginf("                reverting to single readings, %s is not an option" % self.display_type)
+            self.disp_single = to_bool(True)
         self.app_temp = self.generator.skin_dict['wxobs'].get(
             'app_Temp', 'windchill')
         self.php_zone = self.generator.skin_dict['wxobs'].get(
@@ -347,11 +356,26 @@ class wxobs(SearchList):
         self.targ_unit = self.generator.config_dict['StdConvert'].get(
             'target_unit')
 
-        # used for sqlite databases transfer to remote machines
-        self.rsync_user = self.generator.skin_dict['wxobs']['Remote'].get(
-            'rsync_user', '')
-        self.rsync_server = self.generator.skin_dict['wxobs']['Remote'].get(
-            'rsync_machine', '')
+        # used for rsync of sqlite databases and include file to remote machines
+        self.rsync_run = to_bool(self.generator.skin_dict['wxobs']['Remote'].get(
+            'rsync_wxobsdata', True))
+        if self.rsync_run:
+            self.rsync_user = self.generator.skin_dict['wxobs']['Remote'].get(
+                'rsync_user')
+            loginf("RSYNC user is %s"  % self.rsync_user)
+            if not self.rsync_user:
+                self.rsync_user = self.generator.config_dict['StdReport']['RSYNC'].get(
+                    'user', 'missing_rsync_user')
+                loginf("rsync user is %s"  % self.rsync_user)
+
+            self.rsync_server = self.generator.skin_dict['wxobs']['Remote'].get(
+                'rsync_machine')
+            loginf("RSYNC server is %s"  % self.rsync_server)
+            if not self.rsync_server:
+                self.rsync_server = self.generator.config_dict['StdReport']['RSYNC'].get(
+                    'server','missing_rsync_user')
+                loginf("rsync server is %s"  % self.rsync_server)
+
         self.rsync_options = self.generator.skin_dict['wxobs']['Remote'].get(
             'rsync_options', '-ac')
         self.log_success = to_bool(self.generator.skin_dict['wxobs']['Remote'].get(
@@ -418,7 +442,8 @@ class wxobs(SearchList):
         # in there and hopefully that will work for most users.
         # I use/prefer /tmp/wxobs_inc.inc
         inc_file = ("wxobs_%s.inc" % id_match)
-        if self.dest_dir and self.rsync_user != '' and self.rsync_server != '':
+        #if self.dest_dir and self.rsync_user != '' and self.rsync_server != '':
+	if self.dest_dir and self.rsync_run:
             # we are rsyncing remotely
             # And going to change all the remote paths, the include_path has lost
             # its precedence.
@@ -463,7 +488,7 @@ class wxobs(SearchList):
             if self.php_zone != '':
                 t_z = (" ini_set(\"date.timezone\", \"%s\");" % self.php_zone)
                 if self.wxobs_debug == 2:
-                    loginf("wxobs: timezone is set to %s" % t_z)
+                    loginf("timezone is set to %s" % t_z)
                 php_inc.write(t_z)
             php_inc.close()
 
