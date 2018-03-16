@@ -25,11 +25,14 @@
 ## 06-02-2018 allow both files to be moved as a set, to any writable position, create
 ##              nested directories on first pass. add tooltip
 ## 08-02-2018 Tweak display, add rsync_options (undocumented except in wxobs.py)
-## 11-03-2018 Merge with the master branch - bump Version
+## 11-03-2018 Merge with the master branch - bump Version v0.6.4
 ## 12-03-2018 Bug fix -  was missing the creation of the local database symlink when
-##            using the remote feature.
+##            using the remote feature. v0.6.5
+## 15-03-2018 Simplify logic, and explanation, for single and average capabilty of
+##            the displayed, Periodic Stats table values.
 ##
-## Version 0.6.5
+##
+## Version 0.7.0
 
    <!-- wxobs version $wxobs_version -->
    <!-- This weewx extension is available at github: https://github.com/glennmckechnie/weewx-wxobs -->
@@ -338,15 +341,6 @@ function deltaT($Tc, $RH, $P, $debug)
     $E = (6.11 * pow(10, (7.5 * $Tdc / (237.7 + $Tdc))));
     $WBc = (((0.00066 * $P) * $Tc) + ((4098 * $E) / (pow(($Tdc + 237.7), 2))
         * $Tdc)) / ((0.00066 * $P) + (4098 * $E) / (pow(($Tdc + 237.7), 2)));
-    //        ((2.5 + 0.007 * $Tc) * (1 - (0.01 * $RH))) ** 3 -
-    //        (15.9 + 0.117 * $Tc) * (1 - (0.01 * $RH)) ** 14));
-    //    $E = (6.11 * 10 ** (7.5 * $Tdc / (237.7 + $Tdc)));
-    //    $WBc = (((0.00066 * $P) * $Tc) + ((4098 * $E) / (($Tdc + 237.7) ** 2)
-    //        * $Tdc)) / ((0.00066 * $P) + (4098 * $E) / (($Tdc + 237.7) ** 2));
-    // $WetBulb = "%.1f" % $WBc + $unit.label.outTemp
-    // $WetBulb = "%.1f" % ($WBc*9/5+32) + $unit.label.outTemp // degrees F
-    //echo "Tdc = $Tdc E = $E WBc = $WBc :: T=$Tc : RH=$RH : P=$P<br>";
-    //$DeltaT = $Tc - $WBc;
     $dT = abs(round($Tc - $WBc, 1));
 }
 
@@ -367,28 +361,27 @@ function theader($avflag)
 
 $debug='$wxobs_debug';
 $tr_bgrnd="";
-//global $label_plc;
 
 // Attempt to get some meaningful table headings, dependent on xxx_interval options
-if ('$arch_interval' === '$ext_interval') {
-    $tflag="Total";
-    $avflag="(Average)";
-    $iflag=" (averaged over each interval)";
-} else {
+if ($disp_single) { //single
     $tflag="";
     $avflag="";
-    $iflag=" (as single readings)";
+    $iflag=" (as $display_type readings)";
+} else {
+    $tflag="Total";
+    $avflag="(Average)";
+    $iflag=" ($display_type over each interval)";
 }
 
 // then define a bunch of long strings for use in <th> @ 3 locations
 
 if ($php_dbase === 'mysql') {
     $st_date = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"".
-              "Date (in day-month-year format) and Time.\">".
+              "Date (in day-month-year format) and Time\">".
               "Date&nbsp;&nbsp;&nbsp;&nbsp; Time</a></th>";
 } elseif ($php_dbase === 'sqlite') {
     $st_date = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"".
-              "Date (in year-month-day format) and Time.\">".
+              "Date (in year-month-day format) and Time\">".
               "Date&nbsp;&nbsp;&nbsp;&nbsp; Time</a></th>";
 }
 
@@ -460,7 +453,7 @@ if ('$app_temp' === 'appTemp') {
 }
 
 if ($debug=='1') {
-    echo "<p class=\"debug\">ext_interval is $ext_interval <br>".
+    echo "<p class=\"debug\">disp_interval is $disp_interval <br>".
          "arch_interval is $arch_interval<br> appTemp is defined ".
          "as $app_temp with $app_label used as the units.</p>";
 }
@@ -679,12 +672,6 @@ if ($debug =='1') {
     }
 
 
-    /*    if (date_default_timezone_get()) {
-    *       echo 'date_default_timezone_set: ' . date_default_timezone_get() . '<br />';
-    *       $systemTimeZone = system('date +%Z');
-    *   echo "System TimeZone is $systemTimeZone <br>";
-    *   }
-    */
     //Create Latest table headers - ugly layout but ok in html source
     echo "<div class=\"wxdata\">\n<!-- start data tables -->\n
  <H2><A Title=\"Todays latest weather observations, at the displayed time.\">Latest Observations</a></h2>
@@ -767,15 +754,12 @@ if ($debug =='1') {
     if (!empty($_REQUEST['datepicker'])) {
         $m_numb = '';
         list ($dd, $m_nth, $yy)  = explode("-", $_REQUEST['datepicker']);
-        //echo "<br>STARTing as m_nth = $m_nth : m_numb = $m_numb<br>";
-        //var_dump((strlen($m_nth))==3);
         // should be in short month format
         if ((strlen($m_nth))==3) {
             for ($i=1; $i<=12; $i++) {
                 //var_dump((strtolower(date("M", mktime(0, 0, 0, $i, 1, 0))) == strtolower($m_nth)));
                 if (strtolower(date("M", mktime(0, 0, 0, $i, 1, 0))) == strtolower($m_nth)) {
                     $m_numb = $i;
-                    //echo "<br>m_nth = $m_nth : m_numb = $m_numb = $i<br>";
                     break;
                 }
             }
@@ -793,12 +777,10 @@ if ($debug =='1') {
         $m_numb = intval($m_numb);
         $dd = intval($dd);
         $yy = intval($yy);
-        //echo "<br><br>Valid & intval:  yy = (checkdate($m_numb, $dd, $yy))<br>";
         if (checkdate($m_numb, $dd, $yy)) {
             // Datepicker returned a valid date, we'll now use the sanitized inputs
             // to reconstruct the date. We will ignore the datepicker input in case an
             // injection attempt was made
-            //$pick_start =  strtotime($_REQUEST['datepicker']);
             $pick_start = mktime('0', '0', '0', $m_numb, $dd, $yy);
             if ($debug =='1') {
                 echo "<p class=\"debug\">Min (Max)<br> Datepicker returned ",
@@ -859,7 +841,6 @@ if ($debug =='1') {
         }
         // include up to the actual $start_label a.m. value
         if ($latest_date <= $today_nine) {
-            //echo "} elseif ".hDate($latest_date)." ($latest_date < $today_nine) {". hDate($today_nine)."<br>";
             $rain_start = $past_nine;
             $rain_end = $past_nine + 86400;
             $t_span = "(since $start_label a.m.)";
@@ -868,7 +849,6 @@ if ($debug =='1') {
                        hDate($rain_start). "\">";
             // start from the $start_label a.m. value
         } elseif ($latest_date > $today_nine) {
-            //echo "} elseif ".hDate($latest_date)." ($latest_date >= $today_nine) {". hDate($today_nine)."<br>";
             $rain_start =$today_nine;
             $rain_end = $today_nine + 86400;
             $t_span = "(since $start_label a.m.)";
@@ -933,7 +913,6 @@ if ($debug =='1') {
     }
     /* Return day-month-year only */
     $this_day = date('d-M-Y', $pick_start);
-    /* $minmax_day = date('d-m-Y'); */
 
     if ($debug == '1') {
         echo "Min Max:<br> latest date = ", hDate($latest_date), " : day_start = ",
@@ -959,7 +938,8 @@ if ($debug =='1') {
  <table class=\"wxdata\">
   <thead>
   <tr>
-   $st_date \n   $st_temp
+    <th class=\"wxheadr\" rowspan=\"2\"><a title=\"Date (in day-month-year format)\">Date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></th>
+    \n   $st_temp
    <th class=\"wxheadr\" rowspan=\"2\">$appLabel<br>$app_label</th>
    $st_dew \n   $st_rh \n   $st_wind \n   $st_baro 
    $st_rain $tflag Rain<br>$t_span<br>$unit.label.rain</a></th>
@@ -1048,12 +1028,12 @@ if ($debug =='1') {
   </tr>
  </thead><tbody>";
 
-    // extract data for each ext_interval - reverse order (latest at top)
-    $c_ycle=(86400/$ext_interval);
+    // extract data for each disp_interval - reverse order (latest at top)
+    $c_ycle=(86400/$disp_interval);
     // this may appear to include an extra interval - midnight to midnight.
     // but we're counting panels, not fence posts. ie: It's correct.
     for ($t=$c_ycle; $t>=0; $t--) {
-        $start_time = $pick_start + ($t*'$ext_interval');
+        $start_time = $pick_start + ($t*'$disp_interval');
         $end_interval = $start_time + '$arch_interval';
 
         if ($shift_rain) {
@@ -1128,7 +1108,6 @@ if ($debug =='1') {
             $rain_row = $rain_avg->fetchArray();
         }
         // temporary debug for wind / CALM substitution
-        // echo "$row[0], temp = $row[1], speed = $row[5],  direction = $row[7]<br>";
         if ($tr_bgrnd != "wxhint") {
             $tr_bgrnd = "wxhint";
         } else {
@@ -1192,7 +1171,7 @@ if ($debug =='1') {
             echo "$td_rain $metRain</td></tr>";
         }
     }
-    echo "<!-- (debug values) arch_int = $arch_interval ext_int = $ext_interval -->";
+    echo "<!-- (debug values) arch_int = $arch_interval disp_int = $disp_interval -->";
     echo "</tbody></table></div><!-- end snapshot observations -->";
     $db->close();
     unset($db);
@@ -1200,4 +1179,5 @@ if ($debug =='1') {
     $end = microtime(true);
     $creationtime = round(($end - $start), 2);
     echo "<p class=\"footnote\">Time taken to generate page was $creationtime seconds.</p>";
+ echo "<b>display_int = $disp_interval &amp; arch_int = $arch_interval</b>";
     ?>
