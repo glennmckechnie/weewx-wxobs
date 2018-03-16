@@ -1179,5 +1179,5 @@ if ($debug =='1') {
     $end = microtime(true);
     $creationtime = round(($end - $start), 2);
     echo "<p class=\"footnote\">Time taken to generate page was $creationtime seconds.</p>";
- echo "<b>display_int = $disp_interval &amp; arch_int = $arch_interval</b>";
+ echo "<b>display_type = $display_type <br>display_int = $disp_interval &amp; arch_int = $arch_interval</b>";
     ?>
