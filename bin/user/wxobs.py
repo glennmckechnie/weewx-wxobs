@@ -226,22 +226,23 @@ class wxobs(SearchList):
         timezone = Melbourne/Australia
 
         [[Remote]]
-        This is used to transfer the include file and the database to a remote
-        machine (as used in weewx.conf [FTP] or [RSYNC] section)
-	It will attempt to get the rsync user and server from the [RSYNC] section
-	of weewx.conf. If it can't do that it will then look in the wxobs/skin.conf
-	file and use those values
-        rsync_user = user_name for rsync command
-        rsync_machine = ip address of the remote machine
+        This is used whe you want to transfer the include file and the database
+        to a remote machine (the web files are sent seperately with the 
+        weewx.conf [FTP] or [RSYNC] section.
+        dest_directory: is the switch that turns this on to transfer BOTH the
+        include and database files to the same directory as specified with this.
+        If using multiple databases and include files make sure they are unique
+        if you are transferring from multiple machine. rename as appropriate.
+        It will fetch the rsync user and server from the wxobs/skin.conf file
+        and use those values or if they are missing then it will use the values
+        from the [RSYNC] section of weewx.conf.
+        rsync_user (user) = user_name for rsync command
+        rsync_server (server)= ip address of the remote machine
         send_include = True #This is the default, set to False if you don't want
         to send the include file repeatedly to the server. Use with caution
         (ie: remember this setting when things stop working, it might be the cure)
         rsync_options: Not documented in the skin.conf Default is '-ac'. Use with,
         caution and no spaces allowed.
-        dest_directory: An option to allow transfer of BOTH include and database
-        files to the same directory as specified with this. If using multiple
-        databases and include files make sure they are unique if you are
-        transferring from multiple machine.
 
         [[RainTiming]]
         shift_rain: For rain accounting times other than midnight to midnight
@@ -357,31 +358,29 @@ class wxobs(SearchList):
             'target_unit')
 
         # used for rsync of sqlite databases and include file to remote machines
-        self.rsync_run = to_bool(self.generator.skin_dict['wxobs']['Remote'].get(
-            'rsync_wxobsdata', True))
-        if self.rsync_run:
+        self.dest_dir = self.generator.skin_dict['wxobs']['Remote'].get(
+            'dest_directory')
+        if self.dest_dir:
             self.rsync_user = self.generator.skin_dict['wxobs']['Remote'].get(
                 'rsync_user')
-            loginf("RSYNC user is %s"  % self.rsync_user)
+            loginf("rsync user is %s"  % self.rsync_user)
             if not self.rsync_user:
                 self.rsync_user = self.generator.config_dict['StdReport']['RSYNC'].get(
                     'user', 'missing_rsync_user')
-                loginf("rsync user is %s"  % self.rsync_user)
+                loginf("RSYNC user is %s"  % self.rsync_user)
 
             self.rsync_server = self.generator.skin_dict['wxobs']['Remote'].get(
-                'rsync_machine')
-            loginf("RSYNC server is %s"  % self.rsync_server)
+                'rsync_server')
+            loginf("rsync server is %s"  % self.rsync_server)
             if not self.rsync_server:
                 self.rsync_server = self.generator.config_dict['StdReport']['RSYNC'].get(
                     'server','missing_rsync_user')
-                loginf("rsync server is %s"  % self.rsync_server)
+                loginf("RSYNC server is %s"  % self.rsync_server)
 
         self.rsync_options = self.generator.skin_dict['wxobs']['Remote'].get(
             'rsync_options', '-ac')
         self.log_success = to_bool(self.generator.skin_dict['wxobs']['Remote'].get(
             'log_success', True))
-        self.dest_dir = self.generator.skin_dict['wxobs']['Remote'].get(
-            'dest_directory', '')
 
 
         # prepare the database details and write the include file
@@ -443,7 +442,7 @@ class wxobs(SearchList):
         # I use/prefer /tmp/wxobs_inc.inc
         inc_file = ("wxobs_%s.inc" % id_match)
         #if self.dest_dir and self.rsync_user != '' and self.rsync_server != '':
-	if self.dest_dir and self.rsync_run:
+        if self.dest_dir:
             # we are rsyncing remotely
             # And going to change all the remote paths, the include_path has lost
             # its precedence.
