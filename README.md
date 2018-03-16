@@ -1,6 +1,6 @@
 
 
-**Update: March 2018**  ---  Available as [release 0.6.5](https://github.com/glennmckechnie/weewx-wxobs/releases/tag/v0.6.5)
+**Update: March 2018**  ---  Available as [release 0.6.5](https://github.com/glennmckechnie/weewx-wxobs/releases)
 
 The 'remote' branch has now been merged with the master branch. (bumped to version 0.6.5, with its bugfix! )
 
