@@ -225,6 +225,12 @@ class wxobs(SearchList):
         indicates.  Replace the string with your zone description
         timezone = Melbourne/Australia
 
+        self.php_error: enable php error messages in index.php.
+        This maybe useful at the start of configuration, it shouldn't be
+        needed after everything is running smoothly
+        default is False. set to True to enable this to be sent via the
+        include file.
+
         [[Remote]]
         This is used whe you want to transfer the include file and the database
         to a remote machine (the web files are sent seperately with the 
@@ -299,8 +305,8 @@ class wxobs(SearchList):
 
         self.send_inc = to_bool(self.generator.skin_dict['wxobs'].get(
             'send_include', True))
-        self.inc_path = self.generator.skin_dict['wxobs'].get(
-            'include_path', '/usr/share/php')
+        #self.inc_path = self.generator.skin_dict['wxobs'].get(
+        #    'include_path', '/usr/share/php')
 
         # intervals for display of results
         self.disp_interval = self.generator.skin_dict['wxobs'].get(
@@ -324,6 +330,8 @@ class wxobs(SearchList):
             'app_Temp', 'windchill')
         self.php_zone = self.generator.skin_dict['wxobs'].get(
             'timezone', '')
+        self.php_error = to_bool(self.generator.skin_dict['wxobs'].get(
+            'show_php_errors', False))
         self.show_warning = to_bool(self.generator.skin_dict['wxobs']['DeltaT'] \
             .get('show_warning', True))
         self.want_delta = to_bool(self.generator.skin_dict['wxobs']['DeltaT'] \
@@ -362,25 +370,32 @@ class wxobs(SearchList):
             'dest_directory', '')
         if self.dest_dir:
             self.rsync_user = self.generator.skin_dict['wxobs']['Remote'].get(
-                'rsync_user')
+                'rsync_user', '')
             loginf("rsync user is %s"  % self.rsync_user)
             if not self.rsync_user:
                 self.rsync_user = self.generator.config_dict['StdReport']['RSYNC'].get(
-                    'user', 'missing_rsync_user')
+                    'user', '')
                 loginf("RSYNC user is %s"  % self.rsync_user)
 
             self.rsync_server = self.generator.skin_dict['wxobs']['Remote'].get(
-                'rsync_server')
+                'rsync_server', '')
             loginf("rsync server is %s"  % self.rsync_server)
             if not self.rsync_server:
                 self.rsync_server = self.generator.config_dict['StdReport']['RSYNC'].get(
-                    'server','missing_rsync_user')
+                    'server', '')
                 loginf("RSYNC server is %s"  % self.rsync_server)
-
-        self.rsync_options = self.generator.skin_dict['wxobs']['Remote'].get(
-            'rsync_options', '-ac')
-        self.log_success = to_bool(self.generator.skin_dict['wxobs']['Remote'].get(
-            'log_success', True))
+            # did we get anything that we can use?
+            if not self.rsync_user or not self.rsync_server:
+                self.dest_dir = ''
+                loginf("self.dest_dir is %s" % self.dest_dir)
+            else:
+                # we did so we need these...
+                self.rsync_options = self.generator.skin_dict['wxobs']['Remote'].get(
+                    'rsync_options', '-ac')
+                self.log_success = to_bool(self.generator.skin_dict['wxobs']['Remote'].get(
+                    'log_success', True))
+                loginf("self.dest_dir is %s" % self.dest_dir)
+                pass
 
 
         # prepare the database details and write the include file
@@ -442,6 +457,12 @@ class wxobs(SearchList):
         # I use/prefer /tmp/wxobs_inc.inc
         inc_file = ("wxobs_%s.inc" % id_match)
         if self.dest_dir != '':
+            # create an empty index.html to obscure directory listing
+            # also create .htaccess ??
+            self.zero_html = self.dest_dir+"/index.html"
+            if not os.path.isfile(self.zero.html):
+                with open(self.zero_html, 'a') as z:  # Create file if does not exist
+                    pass # and auto close it
             # we are rsyncing remotely
             # And going to change all the remote paths, the include_path has lost
             # its precedence.
@@ -451,11 +472,13 @@ class wxobs(SearchList):
             # preempt inevitable warning/exception when using test_sqlite = False
             self.sq_dbase = self.generator.config_dict['Databases'] \
                 [def_dbase].get('database_name')
+
             new_location = (self.dest_dir+"/"+ self.sq_dbase)
             v_al = ["<?php\n $php_dbase = 'sqlite';\n $php_sqlite_db = '%s/%s';\n" %
                     (self.dest_dir, self.sq_dbase)]
 
-            # symlink database to new, offsite location (allows local usage)
+            # symlink database to new location here, which will be mirrored on the
+            # remote serve. This rallows local usage of wxobs as well as remote
             org_location = (self.sq_root+"/"+self.sq_dbase)
             if self.wxobs_debug == 2:
                 loginf("database \'symlink %s %s\'" % (org_location, new_location))
@@ -488,6 +511,13 @@ class wxobs(SearchList):
                 if self.wxobs_debug == 2:
                     loginf("timezone is set to %s" % t_z)
                 php_inc.write(t_z)
+            if self.php_error:
+                php_err = "ini_set(\'display_errors\', 1);\n \
+                          ini_set(\'display_startup_errors\', 1);\n \
+                          error_reporting(E_ALL);"
+                if self.wxobs_debug == 2:
+                    loginf("php error reporting is set: %s" % php_err)
+                php_inc.writelines(php_err)
             php_inc.close()
 
 
