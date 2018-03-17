@@ -37,7 +37,7 @@ def logerr(msg):
 def logdbg(msg):
     logmsg(syslog.LOG_DEBUG, msg)
 
-def Rsync(rsync_user, rsync_server, rsync_options, rsync_loc_file, rsync_ssh_str, rem_path, wxobs_debug, log_success):
+def Rsync(rsync_user, rsync_server, rsync_options, rsync_loc_file, rsync_loc_file2, rsync_ssh_str, rem_path, wxobs_debug, log_success):
 
     t1 = time.time()
     # construct the command argument
@@ -49,6 +49,7 @@ def Rsync(rsync_user, rsync_server, rsync_options, rsync_loc_file, rsync_ssh_str
     cmd.extend(["--stats"])
     cmd.extend(["--compress"])
     cmd.extend([rsync_loc_file])
+    cmd.extend([rsync_loc_file2])
     cmd.extend([rsync_ssh_str])
 
     try:
@@ -371,30 +372,24 @@ class wxobs(SearchList):
         if self.dest_dir:
             self.rsync_user = self.generator.skin_dict['wxobs']['Remote'].get(
                 'rsync_user', '')
-            loginf("rsync user is %s"  % self.rsync_user)
             if not self.rsync_user:
                 self.rsync_user = self.generator.config_dict['StdReport']['RSYNC'].get(
                     'user', '')
-                loginf("RSYNC user is %s"  % self.rsync_user)
 
             self.rsync_server = self.generator.skin_dict['wxobs']['Remote'].get(
                 'rsync_server', '')
-            loginf("rsync server is %s"  % self.rsync_server)
             if not self.rsync_server:
                 self.rsync_server = self.generator.config_dict['StdReport']['RSYNC'].get(
                     'server', '')
-                loginf("RSYNC server is %s"  % self.rsync_server)
             # did we get anything that we can use?
             if not self.rsync_user or not self.rsync_server:
                 self.dest_dir = ''
-                loginf("self.dest_dir is %s" % self.dest_dir)
             else:
                 # we did so we need these...
                 self.rsync_options = self.generator.skin_dict['wxobs']['Remote'].get(
                     'rsync_options', '-ac')
                 self.log_success = to_bool(self.generator.skin_dict['wxobs']['Remote'].get(
                     'log_success', True))
-                loginf("self.dest_dir is %s" % self.dest_dir)
                 pass
 
 
@@ -458,15 +453,15 @@ class wxobs(SearchList):
         inc_file = ("wxobs_%s.inc" % id_match)
         if self.dest_dir != '':
             # create an empty index.html to obscure directory listing
-            # also create .htaccess ??
             self.zero_html = self.dest_dir+"/index.html"
-            if not os.path.isfile(self.zero.html):
+            if not os.path.exists(self.dest_dir):
+                os.makedirs(self.dest_dir, 0755)
+            if not os.path.isfile(self.zero_html):
                 with open(self.zero_html, 'a') as z:  # Create file if does not exist
                     pass # and auto close it
             # we are rsyncing remotely
             # And going to change all the remote paths, the include_path has lost
             # its precedence.
-            #loginf("self.dest_dir is TRUE - %s " % self.dest_dir)
             self.inc_path = self.dest_dir
             self.include_file = ("%s/%s" % (self.inc_path, inc_file))
             # preempt inevitable warning/exception when using test_sqlite = False
@@ -474,15 +469,15 @@ class wxobs(SearchList):
                 [def_dbase].get('database_name')
 
             new_location = (self.dest_dir+"/"+ self.sq_dbase)
-            v_al = ["<?php\n $php_dbase = 'sqlite';\n $php_sqlite_db = '%s/%s';\n" %
+            v_al = ["<?php\n $php_dbase = 'sqlite';\n $php_sqlite_db = '%s/%s';" %
                     (self.dest_dir, self.sq_dbase)]
 
             # symlink database to new location here, which will be mirrored on the
             # remote serve. This rallows local usage of wxobs as well as remote
             org_location = (self.sq_root+"/"+self.sq_dbase)
-            if self.wxobs_debug == 2:
-                loginf("database \'symlink %s %s\'" % (org_location, new_location))
             if not os.path.isfile(new_location):
+                if self.wxobs_debug == 2:
+                    loginf("database, attempting to \'symlink %s %s\'" % (org_location, new_location))
                 try:
                     os.symlink(org_location, new_location)
                 except OSError, e:
@@ -498,7 +493,6 @@ class wxobs(SearchList):
             # All other cases, local or remote...
             # we are going to retain the defaults values, maybe a slight tweak.
             # use the skin.conf include_path, either default or the override.
-            #loginf("self.dest_dir is FALSE - %s " % self.dest_dir)
             self.inc_path = self.generator.skin_dict['wxobs'].get(
                 'include_path', '/usr/share/php')
             self.include_file = ("%s/%s" % (self.inc_path, inc_file))
@@ -507,14 +501,14 @@ class wxobs(SearchList):
             php_inc = open(self.include_file, 'w')
             php_inc.writelines(v_al)
             if self.php_zone != '':
-                t_z = (" ini_set(\"date.timezone\", \"%s\");" % self.php_zone)
+                t_z = ("\n ini_set(\"date.timezone\", \"%s\");" % self.php_zone)
                 if self.wxobs_debug == 2:
                     loginf("timezone is set to %s" % t_z)
                 php_inc.write(t_z)
             if self.php_error:
-                php_err = "ini_set(\'display_errors\', 1);\n \
-                          ini_set(\'display_startup_errors\', 1);\n \
-                          error_reporting(E_ALL);"
+                php_err = "\n ini_set(\'display_errors\', 1); \
+                           \n ini_set(\'display_startup_errors\', 1); \
+                           \n error_reporting(E_ALL);"
                 if self.wxobs_debug == 2:
                     loginf("php error reporting is set: %s" % php_err)
                 php_inc.writelines(php_err)
@@ -532,14 +526,15 @@ class wxobs(SearchList):
             db_ssh_str = "%s@%s:%s/" % (self.rsync_user, self.rsync_server,
                                         self.sq_root)
             Rsync(self.rsync_user, self.rsync_server, self.rsync_options,
-                  db_loc_file, db_ssh_str, self.sq_root, self.wxobs_debug,
-                  self.log_success)
+                  db_loc_file, self.zero_html, db_ssh_str, self.sq_root,
+                  self.wxobs_debug, self.log_success)
 
             if self.send_inc:
-                # perform include file transfer if wanted
+                # perform include file transfer if wanted, zero_html just
+                #fills a slot here.
                 inc_loc_file = "%s" % (self.include_file)
                 inc_ssh_str = "%s@%s:%s/" % (self.rsync_user, self.rsync_server,
                                              self.inc_path)
                 Rsync(self.rsync_user, self.rsync_server, self.rsync_options,
-                      inc_loc_file, inc_ssh_str, self.inc_path, self.wxobs_debug,
-                      self.log_success)
+                      inc_loc_file, self.zero_html, inc_ssh_str, self.inc_path,
+                      self.wxobs_debug, self.log_success)
