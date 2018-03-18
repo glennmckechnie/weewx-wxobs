@@ -37,9 +37,20 @@ def logerr(msg):
 def logdbg(msg):
     logmsg(syslog.LOG_DEBUG, msg)
 
-def Rsync(rsync_user, rsync_server, rsync_options, rsync_loc_file, rsync_loc_file2, rsync_ssh_str, rem_path, wxobs_debug, log_success):
+def wxrsync(rsync_user, rsync_server, rsync_options, rsync_loc_file, rsync_loc_file2, rsync_ssh_str, rem_path, wxobs_debug, log_success):
+    """
+    rsync_user
+    rsync_server
+    rsync_options
+    rsync_loc_file
+    rsync_loc_file2 # maybe empty
+    rsync_ssh_str
+    rem_path
+    wxobs_debug
+    log_success
+    """
 
-    t1 = time.time()
+    t_1 = time.time()
     # construct the command argument
     cmd = ['rsync']
     cmd.extend([rsync_options])
@@ -56,8 +67,10 @@ def Rsync(rsync_user, rsync_server, rsync_options, rsync_loc_file, rsync_loc_fil
         # perform the actual rsync transfer...
         if wxobs_debug == 2:
             loginf("rsync cmd is ... %s" % (cmd))
-        #rsynccmd = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=True)
-        rsynccmd = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        #rsynccmd = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+        #                             stderr=subprocess.STDOUT, close_fds=True)
+        rsynccmd = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT)
         stdout = rsynccmd.communicate()[0]
         stroutput = stdout.encode("utf-8").strip()
         #rsyncpid = rsynccmd.pid
@@ -85,19 +98,21 @@ def Rsync(rsync_user, rsync_server, rsync_options, rsync_loc_file, rsync_loc_fil
         # appropriate message
         try:
             if 'Number of regular files transferred' in rsyncinfo:
-                N = rsyncinfo['Number of regular files transferred']
+                n_ber = rsyncinfo['Number of regular files transferred']
             else:
-                N = rsyncinfo['Number of files transferred']
+                n_ber = rsyncinfo['Number of files transferred']
 
-            Nbytes = rsyncinfo['Total file size']
-            Nsent = rsyncinfo['Literal data']
-            if N is not None and Nbytes is not None:
-                rsync_message = "rsync'd %s of %s files (%s) in %%0.2f seconds" % (Nsent, N, Nbytes)
+            n_bytes = rsyncinfo['Total file size']
+            n_sent = rsyncinfo['Literal data']
+            if n_ber is not None and n_bytes is not None:
+                rsync_message = ("rsync'd %s of %s files (%s) in"
+                                 "%%0.2f seconds" % (n_sent, n_ber, n_bytes))
             else:
                 rsync_message = "rsync executed in %0.2f seconds"
             #loginf("%s " % (rsync_message))
         except:
-            rsync_message = "rsync exception raised: executed in %0.2f seconds"
+            rsync_message = ("rsync exception raised:"
+                             "executed in %0.2f seconds")
             loginf(" ERR %s " % (rsync_message))
     else:
         # suspect we have an rsync error so tidy stroutput
@@ -106,13 +121,16 @@ def Rsync(rsync_user, rsync_server, rsync_options, rsync_loc_file, rsync_loc_fil
         stroutput = stroutput.replace("\r", "")
         # Attempt to catch a few errors that may occur and deal with them
         # see man rsync for EXIT VALUES
-        rsync_message = "rsync command failed after %0.2f secs (set 'wxobs_debug = 2' in skin.conf),"
+        rsync_message = ("rsync command failed after %0.2f secs (set"
+                         "set 'wxobs_debug = 2' in skin.conf),")
         if "code 1)" in stroutput:
             if wxobs_debug == 2:
                 logerr("rsync code 1 - %s" % stroutput)
-            rsync_message = "syntax error in rsync command - set debug = 1 - ! FIX ME !"
+            rsync_message = ('syntax error in rsync command'
+                             '- set debug = 1 - ! FIX ME !')
             loginf(" ERR %s " % (rsync_message))
-            rsync_message = "code 1, syntax error, failed rsync executed in %0.2f seconds"
+            rsync_message = ("code 1, syntax error, failed"
+                             " rsync executed in %0.2f seconds")
 
         elif ("code 23" and "Read-only file system") in stroutput:
             # read-only file system
@@ -121,23 +139,27 @@ def Rsync(rsync_user, rsync_server, rsync_options, rsync_loc_file, rsync_loc_fil
             if wxobs_debug == 2:
                 logerr("rsync code 23 - %s" % stroutput)
             loginf("ERR Read only file system ! FIX ME !")
-            rsync_message = "code 23, read-only, rsync failed executed in %0.2f seconds"
+            rsync_message = ("code 23, read-only, rsync failed"
+                             " executed in %0.2f seconds")
         elif ("code 23" and "link_stat") in stroutput:
             # likely to be that a local path doesn't exist - possible typo?
             if wxobs_debug == 2:
                 logdbg("rsync code 23 found %s" % stroutput)
-            rsync_message = "rsync code 23 : is %s correct? ! FIXME !" % (rsync_loc_file)
+            rsync_message = ("rsync code 23 : is %s correct?"
+                             "! FIXME !" % (rsync_loc_file))
             loginf(" ERR %s " % rsync_message)
-            rsync_message = "code 23, link_stat, rsync failed executed in %0.2f seconds"
+            rsync_message = ("code 23, link_stat, rsync failed"
+                             " executed in %0.2f seconds")
         elif "code 11" in stroutput:
             # directory structure at remote end is missing - needs creating
             # on this pass. Should be Ok on next pass.
             if wxobs_debug == 2:
                 loginf("rsync code 11 - %s" % stroutput)
-            rsync_message = "rsync code 11 found Creating %s as a fix?" % (rem_path)
+            rsync_message = ("rsync code 11 found Creating %s"
+                             " as a fix?" % (rem_path))
             loginf("%s"  % rsync_message)
-            # laborious but apparently necessary, the only way the command will run!?
-            # build the ssh command - n.b:  spaces cause wobblies!
+            # laborious but apparently necessary, the only way the command
+            # will run!? build the ssh command - n.b:  spaces cause wobblies!
             cmd = ['ssh']
             cmd.extend(["%s@%s" % (rsync_user, rsync_server)])
             mkdirstr = "mkdir -p"
@@ -147,20 +169,20 @@ def Rsync(rsync_user, rsync_server, rsync_options, rsync_loc_file, rsync_loc_fil
                 loginf("sshcmd %s" % cmd)
             subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             rsync_ssh_str = rem_path
-            rsync_message = "code 11, rsync mkdir cmd executed in % 0.2f seconds"
-#            rsync_message = "rsync executed in %0.2f seconds, built destination (remote) directories"
-
+            rsync_message = ("code 11, rsync mkdir cmd executed"
+                             " in % 0.2f seconds")
 
         elif ("code 12") and ("Permission denied") in stroutput:
             if wxobs_debug == 2:
                 logdbg("rsync code 12 - %s" % stroutput)
-            rsync_message = "Permission error in rsync command, probably at remote end authentication ! FIX ME !"
+            rsync_message = ("Permission error in rsync command, probably at"
+                             " remote end authentication ! FIX ME !")
             loginf(" ERR %s " % (rsync_message))
             rsync_message = "code 12, rsync failed, executed in % 0.2f seconds"
         elif ("code 12") and ("No route to host") in stroutput:
             if wxobs_debug == 2:
                 logdbg("rsync code 12 - %s" % stroutput)
-            rsync_message = "No route to host error in rsync command ! FIX ME !"
+            rsync_message = "No route to host error in rsync command ! FIX ME!"
             loginf(" ERR %s " % (rsync_message))
             rsync_message = "code 12, rsync failed, executed in % 0.2f seconds"
         else:
@@ -168,12 +190,12 @@ def Rsync(rsync_user, rsync_server, rsync_options, rsync_loc_file, rsync_loc_fil
 
     if log_success:
         if wxobs_debug == 0:
-            to = ''
+            t_o = ''
             rsync_ssh_str = ''
         else:
-            to = ' to '
-        t2= time.time()
-        loginf("%s" % rsync_message % (t2-t1) + to + rsync_ssh_str)
+            t_o = ' to '
+        t_2 = time.time()
+        loginf("%s" % rsync_message % (t_2-t_1) + t_o + rsync_ssh_str)
 
 class wxobs(SearchList):
 
@@ -233,16 +255,16 @@ class wxobs(SearchList):
         include file.
 
         [[Remote]]
-        This is used whe you want to transfer the include file and the database
-        to a remote machine (the web files are sent seperately with the 
-        weewx.conf [FTP] or [RSYNC] section.
-        dest_directory: is the switch that turns this on to transfer BOTH the
-        include and database files to the same directory as specified with this.
+        This is used when you want to transfer the include file and the database
+        to a remote machine where the web files have been sent seperately with
+        the weewx.conf [FTP] or [RSYNC] section.
+        dest_directory: is the switch that turns this o. It transfers BOTH the
+        include and database files to the same directory as the tuple specifies.
         If using multiple databases and include files make sure they are unique
-        if you are transferring from multiple machine. rename as appropriate.
+        ie:-  if you are transferring from multiple machine.
         It will fetch the rsync user and server from the wxobs/skin.conf file
         and use those values or if they are missing then it will use the values
-        from the [RSYNC] section of weewx.conf.
+        from the [RSYNC] section of weewx.conf which is possibly configured already.
         rsync_user (user) = user_name for rsync command
         rsync_server (server)= ip address of the remote machine
         send_include = True #This is the default, set to False if you don't want
@@ -477,7 +499,8 @@ class wxobs(SearchList):
             org_location = (self.sq_root+"/"+self.sq_dbase)
             if not os.path.isfile(new_location):
                 if self.wxobs_debug == 2:
-                    loginf("database, attempting to \'symlink %s %s\'" % (org_location, new_location))
+                    loginf("database, attempting to \'symlink %s %s\'"
+                           % (org_location, new_location))
                 try:
                     os.symlink(org_location, new_location)
                 except OSError, e:
@@ -506,9 +529,9 @@ class wxobs(SearchList):
                     loginf("timezone is set to %s" % t_z)
                 php_inc.write(t_z)
             if self.php_error:
-                php_err = "\n ini_set(\'display_errors\', 1); \
-                           \n ini_set(\'display_startup_errors\', 1); \
-                           \n error_reporting(E_ALL);"
+                php_err = ('\n ini_set(\'display_errors\', 1);'
+                           '\n ini_set(\'display_startup_errors\', 1);'
+                           '\n error_reporting(E_ALL);')
                 if self.wxobs_debug == 2:
                     loginf("php error reporting is set: %s" % php_err)
                 php_inc.writelines(php_err)
@@ -525,9 +548,9 @@ class wxobs(SearchList):
             db_loc_file = "%s" % (self.sqlite_db)
             db_ssh_str = "%s@%s:%s/" % (self.rsync_user, self.rsync_server,
                                         self.sq_root)
-            Rsync(self.rsync_user, self.rsync_server, self.rsync_options,
-                  db_loc_file, self.zero_html, db_ssh_str, self.sq_root,
-                  self.wxobs_debug, self.log_success)
+            wxrsync(self.rsync_user, self.rsync_server, self.rsync_options,
+                    db_loc_file, self.zero_html, db_ssh_str, self.sq_root,
+                    self.wxobs_debug, self.log_success)
 
             if self.send_inc:
                 # perform include file transfer if wanted, zero_html just
@@ -535,6 +558,6 @@ class wxobs(SearchList):
                 inc_loc_file = "%s" % (self.include_file)
                 inc_ssh_str = "%s@%s:%s/" % (self.rsync_user, self.rsync_server,
                                              self.inc_path)
-                Rsync(self.rsync_user, self.rsync_server, self.rsync_options,
-                      inc_loc_file, self.zero_html, inc_ssh_str, self.inc_path,
-                      self.wxobs_debug, self.log_success)
+                wxrsync(self.rsync_user, self.rsync_server, self.rsync_options,
+                        inc_loc_file, self.zero_html, inc_ssh_str,
+                        self.inc_path, self.wxobs_debug, self.log_success)
