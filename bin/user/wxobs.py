@@ -37,7 +37,9 @@ def logerr(msg):
 def logdbg(msg):
     logmsg(syslog.LOG_DEBUG, msg)
 
-def wxrsync(rsync_user, rsync_server, rsync_options, rsync_loc_file, rsync_loc_file2, rsync_ssh_str, rem_path, wxobs_debug, log_success):
+def wxrsync(rsync_user, rsync_server, rsync_options, rsync_loc_file,
+            rsync_loc_file2, rsync_ssh_str, rem_path, wxobs_debug,
+            log_success):
     """
     rsync_user
     rsync_server
@@ -334,8 +336,8 @@ class wxobs(SearchList):
         # intervals for display of results
         self.disp_interval = self.generator.skin_dict['wxobs'].get(
             'display_interval', '1800')
-        self.arch_interval = self.generator.config_dict['StdArchive'] \
-                .get('archive_interval')
+        self.arch_interval = self.generator.config_dict['StdArchive'].get(
+            'archive_interval')
         # now decide whether intermediate reading will be averaged or ignored.
         self.display_type = self.generator.skin_dict['wxobs'].get(
             'display_type', 'single')
@@ -355,13 +357,13 @@ class wxobs(SearchList):
             'timezone', '')
         self.php_error = to_bool(self.generator.skin_dict['wxobs'].get(
             'show_php_errors', False))
-        self.show_warning = to_bool(self.generator.skin_dict['wxobs']['DeltaT'] \
-            .get('show_warning', True))
-        self.want_delta = to_bool(self.generator.skin_dict['wxobs']['DeltaT'] \
-            .get('calculate_deltaT', False))
+        self.show_warning = to_bool(self.generator.skin_dict['wxobs']['DeltaT']
+                                    .get('show_warning', True))
+        self.want_delta = to_bool(self.generator.skin_dict['wxobs']['DeltaT']
+                                  .get('calculate_deltaT', False))
         if not self.want_delta:
-            self.show_warning = to_bool(self.generator.skin_dict['wxobs'] \
-            ['DeltaT'].get('show_warning', False))
+            self.show_warning = to_bool(self.generator.skin_dict['wxobs']
+                                        ['DeltaT'].get('show_warning', False))
 
         # these variable are being used as a function names, thus the Case
         # abuse... usage! and the complaints from syntax checkers.
@@ -374,14 +376,14 @@ class wxobs(SearchList):
         self.rainConvert = self.generator.skin_dict['wxobs']['PHPUnits'].get(
             'rain_convert', 'NDC')
 
-        self.shift_rain = to_bool(self.generator.skin_dict['wxobs'] \
-            ['RainTiming'].get('shift_rain', False))
+        self.shift_rain = to_bool(self.generator.skin_dict['wxobs']
+                                  ['RainTiming'].get('shift_rain', False))
         #32400 (rainday_start) == 9 hours == 9 a.m.
-        self.rainday_start = self.generator.skin_dict['wxobs']['RainTiming'] \
-            .get('rain_start', '32400')
+        self.rainday_start = self.generator.skin_dict['wxobs']['RainTiming'].get(
+            'rain_start', '32400')
         #32400 == 9 hours == 9 (start_label) a.m.
-        self.start_label = self.generator.skin_dict['wxobs']['RainTiming'] \
-            .get('start_label', '9')
+        self.start_label = self.generator.skin_dict['wxobs']['RainTiming'].get(
+            'start_label', '9')
 
 
         # target_unit = METRICWX # Options are 'US', 'METRICWX', or 'METRIC'
@@ -392,26 +394,26 @@ class wxobs(SearchList):
         self.dest_dir = self.generator.skin_dict['wxobs']['Remote'].get(
             'dest_directory', '')
         if self.dest_dir:
-            self.rsync_user = self.generator.skin_dict['wxobs']['Remote'].get(
-                'rsync_user', '')
+            self.rsync_user = self.generator.skin_dict['wxobs']['Remote'] \
+                .get('rsync_user', '')
             if not self.rsync_user:
-                self.rsync_user = self.generator.config_dict['StdReport']['RSYNC'].get(
-                    'user', '')
+                self.rsync_user = self.generator.config_dict['StdReport'] \
+                    ['RSYNC'].get('user', '')
 
-            self.rsync_server = self.generator.skin_dict['wxobs']['Remote'].get(
-                'rsync_server', '')
+            self.rsync_server = self.generator.skin_dict['wxobs']['Remote'] \
+                .get('rsync_server', '')
             if not self.rsync_server:
-                self.rsync_server = self.generator.config_dict['StdReport']['RSYNC'].get(
-                    'server', '')
+                self.rsync_server = self.generator.config_dict['StdReport'] \
+                    ['RSYNC'].get('server', '')
             # did we get anything that we can use?
             if not self.rsync_user or not self.rsync_server:
                 self.dest_dir = ''
             else:
                 # we did so we need these...
-                self.rsync_options = self.generator.skin_dict['wxobs']['Remote'].get(
-                    'rsync_options', '-ac')
-                self.log_success = to_bool(self.generator.skin_dict['wxobs']['Remote'].get(
-                    'log_success', True))
+                self.rsync_options = self.generator.skin_dict['wxobs'] \
+                    ['Remote'].get('rsync_options', '-ac')
+                self.log_success = to_bool(self.generator.skin_dict['wxobs'] \
+                    ['Remote'].get('log_success', True))
                 pass
 
 
