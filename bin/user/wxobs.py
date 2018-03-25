@@ -11,6 +11,7 @@
 #    See the file LICENSE.txt for your full rights.
 #
 #
+# added text
 
 import syslog
 import subprocess
