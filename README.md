@@ -9,15 +9,15 @@ This means that the changes required to install weewx-wxobs on a remote server, 
 This version has been configured to work with multiple instances of weewx (providing the databases are uniquely named!)
 It allows you, the user, to specify the remote path for the database and also for the include file. This should make it easier to resolve any permission errors from the remote webservers end.
 
-Bugs, suggestions, feedback are always welcomed.
-
-For a local installation, it should 'just work'. You may need to relocate the include file (see skin.conf) but other than that either sqlite or mysql databases should work as before.
-
 The remote installation centers around rsyncing an sqlite database to the remote server. If you run an MySQL database then the required configuration for that is built in to mysql and should just require the correct variable names entering. This will vary with each setup so a single configuration example is not in my scope. If you have working notes and wish to share them, then raise them as an issue and we'll start from there. 
 
 The weewx-user group is also a starting point for queries.
 
-see below for previous changes.
+For a local installation, it will "just work". You may need to relocate the include file (see skin.conf) but other than that either sqlite or mysql databases will work as they did before.
+
+Bugs reports, suggestions, feedback are always welcomed.
+
+Go to the bottom of this page for a list of previous changes.
 
 
 # weewx-wxobs
