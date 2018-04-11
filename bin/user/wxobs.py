@@ -108,11 +108,11 @@ def wxrsync(rsync_user, rsync_server, rsync_options, rsync_loc_file,
             n_bytes = rsyncinfo['Total file size']
             n_sent = rsyncinfo['Literal data']
             if n_ber is not None and n_bytes is not None:
-                rsync_message = ("rsync'd %s of %s files (%s) in"
+                rsync_message = ("rsync'd %s of %s files (%s) in "
                                  "%%0.2f seconds" % (n_sent, n_ber, n_bytes))
             else:
                 rsync_message = "rsync executed in %0.2f seconds"
-            #loginf("%s " % (rsync_message))
+            # loginf("%s " % (rsync_message))
         except:
             rsync_message = ("rsync exception raised:"
                              "executed in %0.2f seconds")
@@ -160,7 +160,7 @@ def wxrsync(rsync_user, rsync_server, rsync_options, rsync_loc_file,
                 loginf("rsync code 11 - %s" % stroutput)
             rsync_message = ("rsync code 11 found Creating %s"
                              " as a fix?" % (rem_path))
-            loginf("%s"  % rsync_message)
+            loginf("%s" % rsync_message)
             # laborious but apparently necessary, the only way the command
             # will run!? build the ssh command - n.b:  spaces cause wobblies!
             cmd = ['ssh']
@@ -210,19 +210,20 @@ class wxobs(SearchList):
         easier by transferring the database values as used by weewx, plus a few
         other variables.
         It has since expanded to allow the transfer of the sqlite database
-        by using rsync, providing the [Remote] section of the config is populated
+        by using rsync, providing the [Remote] section of the config is
+        populated
 
         In wxobs/skin.conf:
 
-        send_inc: An option to stop sending the include file/s.These contain the
-        database configuration values, timezone and oprional debugging stanzas
-        for the php script to operate. Needless to say you need to send them at
-        least once.
+        send_inc: An option to stop sending the include file/s. These contain
+        the database configuration values, timezone and oprional debugging
+        stanzas for the php script to operate. Needless to say you need to
+        send them at least once.
         If you can't think of a reason why you'd need this then you don't need
         to implement it.
         I run a mysql database locally and export an sqlite to the remote. This
-        allows me to do that without too much trouble (remembering to set up the
-        symlinks is the biggest issue)
+        allows me to do that without too much trouble (remembering to set up
+        the symlinks is the biggest issue)
 
         include_path: the directory where the php include file will be stored
         this holds the database configuration as sourced from weewx.conf
@@ -230,8 +231,8 @@ class wxobs(SearchList):
         If you send the files to another server you can change this path using
         dest_directory (which will affect the database also.)
 
-        disp_interval: is the time between displayed records; 1800 is a half-hour
-        and is the default
+        disp_interval: is the time between displayed records; 1800 is a
+        half-hour and is the default
 
         display_type: 'single' (default) or 'average'
         Whether to return the timestamped entry for the value displayed in the
@@ -245,7 +246,7 @@ class wxobs(SearchList):
         The default is to use windchill.
         Keep it to the group_degrees (because the label is hard coded in.)
 
-        timezone: If the date or time displayed is not being displayed correctly
+        timezone: If the date or time is not being displayed correctly
         we'll assume it's a php issue and pass a timezone string to the script.
         This can be done by adding your time zone as the following example
         indicates.  Replace the string with your zone description
@@ -258,33 +259,35 @@ class wxobs(SearchList):
         include file.
 
         [[Remote]]
-        This is used when you want to transfer the include file and the database
-        to a remote machine where the web files have been sent seperately with
-        the weewx.conf [FTP] or [RSYNC] section.
+        This is used when you want to transfer the include file and the
+        database to a remote machine where the web files have been sent
+        seperately with the weewx.conf [FTP] or [RSYNC] section.
         dest_directory: is the switch that turns this o. It transfers BOTH the
-        include and database files to the same directory as the tuple specifies.
+        include and database files to the same directory as the tuple specifies
         If using multiple databases and include files make sure they are unique
         ie:-  if you are transferring from multiple machine.
         It will fetch the rsync user and server from the wxobs/skin.conf file
         and use those values or if they are missing then it will use the values
-        from the [RSYNC] section of weewx.conf which is possibly configured already.
+        from the [RSYNC] section of weewx.conf which is possibly configured
+        already.
         rsync_user (user) = user_name for rsync command
         rsync_server (server)= ip address of the remote machine
-        send_include = True #This is the default, set to False if you don't want
-        to send the include file repeatedly to the server. Use with caution
-        (ie: remember this setting when things stop working, it might be the cure)
-        rsync_options: Not documented in the skin.conf Default is '-ac'. Use with,
-        caution and no spaces allowed.
+        send_include = True #This is the default, set to False if you don't
+        want to send the include file repeatedly to the server. Use with
+        caution (ie: remember this setting when things stop working, it might
+        be the cure)
+        rsync_options: Not documented in the skin.conf Default is '-ac'. Use
+        with caution and no spaces allowed.
 
         [[RainTiming]]
         shift_rain: For rain accounting times other than midnight to midnight
         set this to True
-        If no other options are given the accounting time will be the australian
-        rain day which starts at 9 a.m.
+        If no other options are given the accounting time will be the
+        australian rain day which starts at 9 a.m.
         default is false - start at midnight 00:00:00 through to the next day.
 
-        rain_start: used to shift time (in seconds) to something other than 9a.m.
-        default is 32400
+        rain_start: used to shift time (in seconds) to something other than
+        9a.m. The default is 32400
 
         rain_label: the o'clock label for the rain_start above.
         default is 9
@@ -324,14 +327,13 @@ class wxobs(SearchList):
         are.
         """
 
-
         self.wxobs_version = wxobs_version
         self.wxobs_debug = int(self.generator.skin_dict['wxobs'].get(
             'wxobs_debug', '0'))
 
         self.send_inc = to_bool(self.generator.skin_dict['wxobs'].get(
             'send_include', True))
-        #self.inc_path = self.generator.skin_dict['wxobs'].get(
+        # self.inc_path = self.generator.skin_dict['wxobs'].get(
         #    'include_path', '/usr/share/php')
 
         # intervals for display of results
@@ -344,13 +346,13 @@ class wxobs(SearchList):
             'display_type', 'single')
         if self.display_type == 'single':
             self.disp_single = to_bool(True)
-#            loginf("              %s single readings, %s " % (self.disp_single, self.display_type))
+            # loginf("              %s single readings, %s " % (self.disp_single, self.display_type))
         elif self.display_type == 'average':
             self.disp_single = to_bool(False)
             self.arch_interval = self.disp_interval
-#            loginf("              %s average readings, %s " % (self.disp_single, self.display_type))
+            # loginf("              %s average readings, %s " % (self.disp_single, self.display_type))
         else:
-#            loginf("                reverting to single readings, %s is not an option" % self.display_type)
+            # loginf("                reverting to single readings, %s is not an option" % self.display_type)
             self.disp_single = to_bool(True)
         self.app_temp = self.generator.skin_dict['wxobs'].get(
             'app_Temp', 'windchill')
@@ -379,10 +381,10 @@ class wxobs(SearchList):
 
         self.shift_rain = to_bool(self.generator.skin_dict['wxobs']
                                   ['RainTiming'].get('shift_rain', False))
-        #32400 (rainday_start) == 9 hours == 9 a.m.
+        # 32400 (rainday_start) == 9 hours == 9 a.m.
         self.rainday_start = self.generator.skin_dict['wxobs']['RainTiming'].get(
             'rain_start', '32400')
-        #32400 == 9 hours == 9 (start_label) a.m.
+        # 32400 == 9 hours == 9 (start_label) a.m.
         self.start_label = self.generator.skin_dict['wxobs']['RainTiming'].get(
             'start_label', '9')
 
@@ -413,8 +415,8 @@ class wxobs(SearchList):
                 # we did so we need these...
                 self.rsync_options = self.generator.skin_dict['wxobs'] \
                     ['Remote'].get('rsync_options', '-ac')
-                self.log_success = to_bool(self.generator.skin_dict['wxobs'] \
-                    ['Remote'].get('log_success', True))
+                self.log_success = to_bool(self.generator.skin_dict['wxobs']
+                                           ['Remote'].get('log_success', True))
                 pass
 
 
@@ -422,7 +424,7 @@ class wxobs(SearchList):
         def_dbase = self.generator.config_dict['DataBindings'] \
             ['wx_binding'].get('database')
         if self.wxobs_debug == 5:
-            logdbg("database is %s" %  def_dbase)
+            logdbg("database is %s" % def_dbase)
 #########################
 # BEGIN TESTING ONLY:
 # For use when testing sqlite transfer when a mysql database is the default archive
@@ -463,14 +465,13 @@ class wxobs(SearchList):
             self.sq_root = self.generator.config_dict['DatabaseTypes'] \
                 ['SQLite'].get('SQLITE_ROOT')
 
-            self.sqlite_db = ("%s/%s" %(self.sq_root, self.sq_dbase))
+            self.sqlite_db = ("%s/%s" % (self.sq_root, self.sq_dbase))
             v_al = ["<?php\n $php_dbase = 'sqlite';\n $php_sqlite_db = '%s';\n" %
                     self.sqlite_db]
 
             if self.wxobs_debug == 6:
                 loginf("sqlite database is %s, %s, %s" % (
                     self.sq_dbase, self.sq_root, self.sqlite_db))
-
 
         # phpinfo.php shows include_path as .:/usr/share/php, we'll put it
         # in there and hopefully that will work for most users.
@@ -483,7 +484,7 @@ class wxobs(SearchList):
                 os.makedirs(self.dest_dir, 0755)
             if not os.path.isfile(self.zero_html):
                 with open(self.zero_html, 'a') as z:  # Create file if does not exist
-                    pass # and auto close it
+                    pass  # and auto close it
             # we are rsyncing remotely
             # And going to change all the remote paths, the include_path has lost
             # its precedence.
@@ -493,7 +494,7 @@ class wxobs(SearchList):
             self.sq_dbase = self.generator.config_dict['Databases'] \
                 [def_dbase].get('database_name')
 
-            new_location = (self.dest_dir+"/"+ self.sq_dbase)
+            new_location = (self.dest_dir+"/"+self.sq_dbase)
             v_al = ["<?php\n $php_dbase = 'sqlite';\n $php_sqlite_db = '%s/%s';" %
                     (self.dest_dir, self.sq_dbase)]
 
@@ -540,7 +541,6 @@ class wxobs(SearchList):
                 php_inc.writelines(php_err)
             php_inc.close()
 
-
         # use rsync to transfer database remotely, but ONLY if requested
         if def_dbase == 'archive_sqlite' and self.dest_dir != '':
             # honor request to move destination directories (same for both)
@@ -557,7 +557,7 @@ class wxobs(SearchList):
 
             if self.send_inc:
                 # perform include file transfer if wanted, zero_html just
-                #fills a slot here.
+                # fills a slot here.
                 inc_loc_file = "%s" % (self.include_file)
                 inc_ssh_str = "%s@%s:%s/" % (self.rsync_user, self.rsync_server,
                                              self.inc_path)

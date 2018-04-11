@@ -71,7 +71,7 @@ if ((@include '$include_file') === false) {
     echo " its location as <b>wxobs/skin.conf</b> will accept<br>";
     echo "<i>include_path = /tmp</i> or <i>include_path = /new_path/your_choice</i><br>";
     echo "where the path and name can be anything allowable by php, readable by the webserver, and preferably secure.</p><p>";
-    echo "If you are using the [Remote] section - where the sqlite database and wxobs files are viewable from a remote server then the include file will be transferred into the dest_directory that is specified. Populating dest_directory allow the remote transfer to be considered.</p>"
+    echo "If you are using the [Remote] section - where the sqlite database and wxobs files are viewable from a remote server then the include file will be transferred into the dest_directory that is specified. Populating dest_directory allow the remote transfer to be considered.</p>";
     echo "<p>If all else fails, report the problem as an issue";
     echo " - to <a href=\"https://github.com/glennmckechnie/weewx-wxobs/issues\">its github site, or contact me directly.</a><br>";
     echo "There are also <a href=\"https://github.com/glennmckechnie/weewx-wxobs/wiki/Remote-installation\">Wiki notes</a> that may help for this, and setting up remote servers.</p></div>";
@@ -877,8 +877,9 @@ if ($debug =='1') {
         $stats_snap = $db->query(
             "SELECT FROM_UNIXTIME(datetime, '%d-%m-%Y %H:%i'),min(outTemp),
             max(outTemp), min($app_temp), max($app_temp), min(dewPoint),
-            max(dewPoint), min(outHumidity), max(outHumidity), avg(windSpeed),
-            avg(windGust), avg(windDir), min(barometer), max(barometer) FROM archive
+            max(dewPoint), min(outHumidity), max(outHumidity), min(windSpeed),
+	    max(windSpeed), min(windGust), max(windGust), avg(windDir),
+	    min(barometer), max(barometer) FROM archive
             WHERE dateTime >= $start_time and dateTime < $day_end;"
         );
         $rain_avg = $db->query(
@@ -892,10 +893,11 @@ if ($debug =='1') {
     } else {
         $stats_snap = $db->query(
             "SELECT datetime(min(dateTime), 'unixepoch', 'localtime'),min(outTemp),
-            max(outTemp), min($app_temp), max($app_temp), min(dewPoint), max(dewPoint),
-            min(outHumidity), max(outHumidity), avg(windSpeed), avg(windGust),
-            avg(windDir), min(barometer), max(barometer) FROM archive WHERE dateTime
-            >= $start_time and dateTime < $day_end;"
+            max(outTemp), min($app_temp), max($app_temp), min(dewPoint),
+	    max(dewPoint), min(outHumidity), max(outHumidity), min(windSpeed),
+	    max(windSpeed), min(windGust), max(windGust), avg(windDir),
+	    min(barometer), max(barometer) FROM archive
+	    WHERE dateTime >= $start_time and dateTime < $day_end;"
         );
         $rain_avg = $db->query(
             "SELECT datetime(min(dateTime), 'unixepoch', 'localtime'),
@@ -931,21 +933,21 @@ if ($debug =='1') {
     // Create Min Max table headers - ugly layout but ok in html source
 
     //Min (max) wind Observations are always average readings
-    $tmp_flag=$avflag;
-    $avflag="(Average)";
-    list ($st_wind, $st_spd, $st_gust) = theader($avflag);
-    $avflag=$tmp_flag;
+    //$tmp_flag=$avflag;
+    //$avflag="(Average)";
+    //list ($st_wind, $st_spd, $st_gust) = theader($avflag);
+    //$avflag=$tmp_flag;
 
     echo "<!-- start snapshot summary observations -->
  <h2>Historical Observations for $this_day</h2>
- <h3><a title=\"Wind speed $avflag, Lowest [Highest] observations for the nominated day.\">Stats for the day : Min (Max) or Averages</a></h3>
+ <h3><a title=\"Lowest [Highest] observations for the nominated day.\">Stats for the day : Min (Max), or Averages for Direction</a></h3>
  <table class=\"wxdata\">
   <thead>
   <tr>
     <th class=\"wxheadr\" rowspan=\"2\"><a title=\"Date (in day-month-year format)\">Date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></th>
     \n   $st_temp
    <th class=\"wxheadr\" rowspan=\"2\">$appLabel<br>$app_label</th>
-   $st_dew \n   $st_rh \n   $st_wind \n   $st_baro 
+   $st_dew \n   $st_rh \n   $st_wind \n   $st_baro
    $st_rain $tflag Rain<br>$t_span<br>$unit.label.rain</a></th>
   </tr>
   <tr>
@@ -988,16 +990,20 @@ if ($debug =='1') {
     ordinalCompass($stats_row[11], $debug);
     echo "<td> $compass</td>"; //wind direction ordinal
     list($x, $dec_plc) = $speedConvert ($stats_row[9], $wind_plc);
-    $metWind = round($x, $dec_plc);
-    echo "<td>$metWind</td>";
+    $minWind = round($x, $dec_plc);
     list($x, $dec_plc) = $speedConvert ($stats_row[10], $wind_plc);
-    $metGust = round($x, $dec_plc);
-    echo "<td>$metGust</td>";
-    $windDir = round($stats_row[11], 0);
+    $maxWind = round($x, $dec_plc);
+    echo "<td>$minWind ($maxWind)</td>";
+    list($x, $dec_plc) = $speedConvert ($stats_row[11], $wind_plc);
+    $minGust = round($x, $dec_plc);
+    list($x, $dec_plc) = $speedConvert ($stats_row[12], $wind_plc);
+    $maxGust = round($x, $dec_plc);
+    echo "<td>$minGust ($maxGust)</td>";
+    $windDir = round($stats_row[13], 0);
     echo "<td>$windDir</td>"; //wind direction degrees
-    list($x, $dec_plc) = $pressConvert ($stats_row[12], $press_plc);
+    list($x, $dec_plc) = $pressConvert ($stats_row[14], $press_plc);
     $minPress = round($x, $dec_plc);
-    list($x, $dec_plc) = $pressConvert ($stats_row[13], $press_plc);
+    list($x, $dec_plc) = $pressConvert ($stats_row[15], $press_plc);
     $maxPress = round($x, $dec_plc);
     echo "<td>$minPress ($maxPress)</td>";
     list($x, $dec_plc) = $rainConvert ($rain_row[1], $rain_plc);
