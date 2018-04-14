@@ -13,10 +13,7 @@ class wxobsInstaller(ExtensionInstaller):
         super(wxobsInstaller, self).__init__(
             version="0.7.0",
             name='wxobs',
-            description='Generates weewx report page that uses php to extract'
-               'archival data (Daily climatological summaries) from the weewx'
-               'database and present it as a table of half-hourly snapshots,'
-               'in a html page',
+            description='Generates a php report to show daily summaries',
             author="Glenn McKechnie",
             author_email="glenn.mckechnie@gmail.com",
             config={
@@ -40,5 +37,5 @@ class wxobsInstaller(ExtensionInstaller):
                    ['skins/wxobs/font/OpenSans.woff',
                     'skins/wxobs/font/OpenSans.woff2',
                     ])
-                  ]
+                   ]
         )
