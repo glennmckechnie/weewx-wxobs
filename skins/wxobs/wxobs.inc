@@ -878,8 +878,8 @@ if ($debug =='1') {
             "SELECT FROM_UNIXTIME(datetime, '%d-%m-%Y %H:%i'),min(outTemp),
             max(outTemp), min($app_temp), max($app_temp), min(dewPoint),
             max(dewPoint), min(outHumidity), max(outHumidity), min(windSpeed),
-	    max(windSpeed), min(windGust), max(windGust), avg(windDir),
-	    min(barometer), max(barometer) FROM archive
+            max(windSpeed), min(windGust), max(windGust), avg(windDir),
+            min(barometer), max(barometer) FROM archive
             WHERE dateTime >= $start_time and dateTime < $day_end;"
         );
         $rain_avg = $db->query(
@@ -894,10 +894,10 @@ if ($debug =='1') {
         $stats_snap = $db->query(
             "SELECT datetime(min(dateTime), 'unixepoch', 'localtime'),min(outTemp),
             max(outTemp), min($app_temp), max($app_temp), min(dewPoint),
-	    max(dewPoint), min(outHumidity), max(outHumidity), min(windSpeed),
-	    max(windSpeed), min(windGust), max(windGust), avg(windDir),
-	    min(barometer), max(barometer) FROM archive
-	    WHERE dateTime >= $start_time and dateTime < $day_end;"
+            max(dewPoint), min(outHumidity), max(outHumidity), min(windSpeed),
+            max(windSpeed), min(windGust), max(windGust), avg(windDir),
+            min(barometer), max(barometer) FROM archive
+            WHERE dateTime >= $start_time and dateTime < $day_end;"
         );
         $rain_avg = $db->query(
             "SELECT datetime(min(dateTime), 'unixepoch', 'localtime'),
