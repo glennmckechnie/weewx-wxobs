@@ -400,14 +400,22 @@ class wxobs(SearchList):
             self.rsync_user = self.generator.skin_dict['wxobs']['Remote'] \
                 .get('rsync_user', '')
             if not self.rsync_user:
-                self.rsync_user = self.generator.config_dict['StdReport'] \
-                    ['RSYNC'].get('user', '')
+                try:
+                    self.rsync_user = self.generator.config_dict['StdReport'] \
+                        ['RSYNC'].get('user', '')
+                except:
+                    if self.wxobs_debug >= 1:
+                        logdbg("No rsync _user supplied?")
 
             self.rsync_server = self.generator.skin_dict['wxobs']['Remote'] \
                 .get('rsync_server', '')
             if not self.rsync_server:
-                self.rsync_server = self.generator.config_dict['StdReport'] \
-                    ['RSYNC'].get('server', '')
+                try:
+                    self.rsync_server = self.generator.config_dict['StdReport'] \
+                        ['RSYNC'].get('server', '')
+                except:
+                    if self.wxobs_debug >= 1:
+                        logdbg("No rsync server supplied?")
             # did we get anything that we can use?
             if not self.rsync_user or not self.rsync_server:
                 self.dest_dir = ''
