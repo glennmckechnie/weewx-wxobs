@@ -371,9 +371,10 @@ if ($disp_single) { //single
     $tflag="";
     $avflag="";
     $iflag=" (as $display_type readings)";
-} else {
+} else { //average
     $tflag="Total";
-    $avflag="(Average)";
+    //$avflag="(Average)";
+    $avflag="";
     $iflag=" ($display_type over each interval)";
 }
 
