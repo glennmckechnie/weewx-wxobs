@@ -1,13 +1,7 @@
 
 
-**Update: March 2018**  ---  Available as [release 0.6.5](https://github.com/glennmckechnie/weewx-wxobs/releases)
-
-The 'remote' branch has now been merged with the master branch. (bumped to version 0.6.5, with its bugfix! )
-
-This means that the changes required to install weewx-wxobs on a remote server, and transfer the sqlite database have been incorporated into the current version. 
-
-This version has been configured to work with multiple instances of weewx (providing the databases are uniquely named!)
-It allows you, the user, to specify the remote path for the database and also for the include file. This should make it easier to resolve any permission errors from the remote webservers end.
+**Update: July 2018**  ---  Available as [release 0.7.0](https://github.com/glennmckechnie/weewx-wxobs/releases)
+Simplify single/average output
 
 Bugs, suggestions, feedback are always welcomed.
 
@@ -154,6 +148,13 @@ Nothing seems to have broken (for me). It fixed the problem but I'm not knowledg
 p.s. datepicker's origins are unknown but a search of github will turn up many versions. I'll find one that matches this one and give a link - [This one](https://github.com/chrishulbert/datepicker) is very close to it.
 
 # Changes
+**Update: March 2018**  ---  Available as [release 0.6.5](https://github.com/glennmckechnie/weewx-wxobs/releases)
+
+1. The 'remote' branch has now been merged with the master branch. (bumped to version 0.6.5, with its bugfix! )
+2. This means that the changes required to install weewx-wxobs on a remote server, and transfer the sqlite database have been incorporated into the current version. 
+3. This version has been configured to work with multiple instances of weewx (providing the databases are uniquely named!)
+It allows you, the user, to specify the remote path for the database and also for the include file. This should make it easier to resolve any permission errors from the remote webservers end.
+
 **Update: Jan 2018** Rsync is now included as an option if you are 
 1. Transferring the web data to a remote server.
 2. Using the sqlite database.
