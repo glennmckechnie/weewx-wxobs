@@ -988,7 +988,7 @@ if ($debug =='1') {
     $minhumid = round($stats_row[7], 0);
     $maxhumid = round($stats_row[8], 0);
     echo "<td>$minhumid ($maxhumid)</td>";
-    ordinalCompass($stats_row[11], $debug);
+    ordinalCompass($stats_row[13], $debug);
     echo "<td> $compass</td>"; //wind direction ordinal
     list($x, $dec_plc) = $speedConvert ($stats_row[9], $wind_plc);
     $minWind = round($x, $dec_plc);
