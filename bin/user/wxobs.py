@@ -24,7 +24,7 @@ import weewx.engine
 from weeutil.weeutil import to_bool
 from weewx.cheetahgenerator import SearchList
 
-wxobs_version = "0.7.0"
+wxobs_version = "0.7.1"
 
 def logmsg(level, msg):
     syslog.syslog(level,'wxobs: %s' % msg)
@@ -75,14 +75,14 @@ def wxrsync(rsync_user, rsync_server, rsync_options, rsync_loc_file,
         rsynccmd = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                                     stderr=subprocess.STDOUT)
         stdout = rsynccmd.communicate()[0]
-        stroutput = stdout.encode("utf-8").strip()
+        stroutput = stdout.decode("utf-8").strip()
         #rsyncpid = rsynccmd.pid
         #loginf("      pre.wait rsync pid is %s" % rsyncpid)
         #rsynccmd.wait()
         #rsyncpid = rsynccmd.pid
         #loginf("     post.wait rsync pid is %s" % rsyncpid)
         #subprocess.call( ('ps', '-l') )
-    except OSError, e:
+    except OSError as e:
             #print "EXCEPTION"
         if e.errno == errno.ENOENT:
             logerr("rsync does not appear to be installed on this system. \
@@ -484,12 +484,13 @@ class wxobs(SearchList):
         # phpinfo.php shows include_path as .:/usr/share/php, we'll put it
         # in there and hopefully that will work for most users.
         # I use/prefer /tmp/wxobs_inc.inc
+
         inc_file = ("wxobs_%s.inc" % id_match)
         if self.dest_dir != '':
             # create an empty index.html to obscure directory listing
             self.zero_html = self.dest_dir+"/index.html"
             if not os.path.exists(self.dest_dir):
-                os.makedirs(self.dest_dir, 0755)
+                os.makedirs(self.dest_dir, mode=0o0755)
             if not os.path.isfile(self.zero_html):
                 with open(self.zero_html, 'a') as z:  # Create file if does not exist
                     pass  # and auto close it
@@ -515,13 +516,13 @@ class wxobs(SearchList):
                            % (org_location, new_location))
                 try:
                     os.symlink(org_location, new_location)
-                except OSError, e:
+                except OSError as e:
                     logerr("error creating database symlink %s" % e)
 
             try:
                 if not os.access(self.include_file, os.W_OK):
                     os.makedirs(self.inc_path)
-            except OSError, e:
+            except OSError as e:
                 if e.errno == os.errno.EEXIST:
                     pass
         else:
@@ -530,9 +531,16 @@ class wxobs(SearchList):
             # use the skin.conf include_path, either default or the override.
             self.inc_path = self.generator.skin_dict['wxobs'].get(
                 'include_path', '/usr/share/php')
+            # phpinfo.php include_path is referenced but missing in some cases - php7.3?
+            # possibly installed with php-pear ?
+            # FIXME: a quick and harmless fix is to create it.
+            if not os.path.exists(self.inc_path):
+                os.makedirs(self.inc_path, mode=0o0755)
+                loginf("Created %s" % self.inc_path)
             self.include_file = ("%s/%s" % (self.inc_path, inc_file))
 
-        if self.send_inc and self.dest_dir != '':
+        #if self.send_inc and self.dest_dir != '':
+        if self.send_inc:
             php_inc = open(self.include_file, 'w')
             php_inc.writelines(v_al)
             if self.php_zone != '':
