@@ -159,7 +159,7 @@ def wxrsync(rsync_user, rsync_server, rsync_options, rsync_loc_file,
             if wxobs_debug == 2:
                 loginf("rsync code 11 - %s" % stroutput)
             rsync_message = ("rsync code 11 found Creating %s"
-                             " as a fix?" % (rem_path))
+                             " as a fix?, space issue?" % (rem_path))
             loginf("%s" % rsync_message)
             # laborious but apparently necessary, the only way the command
             # will run!? build the ssh command - n.b:  spaces cause wobblies!
