@@ -32,9 +32,11 @@
 ##            the displayed, Periodic Stats table values.
 ## 17-03-2018 option to use [RSYNC] from weewx.conf. Option to add error reporting to
 ##            index.php. Use dest_dir as switch.
+## 14-01-2020 Python3 tweaks. Work around missing /usr/share/php directory. Fix mode
+##            on os.mkdir
 ##
 ##
-## Version 0.7.0
+## Version 0.7.1
 
    <!-- wxobs version $wxobs_version -->
    <!-- This weewx extension is available at github: https://github.com/glennmckechnie/weewx-wxobs -->
@@ -60,16 +62,18 @@ $start = microtime(true);
 
 if ((@include '$include_file') === false) {
     echo "<div class=\"alert\">";
-    echo "<p>The database config file has gone missing! &nbsp;&nbsp;&nbsp; That shouldn't happen, u8nless you've been changing your configuration files</p>";
-    echo "We initially use a php default for include files of /usr/share/php, but this doesn't suit all webservers.</p>";
+    echo "<p>The database config file has gone missing! &nbsp;&nbsp;&nbsp; That shouldn't happen unless you've been changing your configuration files</p>";
+    echo "We initially use a php default for include files of /usr/share/php, but this doesn't seem to suit all webservers or installations.</p>";
+    echo "As of version 0.7.1,  /usr/share/php will be created if it's found to be missing. </p>";
+    echo "Check that the directory $inc_path does actually exist, if it doesn't then create it - and report this scripts failure.</p>";
+    echo "Check that its read | write permissions are suitable - 0755, owned by root <br><br>";
     echo "The file should have been accessable as<br> <i>$include_file</i><br>";
     echo "We can use <i>include_path</i> in <b>wxobs/skin.conf</b> to change that.<br>";
-    echo "Check that the directory $inc_path exists, if it doesn't then create it. Check that its read | write permissions are suitable<br<br>>";
     echo" The include file will be regenerated on weewx's next report run, (unless you're using the undocumented feature - ";
     echo " view the source Luke.) Or when report_timing allows.</p>";
     echo "<p>If the problem persists, consider changing";
     echo " its location as <b>wxobs/skin.conf</b> will accept<br>";
-    echo "<i>include_path = /tmp</i> or <i>include_path = /new_path/your_choice</i><br>";
+    echo "<i>include_path = /new_path/your_choice</i><br>";
     echo "where the path and name can be anything allowable by php, readable by the webserver, and preferably secure.</p><p>";
     echo "If you are using the [Remote] section - where the sqlite database and wxobs files are viewable from a remote server then the include file will be transferred into the dest_directory that is specified. Populating dest_directory allow the remote transfer to be considered.</p>";
     echo "<p>If all else fails, report the problem as an issue";
