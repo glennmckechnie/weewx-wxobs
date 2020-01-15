@@ -1,7 +1,9 @@
 
 
-**Update: July 2018**  ---  Available as [release 0.7.0](https://github.com/glennmckechnie/weewx-wxobs/releases)
-Simplify single/average output
+**Update: Jan 2020**  ---  Available as [release 0.7.1](https://github.com/glennmckechnie/weewx-wxobs/releases)
+Runs with python2.7 or python3 ie:- runs under weewx4.
+
+Add logic to detect and create /usr/share/php directory which seems to be missing from some installations, even though phpinfo.php shows it as being available, or required.
 
 Bugs, suggestions, feedback are always welcomed.
 
@@ -33,8 +35,8 @@ I've used appTemp for one of the fields, apparently not everyone has this though
 
 Delta-T is also configurable but is an an either, or selection. ie: it can be skipped completely (no replacement is offered) or configured as an additional column for those of us who may use it.
 
-Weewx-wxobs reads directly from the database so it doesn't use weewx's internal processes to massage the data to match units. It relies on the database value matching the database units (US, METRIC, METRICWX) and then the [Units][[Groups]]group**** as returned by the skin.conf file being correct. Based on those fields it will attempt to ensure that the optional delta-T uses the required Metric units to get a sensible result.
-If this applies in your case, CHECK THE RESULT and confirm its working as it should. 
+Weewx-wxobs reads directly from the database so it doesn't use weewx's internal processes to massage the data to match units. It relies on the database value matching the database units (US, METRIC, METRICWX) and then the [Units][[Groups]]group_x..x as returned by the skin.conf file being correct. Based on those fields it will attempt to ensure that the optional delta-T uses the required Metric units to get a sensible result.
+If this applies in your case, CHECK THE RESULT and confirm its working as it should.
 
 Thanks to:
 * Powerin (weewx-users) for the initial starting point, from the thread titled [Daily climatological summaries](https://groups.google.com/d/topic/weewx-user/cEAzvxv3T6Q/discussion)
@@ -148,8 +150,10 @@ Nothing seems to have broken (for me). It fixed the problem but I'm not knowledg
 p.s. datepicker's origins are unknown but a search of github will turn up many versions. I'll find one that matches this one and give a link - [This one](https://github.com/chrishulbert/datepicker) is very close to it.
 
 # Changes
-**Update: March 2018**  ---  Available as [release 0.6.5](https://github.com/glennmckechnie/weewx-wxobs/releases)
+**Update: July 2018**  ---  Available as [release 0.7.0](https://github.com/glennmckechnie/weewx-wxobs/releases)
+Simplify single/average output
 
+**Update: March 2018**  ---  Available as [release 0.6.5](https://github.com/glennmckechnie/weewx-wxobs/releases)
 1. The 'remote' branch has now been merged with the master branch. (bumped to version 0.6.5, with its bugfix! )
 2. This means that the changes required to install weewx-wxobs on a remote server, and transfer the sqlite database have been incorporated into the current version. 
 3. This version has been configured to work with multiple instances of weewx (providing the databases are uniquely named!)
