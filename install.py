@@ -11,12 +11,9 @@ def loader():
 class wxobsInstaller(ExtensionInstaller):
     def __init__(self):
         super(wxobsInstaller, self).__init__(
-            version="0.6.5",
+            version="0.7.0",
             name='wxobs',
-            description='Generates weewx report page that uses php to extract'
-               'archival data (Daily climatological summaries) from the weewx'
-               'database and present it as a table of half-hourly snapshots,'
-               'in a html page',
+            description='Generates a php report to show daily summaries',
             author="Glenn McKechnie",
             author_email="glenn.mckechnie@gmail.com",
             config={
@@ -31,14 +28,17 @@ class wxobsInstaller(ExtensionInstaller):
                    ['skins/wxobs/skin.conf',
                     'skins/wxobs/datepicker.css',
                     'skins/wxobs/datepicker.js',
+                    'skins/wxobs/standard.js',
                     'skins/wxobs/index.php.tmpl',
                     'skins/wxobs/links.inc',
                     'skins/wxobs/wxobs.css',
+                    'skins/wxobs/weewx.css',
+                    'skins/wxobs/seasons.css',
                     'skins/wxobs/wxobs.inc',
                     ]),
                    ('skins/wxobs/font',
                    ['skins/wxobs/font/OpenSans.woff',
                     'skins/wxobs/font/OpenSans.woff2',
                     ])
-                  ]
+                   ]
         )
