@@ -93,10 +93,15 @@ For the current debian installation here, the following remedied that...
    
    For the raspberry pi here, running lighthttpd, it was a case of 
    
-   <pre>
-   apt-get install php5-sqlite
    
-   /etc/init.d/lighttpd restart
+   
+   <pre>
+   apt-get install php-sqlite3
+   apt install php-cgi
+   
+   lighttpd-enable-mod fastcgi-php
+   
+   /etc/init.d/lighttpd force-reload
    </pre>
    
    Hopefully one of those applies for your setup, or at least gives you some direction.
