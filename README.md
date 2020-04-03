@@ -115,7 +115,7 @@ If you run the seasons skin as your main skin ( weewx/seasons ) then the index.p
    You'll also need to duplicate the datepicker.css, datepicker.js and wxobs.css stanzas into the new &lt;head&gt;.
 
 
-7.To uninstall
+7. To uninstall
 
    <pre>sudo wee_extension --uninstall wxobs</pre>
 
