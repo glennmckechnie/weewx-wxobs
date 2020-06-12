@@ -1,6 +1,8 @@
 
 
-**Update: Jan 2020**  ---  Available as [release 0.7.1](https://github.com/glennmckechnie/weewx-wxobs/releases)
+**Update: Jun 2020**  ---  Available as [release 0.7.2](https://github.com/glennmckechnie/weewx-wxobs/releases)
+Add weewx4 style logging
+**Update: Jan 2020**
 Runs with python2.7 or python3 ie:- runs under weewx4.
 
 Add logic to detect and create /usr/share/php directory which seems to be missing from some installations, even though phpinfo.php shows it as being available, or required.
