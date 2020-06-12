@@ -1,19 +1,17 @@
+# Copyright (c) 2017 -2020 Glenn McKechnie <glenn.mckechnie@gmail.com>
+# Credit to Tom Keffer <tkeffer@gmail.com>, Matthew Wall and the core
+# weewx team, all from whom I've borrowed heavily.
+# Mistakes are mine, corrections and or improvements welcomed
+#    https://github.com/glennmckechnie/weewx-wxobs
 #
-#    Copyright (c) 2017 Glenn McKechnie <glenn.mckechnie@gmail.com>
-#    Credit to Tom Keffer <tkeffer@gmail.com>, Matthew Wall and the core
-#    weewx team, all from whom I've borrowed heavily.
-#    Mistakes are mine, corrections and or improvements welcomed
-#       https://github.com/glennmckechnie/weewx-wxobs
+# rsync code based on weeutil/rsyncupload.py by
+#    Will Page <companyguy@gmail.com> and
 #
-#    rsync code based on weeutil/rsyncupload.py by
-#       Will Page <companyguy@gmail.com> and
-#
-#    See the file LICENSE.txt for your full rights.
+# See the file LICENSE.txt for your full rights.
 #
 #
 # added text
 
-import syslog
 import subprocess
 import time
 import errno
@@ -24,19 +22,37 @@ import weewx.engine
 from weeutil.weeutil import to_bool
 from weewx.cheetahgenerator import SearchList
 
-wxobs_version = "0.7.1"
+wxobs_version = "0.7.2"
 
-def logmsg(level, msg):
-    syslog.syslog(level,'wxobs: %s' % msg)
+try:
+    # weewx4 logging
+    import weeutil.logger
+    import logging
+    log = logging.getLogger(__name__)
 
-def loginf(msg):
-    logmsg(syslog.LOG_INFO, msg)
+    def logdbg(msg):
+        log.debug(msg)
 
-def logerr(msg):
-    logmsg(syslog.LOG_ERR, msg)
+    def loginf(msg):
+        log.info(msg)
 
-def logdbg(msg):
-    logmsg(syslog.LOG_DEBUG, msg)
+    def logerr(msg):
+        log.error(msg)
+
+except ImportError:
+    # old-style weewx logging
+    import syslog
+    def logmsg(level, msg):
+        syslog.syslog(level, 'wxobs: %s' % msg)
+
+    def logdbg(msg):
+        logmsg(syslog.LOG_DEBUG, msg)
+
+    def loginf(msg):
+        logmsg(syslog.LOG_INFO, msg)
+
+    def logerr(msg):
+        logmsg(syslog.LOG_ERR, msg)
 
 def wxrsync(rsync_user, rsync_server, rsync_options, rsync_loc_file,
             rsync_loc_file2, rsync_ssh_str, rem_path, wxobs_debug,

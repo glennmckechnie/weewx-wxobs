@@ -1,6 +1,6 @@
 # installer for wxobs
 # Copyright 2016 Matthew Wall
-# Co-opted by Glenn McKechnie 2017
+# Co-opted by Glenn McKechnie 2017 - 2020
 # Distributed under the terms of the GNU Public License (GPLv3)
 
 from setup import ExtensionInstaller
@@ -11,7 +11,7 @@ def loader():
 class wxobsInstaller(ExtensionInstaller):
     def __init__(self):
         super(wxobsInstaller, self).__init__(
-            version="0.7.0",
+            version="0.7.2",
             name='wxobs',
             description='Generates a php report to show daily summaries',
             author="Glenn McKechnie",
