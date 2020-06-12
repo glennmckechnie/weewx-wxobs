@@ -1,11 +1,16 @@
 
 
 **Update: Jun 2020**  ---  Available as [release 0.7.2](https://github.com/glennmckechnie/weewx-wxobs/releases)
+
 Add weewx4 style logging
+
 **Update: Jan 2020**
+
 Runs with python2.7 or python3 ie:- runs under weewx4.
 
 Add logic to detect and create /usr/share/php directory which seems to be missing from some installations, even though phpinfo.php shows it as being available, or required.
+
+----
 
 The remote installation centers around rsyncing an sqlite database to the remote server. If you run an MySQL database then the required configuration for that is built in to mysql and should just require the correct variable names entering. This will vary with each setup so a single configuration example is not in my scope. If you have working notes and wish to share them, then raise them as an issue and we'll start from there. 
 
