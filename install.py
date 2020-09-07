@@ -11,17 +11,24 @@ def loader():
 class wxobsInstaller(ExtensionInstaller):
     def __init__(self):
         super(wxobsInstaller, self).__init__(
-            version="0.7.2",
+            version="0.7.3",
             name='wxobs',
             description='Generates a php report to show daily summaries',
             author="Glenn McKechnie",
             author_email="glenn.mckechnie@gmail.com",
             config={
                 'StdReport': {
-                    'wxobs': {
-                        'skin': 'wxobs',
-                        'HTML_ROOT': 'wxobs'
-                        }}},
+                        'wxobs': {
+                            'skin': 'wxobs',
+                            'HTML_ROOT': 'wxobs',
+                                'Units': {
+                                    'Groups': {
+                                        'group_percent': 'percent',
+                                    },
+                                },
+                        },
+                },
+            },
             files=[('bin/user',
                    ['bin/user/wxobs.py']),
                    ('skins/wxobs',

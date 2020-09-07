@@ -5,6 +5,7 @@
 ## in Latin-1, then you should replace the string "UTF-8" with "latin-1".  If
 ## you do this, you should also change the charset in 'Content-Type' as well.
 #encoding UTF-8
+## Copyright 2017-2020 Glenn McKechnie
 ## php inclusion to create wxobs.php.tmpl by glenn.mckechnie@gmail.com
 ## available at https://github.com/glennmckechnie/weewx-wxobs
 ## 06-09-2017 initial releas @0.01
@@ -34,9 +35,13 @@
 ##            index.php. Use dest_dir as switch.
 ## 14-01-2020 Python3 tweaks. Work around missing /usr/share/php directory. Fix mode
 ##            on os.mkdir
+## 00-01-2020 Runs with python2.7 or python3 ie:- runs under weewx4
+## 00-06-2020 Available as release 0.7.2 Add weewx4 style logging
+## 07-08-2020 Minor change to remedy missing labels when units other than defaults are used.
+##            Available as release 0.7.3
 ##
 ##
-## Version 0.7.1
+## Version 0.7.3
 
    <!-- wxobs version $wxobs_version -->
    <!-- This weewx extension is available at github: https://github.com/glennmckechnie/weewx-wxobs -->

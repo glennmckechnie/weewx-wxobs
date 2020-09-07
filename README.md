@@ -1,18 +1,12 @@
 
+**Update: Sept 2020**  ---  A minor change to note that weewx.conf takes priority over any skin.conf entries. See [How options work](http://weewx.com/docs/customizing.htm#How_options_work) in the Customizing Guide for the full details.  This change is required for the label logic when manually changing units to something other than what is in the weewx database.  If you have an installation that is already displaying the labels as you want them, then this update is not required.
 
-**Update: Jun 2020**  ---  Available as [release 0.7.2](https://github.com/glennmckechnie/weewx-wxobs/releases)
+Available as [release 0.7.3](https://github.com/glennmckechnie/weewx-wxobs/releases)
 
-Add weewx4 style logging
-
-**Update: Jan 2020**
-
-Runs with python2.7 or python3 ie:- runs under weewx4.
-
-Add logic to detect and create /usr/share/php directory which seems to be missing from some installations, even though phpinfo.php shows it as being available, or required.
 
 ----
 
-The remote installation centers around rsyncing an sqlite database to the remote server. If you run an MySQL database then the required configuration for that is built in to mysql and should just require the correct variable names entering. This will vary with each setup so a single configuration example is not in my scope. If you have working notes and wish to share them, then raise them as an issue and we'll start from there. 
+The remote installation centers around rsyncing an sqlite database to the remote server. If you run an MySQL database then the required configuration for that is built in to mysql and should just require the correct variable names entering. This will vary with each setup so a single configuration example is not in my scope. If you have working notes and wish to share them, then raise them as an issue and we'll start from there.
 
 The weewx-user group is also a starting point for queries.
 
@@ -161,7 +155,18 @@ Nothing seems to have broken (for me). It fixed the problem but I'm not knowledg
 
 p.s. datepicker's origins are unknown but a search of github will turn up many versions. I'll find one that matches this one and give a link - [This one](https://github.com/chrishulbert/datepicker) is very close to it.
 
-# Changes
+# Previous Changes
+
+**Update: Jun 2020**  ---  Available as [release 0.7.2](https://github.com/glennmckechnie/weewx-wxobs/releases)
+
+Add weewx4 style logging
+
+**Update: Jan 2020**
+
+Runs with python2.7 or python3 ie:- runs under weewx4.
+
+Add logic to detect and create /usr/share/php directory which seems to be missing from some installations, even though phpinfo.php shows it as being available, or required.
+
 **Update: July 2018**  ---  Available as [release 0.7.0](https://github.com/glennmckechnie/weewx-wxobs/releases)
 Simplify single/average output
 

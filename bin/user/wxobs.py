@@ -1,4 +1,4 @@
-# Copyright (c) 2017 -2020 Glenn McKechnie <glenn.mckechnie@gmail.com>
+# Copyright (c) 2017-2020 Glenn McKechnie <glenn.mckechnie@gmail.com>
 # Credit to Tom Keffer <tkeffer@gmail.com>, Matthew Wall and the core
 # weewx team, all from whom I've borrowed heavily.
 # Mistakes are mine, corrections and or improvements welcomed
@@ -22,7 +22,7 @@ import weewx.engine
 from weeutil.weeutil import to_bool
 from weewx.cheetahgenerator import SearchList
 
-wxobs_version = "0.7.2"
+wxobs_version = "0.7.3"
 
 try:
     # weewx4 logging
