@@ -5,28 +5,38 @@
 
 from setup import ExtensionInstaller
 
+
 def loader():
     return wxobsInstaller()
+
 
 class wxobsInstaller(ExtensionInstaller):
     def __init__(self):
         super(wxobsInstaller, self).__init__(
-            version="0.7.3",
+            version="0.7.4",
             name='wxobs',
             description='Generates a php report to show daily summaries',
             author="Glenn McKechnie",
             author_email="glenn.mckechnie@gmail.com",
             config={
                 'StdReport': {
-                        'wxobs': {
-                            'skin': 'wxobs',
-                            'HTML_ROOT': 'wxobs',
-                                'Units': {
-                                    'Groups': {
-                                        'group_percent': 'percent',
-                                    },
-                                },
+                    'wxobs': {
+                        'enable': 'true',
+                        'lang': 'en',
+                        'skin': 'wxobs',
+                        'HTML_ROOT': 'wxobs',
+                        'unit_system': 'METRIC',
+                        'Units': {
+                             'Groups': {
+                                  'group_direction': 'degree_compass',
+                                  'group_percent': 'percent',
+                                  'group_pressure': 'hPa',
+                                  'group_rain': 'mm',
+                                  'group_temperature': 'degree_C',
+                                  'group_speed': 'km_per_hour',
+                             },
                         },
+                    },
                 },
             },
             files=[('bin/user',

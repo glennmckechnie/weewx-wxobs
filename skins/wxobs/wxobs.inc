@@ -37,12 +37,18 @@
 ##            on os.mkdir
 ## 00-01-2020 Runs with python2.7 or python3 ie:- runs under weewx4
 ## 00-06-2020 Available as release 0.7.2 Add weewx4 style logging
-## 07-08-2020 Minor change to remedy missing labels when units other than defaults are used.
-##            Available as release 0.7.3
-## 15-02-2022 Integrate language gettext that is available with the release of weewx version 4.6.0 
+## 07-08-2020 Minor change to remedy missing labels when units other than defaults are
+##             used.
+##             Available as release 0.7.3
+## 15-02-2022 Integrate language gettext that is available with the release of weewx
+##             version 4.6.0  Move [[Units]][[[Groups]]] configuration to weewx.conf.
+##             Populate weewx.conf with a sample config, consider it an exercise in
+##             configuring!
+##             lang works for index.html.tmpl, wxobs.inc, datepicker.js
+##             Available as release 0.7.4
 ##
 ##
-## Version 0.7.3
+## Version 0.7.4
 ##      /**<input type="submit" name="submitDate" placeholder="25-12-2017" value="$gettext("Show records")">**/
 
    <!-- wxobs version $wxobs_version -->
@@ -50,7 +56,7 @@
    <div class="wxobs">
      <div class="tooltip">
        $gettext("Use the following to select a date for archived records")
-       <span class="tooltiptext"> $gettext("Date style can be either 01-Feb-2018 or 01-02-2018 ( DD-MM-YYYY )")</span>
+       <span class="tooltiptext"> $gettext("Date style can be either 18-02-2022 (DD-MM-YYYY) or 18-Feb-2022 (DD-Mon-YYYY)")</span>
      </div>
       <!-- insert the javascript date picker -->
       <form name="form" method="POST" action="index.php">
@@ -330,6 +336,11 @@ function deltaT($Tc, $RH, $P, $debug)
         if ($debug=='4') {
             echo "<p class=\"debug\">delta-T<br> assuming hPa: P remains $P</p>";
         }
+    } elseif ('$unit.label.barometer' === ' mbar') { //leading space is critical!
+        $P=$P;
+        if ($debug=='4') {
+            echo "<p class=\"debug\">delta-T<br> assuming mbar: P remains $P</p>";
+        }
     } elseif ('$unit.label.barometer' === ' inHg') { //leading space is critical!
         $P=($P*33.86389); //assuming inHg - return hPa
         if ($debug=='4') {
@@ -344,8 +355,8 @@ function deltaT($Tc, $RH, $P, $debug)
         //echo "Unrecognized pressure units - conversion code is not present";
         $dT="?units?";
         if ($debug=='4') {
-            echo "<p class=\"debug\">delta-T<br>($P) returned, assuming nothing".
-                 ": P has become $P</p>";
+            echo "<p class=\"debug\">delta-T<br>($P) returned, undefined Pressure units".
+                 ": P is just $P ??</p>";
         }
         return;
     }
@@ -579,10 +590,8 @@ if ($debug =='1') {
         if ($time_now <= $today_nine) {
             $rain_start = $past_nine;
             $rain_end = $rain_start + 86400 + $arch_interval;
-            $t_span = "(since $start_label a.m.)";
-            $td_rain = "<td style=\"background-color:#aeaeae\" title=\"".
-                       "Previous: Running Total&#10;starting ".
-                       hDate($rain_start). "\">";
+            $t_span = "($gettext("since") $start_label a.m.)";
+            $td_rain = "<td style=\"background-color:#aeaeae\" title=\""."$gettext("Previous: Running Total")&#10;$gettext("starting") ". hDate($rain_start)."\">";
             if ($debug == 1) {
                 echo "Latest: time_now=".hDate($time_now)." : ".hDate($day_start).
                  " ($day_start day_start < today_nine $today_nine) ".
@@ -592,10 +601,8 @@ if ($debug =='1') {
         } elseif ($time_now > $today_nine) {
             $rain_start =$today_nine;
             $rain_end = $rain_start + 86400 + $arch_interval;
-            $t_span = "(since $start_label a.m.)";
-            $td_rain = "<td style=\"background-color:#d6d6d6\" title=\"".
-                       "Current: Running Total&#10;starting ".
-                       hDate($rain_start). "\">";
+            $t_span = "($gettext("since") $start_label a.m.)";
+            $td_rain = "<td style=\"background-color:#d6d6d6\" title=\""."$gettext("Current: Running Total")&#10;$gettext("starting") ". hDate($rain_start)."\">";
             if ($debug == 1) {
                 echo "Latest: time_now=".hDate($time_now)." : ".hDate($day_start).
                  " ($day_start day_start >= today_nine $today_nine) ".
@@ -606,8 +613,8 @@ if ($debug =='1') {
     } else {
         $rain_start = $day_start;
         $rain_end = $time_now;
-        $t_span = "(since 12 a.m.)";
-        $td_rain = "<td title=\"24 hour rain starting at&#10;midnight on: ".
+        $t_span = "($gettext("since") 12 a.m.)";
+        $td_rain = "<td title=\"$gettext("24 hour rain starting at")"."&#10;".$gettext("midnight on"): ".
                    shDate($rain_start). "\">";
         if ($debug == 1) {
             echo "Latest: 24 hours ".hDate($day_start)." ($day_start day_start
@@ -837,19 +844,19 @@ if ($debug =='1') {
         if ($latest_date <= $today_nine) {
             $rain_start = $past_nine;
             $rain_end = $past_nine + 86400;
-            $t_span = "(since $start_label a.m.)";
-            $td_rain = "<td style=\"background-color:#aeaeae\" title=\"$gettext("Previous: Running Total")&#10;$gettext("starting") hDate($rain_start).\">";
+            $t_span = "($gettext("since") $start_label a.m.)";
+            $td_rain = "<td style=\"background-color:#aeaeae\" title=\""."$gettext("Previous: Running Total")&#10;$gettext("starting") ".hDate($rain_start)."\">";
             // start from the $start_label a.m. value
         } elseif ($latest_date > $today_nine) {
             $rain_start =$today_nine;
             $rain_end = $today_nine + 86400;
-            $t_span = "(since $start_label a.m.)";
-            $td_rain = "<td style=\"background-color:#d6d6d6\" title=\"$gettext("Current: Running Total")&#10;$gettext("starting") hDate($rain_start).\">";
+            $t_span = "($gettext("since") $start_label a.m.)";
+            $td_rain = "<td style=\"background-color:#d6d6d6\" title=\""."$gettext("Current: Running Total")&#10;$gettext("starting") ".hDate($rain_start)."\">";
         }
     } else {
         $rain_start = $start_time;
         $rain_end = $day_end;
-        $t_span = "(since 12 a.m.)";
+        $t_span = "($gettext("since") 12 a.m.)";
         $td_rain = "<td title=\"$gettext("24 hour rain starting at")&#10; $gettext("midnight on"): ".
                    hDate($rain_start). "\">";
     }
@@ -925,7 +932,7 @@ if ($debug =='1') {
 
     echo "<!-- start snapshot summary observations -->
  <h2>$gettext("Historical Observations for") $this_day</h2>
- <h3><a title=\"$gettext("Lowest [Highest] observations for the nominated day").\">$gettext("Stats for the day : Min (Max), or Averages for Direction")</a></h3>
+ <h3><a title=\"$gettext("Lowest [Highest] observations for the nominated day").\">$gettext("Stats for the day : Min (Max), or Averages for Direction")  </a></h3>
  <table class=\"wxdata\">
   <thead>
   <tr>
@@ -1041,20 +1048,20 @@ if ($debug =='1') {
                  $rain_start = $past_nine;
                  $rain_end = $end_interval;//$past_nine + 86400;
                  $td_rain = "<td style=\"background-color:#aeaeae\" title=\"".
-                            "Previous: Running Total&#10;starting ".
+                            "$gettext("Previous: Running Total")&#10;$gettext("starting") ".
                             hDate($rain_start)."\">";
                 // start from the $start_label a.m. value
             } elseif ($start_time > $today_nine) {
                  $rain_start =$today_nine;
                  $rain_end = $end_interval;//$today_nine + 86400;
                  $td_rain = "<td style=\"background-color:#d6d6d6\" title=\"".
-                            "Current: Running Total&#10;starting ".
+                            "$gettext("Current: Running Total")&#10;$gettext("starting") ".
                             hDate($rain_start). "\">";
             }
         } else {
             $rain_start = $pick_start;
             $rain_end = $end_interval;
-            $t_span = "(since 12 a.m.)";
+            $t_span = "($gettext("since") 12 a.m.)";
             $td_rain = "<td title=\"Rain starting at&#10;midnight on: ".
                        shDate($rain_start). "\">";
         }

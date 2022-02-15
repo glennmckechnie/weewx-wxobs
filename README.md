@@ -1,7 +1,11 @@
 
-**Update: Sept 2020**  ---  A minor change to note that weewx.conf takes priority over any skin.conf entries. See [How options work](http://weewx.com/docs/customizing.htm#How_options_work) in the Customizing Guide for the full details.  This change is required for the label logic when manually changing units to something other than what is in the weewx database.  If you have an installation that is already displaying the labels as you want them, then this update is not required.
+**Update: Feb 2022**
 
-Available as [release 0.7.3](https://github.com/glennmckechnie/weewx-wxobs/releases)
+With the release of weewx 4.6.0 comes the ability to add language translations.
+__skins/wxobs/lang/en.conf__ now exists as a template for those who wish to personalize it.
+
+There are no other files there except xx.conf which can be renamed and used as a starting point. It's what I've used to catch all relevant strings (at least I assume that I've got them all!)
+If you go to the effort and translate a file for your locale, then please consider contributing it back to this project for others to use.
 
 
 ----
@@ -34,7 +38,7 @@ It is configured to use the weewx.conf settings as its defaults. It will detect 
 
 I've used appTemp for one of the fields, apparently not everyone has this though? Consequently this is configurable via skin.conf and so windchill is returned as the default.   If you do have appTemp in your database then you can switch it out and use that field as originally intended.
 
-Delta-T is also configurable but is an an either, or selection. ie: it can be skipped completely (no replacement is offered) or configured as an additional column for those of us who may use it.
+Delta-T is also configurable but it is an an either | or selection. ie: it can be skipped completely (no replacement is offered) or configured as an additional column for those of us who may use it. It's used when spraying crops.
 
 Weewx-wxobs reads directly from the database so it doesn't use weewx's internal processes to massage the data to match units. It relies on the database value matching the database units (US, METRIC, METRICWX) and then the [Units][[Groups]]group_x..x as returned by the skin.conf file being correct. Based on those fields it will attempt to ensure that the optional delta-T uses the required Metric units to get a sensible result.
 If this applies in your case, CHECK THE RESULT and confirm its working as it should.
@@ -156,6 +160,10 @@ Nothing seems to have broken (for me). It fixed the problem but I'm not knowledg
 p.s. datepicker's origins are unknown but a search of github will turn up many versions. I'll find one that matches this one and give a link - [This one](https://github.com/chrishulbert/datepicker) is very close to it.
 
 # Previous Changes
+
+**Update: Sept 2020**  ---  A minor change to note that weewx.conf takes priority over any skin.conf entries. See [How options work](http://weewx.com/docs/customizing.htm#How_options_work) in the Customizing Guide for the full details.  This change is required for the label logic when manually changing units to something other than what is in the weewx database.  If you have an installation that is already displaying the labels as you want them, then this update is not required.
+
+Available as [release 0.7.3](https://github.com/glennmckechnie/weewx-wxobs/releases)
 
 **Update: Jun 2020**  ---  Available as [release 0.7.2](https://github.com/glennmckechnie/weewx-wxobs/releases)
 

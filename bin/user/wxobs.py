@@ -22,7 +22,7 @@ import weewx.engine
 from weeutil.weeutil import to_bool
 from weewx.cheetahgenerator import SearchList
 
-wxobs_version = "0.7.3"
+wxobs_version = "0.7.4"
 
 try:
     # weewx4 logging
@@ -42,6 +42,7 @@ try:
 except ImportError:
     # old-style weewx logging
     import syslog
+
     def logmsg(level, msg):
         syslog.syslog(level, 'wxobs: %s' % msg)
 
@@ -53,6 +54,7 @@ except ImportError:
 
     def logerr(msg):
         logmsg(syslog.LOG_ERR, msg)
+
 
 def wxrsync(rsync_user, rsync_server, rsync_options, rsync_loc_file,
             rsync_loc_file2, rsync_ssh_str, rem_path, wxobs_debug,
@@ -74,7 +76,7 @@ def wxrsync(rsync_user, rsync_server, rsync_options, rsync_loc_file,
     cmd = ['rsync']
     cmd.extend([rsync_options])
 
-    #cmd.extend(["-tOJrl"])
+    # cmd.extend(["-tOJrl"])
     # provide some stats on the transfer
     cmd.extend(["--stats"])
     cmd.extend(["--compress"])
@@ -86,20 +88,20 @@ def wxrsync(rsync_user, rsync_server, rsync_options, rsync_loc_file,
         # perform the actual rsync transfer...
         if wxobs_debug == 2:
             loginf("rsync cmd is ... %s" % (cmd))
-        #rsynccmd = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+        # rsynccmd = subprocess.Popen(cmd, stdout=subprocess.PIPE,
         #                             stderr=subprocess.STDOUT, close_fds=True)
         rsynccmd = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                                     stderr=subprocess.STDOUT)
         stdout = rsynccmd.communicate()[0]
         stroutput = stdout.decode("utf-8").strip()
-        #rsyncpid = rsynccmd.pid
-        #loginf("      pre.wait rsync pid is %s" % rsyncpid)
-        #rsynccmd.wait()
-        #rsyncpid = rsynccmd.pid
-        #loginf("     post.wait rsync pid is %s" % rsyncpid)
-        #subprocess.call( ('ps', '-l') )
+        # rsyncpid = rsynccmd.pid
+        # loginf("      pre.wait rsync pid is %s" % rsyncpid)
+        # rsynccmd.wait()
+        # rsyncpid = rsynccmd.pid
+        # loginf("     post.wait rsync pid is %s" % rsyncpid)
+        # subprocess.call( ('ps', '-l') )
     except OSError as e:
-            #print "EXCEPTION"
+        # print "EXCEPTION"
         if e.errno == errno.ENOENT:
             logerr("rsync does not appear to be installed on this system. \
                    (errno %d, \"%s\")" % (e.errno, e.strerror))
@@ -215,6 +217,7 @@ def wxrsync(rsync_user, rsync_server, rsync_options, rsync_loc_file,
             t_o = ' to '
         t_2 = time.time()
         loginf("%s" % rsync_message % (t_2-t_1) + t_o + rsync_ssh_str)
+
 
 class wxobs(SearchList):
 
@@ -362,13 +365,16 @@ class wxobs(SearchList):
             'display_type', 'single')
         if self.display_type == 'single':
             self.disp_single = to_bool(True)
-            # loginf("              %s single readings, %s " % (self.disp_single, self.display_type))
+            # loginf("              %s single readings, %s " % (
+            #   self.disp_single, self.display_type))
         elif self.display_type == 'average':
             self.disp_single = to_bool(False)
             self.arch_interval = self.disp_interval
-            # loginf("              %s average readings, %s " % (self.disp_single, self.display_type))
+            # loginf("              %s average readings, %s " % (
+            #    self.disp_single, self.display_type))
         else:
-            # loginf("                reverting to single readings, %s is not an option" % self.display_type)
+            # loginf("                reverting to single readings,
+            #    %s is not an option" % self.display_type)
             self.disp_single = to_bool(True)
         self.app_temp = self.generator.skin_dict['wxobs'].get(
             'app_Temp', 'windchill')
@@ -403,7 +409,6 @@ class wxobs(SearchList):
         # 32400 == 9 hours == 9 (start_label) a.m.
         self.start_label = self.generator.skin_dict['wxobs']['RainTiming'].get(
             'start_label', '9')
-
 
         # target_unit = METRICWX # Options are 'US', 'METRICWX', or 'METRIC'
         self.targ_unit = self.generator.config_dict['StdConvert'].get(
@@ -451,10 +456,11 @@ class wxobs(SearchList):
             logdbg("database is %s" % def_dbase)
 #########################
 # BEGIN TESTING ONLY:
-# For use when testing sqlite transfer when a mysql database is the default archive
+# For use when testing sqlite transfer when a mysql database is the default
+# archive
 # Our normal mode of operation is False - ie: don't change a bloody thing!
-# It won't be mentioned in the skin.conf description. You'll need to have seen this
-# to know the switch exists!
+# It won't be mentioned in the skin.conf description. You'll need to have seen
+# this to know the switch exists!
         test_sqlite = to_bool(self.generator.skin_dict['wxobs']['Remote'].get(
             'test_withmysql', False))
         if test_sqlite:
@@ -511,11 +517,12 @@ class wxobs(SearchList):
                 with open(self.zero_html, 'a') as z:  # Create file if does not exist
                     pass  # and auto close it
             # we are rsyncing remotely
-            # And going to change all the remote paths, the include_path has lost
-            # its precedence.
+            # And going to change all the remote paths, the include_path has
+            # lost its precedence.
             self.inc_path = self.dest_dir
             self.include_file = ("%s/%s" % (self.inc_path, inc_file))
-            # preempt inevitable warning/exception when using test_sqlite = False
+            # pre-empt inevitable warning/exception when using
+            #    test_sqlite = False
             self.sq_dbase = self.generator.config_dict['Databases'] \
                 [def_dbase].get('database_name')
 
@@ -547,15 +554,15 @@ class wxobs(SearchList):
             # use the skin.conf include_path, either default or the override.
             self.inc_path = self.generator.skin_dict['wxobs'].get(
                 'include_path', '/usr/share/php')
-            # phpinfo.php include_path is referenced but missing in some cases - php7.3?
-            # possibly installed with php-pear ?
+            # phpinfo.php include_path is referenced but missing in some
+            #  cases - php7.3? Possibly installed with php-pear ?
             # FIXME: a quick and harmless fix is to create it.
             if not os.path.exists(self.inc_path):
                 os.makedirs(self.inc_path, mode=0o0755)
                 loginf("Created %s" % self.inc_path)
             self.include_file = ("%s/%s" % (self.inc_path, inc_file))
 
-        #if self.send_inc and self.dest_dir != '':
+        # if self.send_inc and self.dest_dir != '':
         if self.send_inc:
             php_inc = open(self.include_file, 'w')
             php_inc.writelines(v_al)
