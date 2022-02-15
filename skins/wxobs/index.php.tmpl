@@ -14,7 +14,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <!-- meta http-equiv="refresh" content="900" -->
-    <title>$station.location Weather Observations, archival by day</title>
+    <title>$station.location $gettext("Weather Observations, archival by day")</title>
     <link rel="icon" type="image/png" href="../favicon.ico" />
     <!-- including both the skins css files, most users would have weewx.css. -->
     <!-- seasons.css is what the template was sourced from. -->
@@ -37,7 +37,7 @@
        </div>
       </div>
  </div>
-      <p><a href="../index.html">&#10096; Current Conditions</a></p>
+      <p><a href="../index.html">&#10096; $gettext("Current Conditions")</a></p>
       <!-- the following section is redundant as it calls itself. It's a working example for inclusion in the season skins index.html.tmpl file -->
       <!--
       <div id="widget_group">
@@ -49,7 +49,7 @@
         #include "wxobs.inc"
       <!-- wxobs php code finishes here -->
     <p class="footnote">
-      This extension is available at github as <a href="https://github.com/glennmckechnie/weewx-wxobs">weewx-wxobs</a> : This is version $wxobs_version<br>
+      $gettext("This extension is available at github as") <a href="https://github.com/glennmckechnie/weewx-wxobs">weewx-wxobs</a> : $gettext("This is version") $wxobs_version<br>
     </p>
 
   </body>

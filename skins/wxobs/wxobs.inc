@@ -8,7 +8,7 @@
 ## Copyright 2017-2020 Glenn McKechnie
 ## php inclusion to create wxobs.php.tmpl by glenn.mckechnie@gmail.com
 ## available at https://github.com/glennmckechnie/weewx-wxobs
-## 06-09-2017 initial releas @0.01
+## 06-09-2017 initial release @0.01
 ## 08-09-2017 convert to installable skin
 ## 08-09-2017 add unit check and conversion for deltaT
 ## 13-09-2017 move sensitive info to an include file in /tmp, rather than have it
@@ -39,22 +39,24 @@
 ## 00-06-2020 Available as release 0.7.2 Add weewx4 style logging
 ## 07-08-2020 Minor change to remedy missing labels when units other than defaults are used.
 ##            Available as release 0.7.3
+## 15-02-2022 Integrate language gettext that is available with the release of weewx version 4.6.0 
 ##
 ##
 ## Version 0.7.3
+##      /**<input type="submit" name="submitDate" placeholder="25-12-2017" value="$gettext("Show records")">**/
 
    <!-- wxobs version $wxobs_version -->
    <!-- This weewx extension is available at github: https://github.com/glennmckechnie/weewx-wxobs -->
    <div class="wxobs">
      <div class="tooltip">
-       Use the following to select a date for archived records
-       <span class="tooltiptext"> Date style can be either 01-Feb-2018 or 01-02-2018 ( DD-MM-YYYY )</span>
+       $gettext("Use the following to select a date for archived records")
+       <span class="tooltiptext"> $gettext("Date style can be either 01-Feb-2018 or 01-02-2018 ( DD-MM-YYYY )")</span>
      </div>
       <!-- insert the javascript date picker -->
       <form name="form" method="POST" action="index.php">
-      Choose the date:
+      $gettext("Choose the date"):
       <input id="start_dt" name="datepicker" class="datepicker">
-      <input type="submit" name="submitDate" placeholder="25-12-2017" value="Show records" >
+      <input type="submit" name="submitDate" value="$gettext("Show records")">
       </form>
    </div>
 <?php
@@ -273,16 +275,16 @@ function ordinalCompass($degr, $debug)
     * should be using windSpeed == 0, but this works too !?
     */
     global $compass;
-    $default_ordinate_names = array ('N', 'NNE','NE', 'ENE', 'E', 'ESE', 'SE', 'SSE',
-                          'S', 'SSW','SW', 'WSW', 'W', 'WNW', 'NW', 'NNW',
-                            'N/A'); //17 objects
+    $default_ordinate_names = array('$gettext("N")', '$gettext("NNE")','$gettext("NE")', '$gettext("ENE")', '$gettext("E")', '$gettext("ESE")', '$gettext("SE")', '$gettext("SSE")',
+                          '$gettext("S")', '$gettext("SSW")','$gettext("SW")', '$gettext("WSW")', '$gettext("W")', '$gettext("WNW")', '$gettext("NW")', '$gettext("NNW")',
+                            '$gettext("N/A")'); //17 objects
     if ($debug == '5') {
         echo "<p class=\"debug\">degr passed as '$degr'<br>";
     }
     // has weewx returned null wind? (zero_wind sets windDir as NULL)
     if (is_null($degr)) {
         //$compass = "'$degr' :: CALM";
-        $compass = "CALM";
+        $compass = $gettext("CALM");
         if ($debug == '5') {
             echo "so degree is '$degr': compass is $compass</p>";
         }
@@ -359,10 +361,9 @@ function deltaT($Tc, $RH, $P, $debug)
 
 function theader($avflag)
 {
-    $st_wind = "<th class=\"wxheadr\" colspan=\"4\"><a title=\"".
-               "Wind stats $avflag for each interval.\">Wind $avflag </a></th>";
-    $st_spd = "<th class=\"wxheadr\"><a title=\"Wind speed $avflag\">Speed<br>$unit.label.wind</a></th>";
-    $st_gust = "<th class=\"wxheadr\"><a title=\"Wind gust speed $avflag\">Gust<br>$unit.label.wind</a></th>";
+    $st_wind = "<th class=\"wxheadr\" colspan=\"4\"><a title=\"$gettext("Wind stats") $avflag $gettext("for each interval").\">$gettext("Wind") $avflag </a></th>";
+    $st_spd = "<th class=\"wxheadr\"><a title=\"$gettext("Wind speed") $avflag\">$gettext("Speed")<br>$unit.label.wind</a></th>";
+    $st_gust = "<th class=\"wxheadr\"><a title=\"$gettext("Wind gust speed") $avflag\">$gettext("Gust")<br>$unit.label.wind</a></th>";
     return array ($st_wind, $st_spd, $st_gust);
 }
 
@@ -379,24 +380,20 @@ $tr_bgrnd="";
 if ($disp_single) { //single
     $tflag="";
     $avflag="";
-    $iflag=" (as $display_type readings)";
+    $iflag=" (as $display_type $gettext("readings"))";
 } else { //average
-    $tflag="Total";
+    $tflag="$gettext("Total")";
     //$avflag="(Average)";
     $avflag="";
-    $iflag=" ($display_type over each interval)";
+    $iflag=" ($display_type $gettext("over each interval"))";
 }
 
 // then define a bunch of long strings for use in <th> @ 3 locations
 
 if ($php_dbase === 'mysql') {
-    $st_date = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"".
-              "Date (in day-month-year format) and Time\">".
-              "Date&nbsp;&nbsp;&nbsp;&nbsp; Time</a></th>";
+    $st_date = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"$gettext("Date (in day-month-year format) and Time")\">$gettext("Date")&nbsp;&nbsp;&nbsp;&nbsp; $gettext("Time")</a></th>";
 } elseif ($php_dbase === 'sqlite') {
-    $st_date = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"".
-              "Date (in year-month-day format) and Time\">".
-              "Date&nbsp;&nbsp;&nbsp;&nbsp; Time</a></th>";
+    $st_date = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"$gettext("Date (in year-month-day format) and Time")\">$gettext("Date")&nbsp;&nbsp;&nbsp;&nbsp; $gettext("Time")</a></th>";
 }
 
 // Latest wind Observations are always single readings
@@ -405,28 +402,17 @@ $avflag="";
 list ($st_wind, $st_spd, $st_gust) = theader($avflag);
 $avflag=$tmp_flag;
 
-$st_temp ="<th class=\"wxheadr\" rowspan=\"2\"><a title=\"".
-          "Outside temperature\">Out Temp<br>$unit.label.outTemp</a></th>";
-$st_dew = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"".
-          "Temperature where water droplets can condense and dew forms.\">".
-          "Dew Point<br>$unit.label.dewpoint</a></th>";
-$st_rh = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"".
-         "Relative Humidity\">Humidity<br>$unit.label.outHumidity</a></th>";
-$st_baro = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"".
-           "Barometric pressure\">Pressure<br>$unit.label.barometer</a></th>";
+$st_temp ="<th class=\"wxheadr\" rowspan=\"2\"><a title=\"$gettext("Outside temperature")\">$gettext("Out Temp")<br>$unit.label.outTemp</a></th>";
+$st_dew = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"$gettext("Temperature where water droplets can condense and dew forms.")\">$gettext("Dew Point")<br>$unit.label.dewpoint</a></th>";
+$st_rh = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"$gettext("Relative Humidity")\">$gettext("Humidity")<br>$unit.label.outHumidity</a></th>";
+$st_baro = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"$gettext("Barometric pressure")\">$gettext("Pressure")<br>$unit.label.barometer</a></th>";
 if ($shift_rain) {
-    $st_rain = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"".
-               "Total rainfall for each interval\nstarting from the".
-               " nominated\ntime. ($start_label a.m.)\">";
+    $st_rain = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"$gettext("Total rainfall for each interval starting from the nominated time"). ($start_label a.m.)\">";
 } else {
-    $st_rain = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"".
-               " Total rainfall for each\ninterval starting from the\n".
-               " nominated time.\">";
+    $st_rain = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"$gettext("Total rainfall for each interval starting from the nominated time").\">";
 }
-$st_comp = "<th class=\"wxheadr\"><a title=\"Direction the wind comes from as\n".
-           " cardinal (compass) values\">Direction<br>compass</a></th>";
-$st_degr = "<th class=\"wxheadr\"><a title=\"Direction the wind comes from in ".
-           "degrees\">Direction<br>$unit.label.windDir</a></th>";
+$st_comp = "<th class=\"wxheadr\"><a title=\"$gettext("Direction the wind comes from as cardinal (compass) values")\">$gettext("Direction")<br>compass</a></th>";
+$st_degr = "<th class=\"wxheadr\"><a title=\"$gettext("Direction the wind comes from in degrees")\">$gettext("Direction")<br>$unit.label.windDir</a></th>";
 
 if ($php_dbase === 'mysql') {
     if ($debug=='1') {
@@ -439,10 +425,9 @@ if ($php_dbase === 'mysql') {
         $php_mysql_base
     );
     if ($db->connect_errno) {
-        echo ("<div class=\"alert\"><p>Connection to mysql database failed:<br>
-            Has it been configured correctly? The values used are in the file at<br>
-            $include_file<br>
-     $db->connect_error</p></div>");
+        echo ("<div class=\"alert\"><p>$gettext("Connection to mysql database failed"):<br>
+        $gettext("Has it been configured correctly? The values used are in the file at") $include_file<br>
+        $db->connect_error</p></div>");
         return;
     }
 } elseif ($php_dbase === 'sqlite') {
@@ -451,15 +436,15 @@ if ($php_dbase === 'mysql') {
     }
     $db = new SQLite3($php_sqlite_db);
 } else {
-    echo "<div class =\"alert\"><p>Failed to access the database by any known methods.</p></div>";
+    echo "<div class =\"alert\"><p>$gettext("Failed to access the database by any known methods").</p></div>";
 }
 
 
 if ('$app_temp' === 'appTemp') {
-    $appLabel = "<a title=\"Apparent Temperature\">App Temp";
+    $appLabel = "<a title=\"$gettext("Apparent Temperature")\">$gettext("App Temp")";
     $app_label = "$unit.label.appTemp</a>";
 } elseif ('$app_temp' === 'windchill') {
-    $appLabel = 'Wind Chill';
+    $appLabel = '$gettext("Wind Chill")';
     $app_label = '$unit.label.windchill';
 } else {
     $appLabel = '$app_temp';
@@ -669,10 +654,7 @@ if ($debug =='1') {
     // Build Latest Obs html
 
     if ($want_delta) {
-        $delta_label = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"Used as an".
-                       " indicator for agricultural spraying conditions, the ideal".
-                       " conditions are between the values of 2 &amp; 8\">".
-                       "delta&dash;T<br>&#176;C</a></th>";
+        $delta_label = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"$gettext("Used as an indicator for agricultural spraying conditions, the ideal conditions are between the values of") 2 &amp; 8\">$gettext("delta")&dash;T<br>&#176;C</a></th>";
         if ($debug =='3') {
             echo "<p class=\"debug\">want_delta is $want_delta so label is...<br>
                  $delta_label";
@@ -688,7 +670,7 @@ if ($debug =='1') {
 
     //Create Latest table headers - ugly layout but ok in html source
     echo "<div class=\"wxdata\">\n<!-- start data tables -->\n
- <H2><A Title=\"Todays latest weather observations, at the displayed time.\">Latest Observations</a></h2>
+ <H2><a title=\"$gettext("Todays latest weather observations, at the displayed time").\">$gettext("Latest Observations")</a></h2>
 <table class=\"wxdata\">
   <thead>
   <tr>
@@ -806,8 +788,7 @@ if ($debug =='1') {
             // $day_start is good (it's ours!) so we'll trust that and use it
             // instead.
             $pick_start = $day_start;
-            echo "<div class=\"info\">Datepicker didn't return a valid date,".
-                 " falling back to todays date.<br></div>";
+            echo "<div class=\"info\">$gettext("Datepicker didn't return a valid date, falling back to todays date").<br></div>";
             if ($debug =='1') {
                 echo "<p class=\"debug\">Min (Max)<br> Datepicker return is invalid,
                      day_start ", hDate($day_start), "( $day_start )
@@ -818,7 +799,7 @@ if ($debug =='1') {
         // we have nothing from datepicker so we assume today is wanted.
         // We'll use our $day_start to display a report for the current date.
         $pick_start = $day_start;
-        echo "<div class=\"info\">Using todays date.<br></div>";
+        echo "<div class=\"info\">$gettext("Using todays date").<br></div>";
         if ($debug =='1') {
             echo "<p class=\"debug\">Min (Max)<br> Datepicker returned null,
                      day_start ", hDate($day_start), "( $day_start )
@@ -833,8 +814,7 @@ if ($debug =='1') {
             echo "<p class=\"debug\"> pick_start ( $pick_start ) is > ".
                  "latest_date ( $latest_date ) </p>";
         }
-        echo "<div class=\"alert\"><p>That is a future date; there are no ".
-             "records!</p></div>";
+        echo "<div class=\"alert\"><p>$gettext("That is a future date; there are no records!")</p></div>";
         return;
     }
 
@@ -858,23 +838,19 @@ if ($debug =='1') {
             $rain_start = $past_nine;
             $rain_end = $past_nine + 86400;
             $t_span = "(since $start_label a.m.)";
-            $td_rain = "<td style=\"background-color:#aeaeae\" title=\"".
-                       "Previous: Running Total&#10;starting ".
-                       hDate($rain_start). "\">";
+            $td_rain = "<td style=\"background-color:#aeaeae\" title=\"$gettext("Previous: Running Total")&#10;$gettext("starting") hDate($rain_start).\">";
             // start from the $start_label a.m. value
         } elseif ($latest_date > $today_nine) {
             $rain_start =$today_nine;
             $rain_end = $today_nine + 86400;
             $t_span = "(since $start_label a.m.)";
-            $td_rain = "<td style=\"background-color:#d6d6d6\" title=\"".
-                        "Current: Running Total&#10;starting ".
-                        hDate($rain_start). "\">";
+            $td_rain = "<td style=\"background-color:#d6d6d6\" title=\"$gettext("Current: Running Total")&#10;$gettext("starting") hDate($rain_start).\">";
         }
     } else {
         $rain_start = $start_time;
         $rain_end = $day_end;
         $t_span = "(since 12 a.m.)";
-        $td_rain = "<td title=\"24 hour rain starting at&#10; midnight on: ".
+        $td_rain = "<td title=\"$gettext("24 hour rain starting at")&#10; $gettext("midnight on"): ".
                    hDate($rain_start). "\">";
     }
     if ($debug =='1') {
@@ -922,8 +898,7 @@ if ($debug =='1') {
     $dbase_date = $stats_row[0];
     if ($dbase_date == "") {
         $read_able=date("d-M-Y H:i", $start_time);
-        echo "<div class=\"alert\"><p>That date appears to be invalid, no data to
-             display.<br> $start_time was given as the starting date ($read_able)
+        echo "<div class=\"alert\"><p>$gettext("That date appears to be invalid, no data to display").<br> $start_time $gettext("was given as the starting date") ($read_able)
              </p></div></div></body></html>";
         return;
     }
@@ -949,12 +924,12 @@ if ($debug =='1') {
     //$avflag=$tmp_flag;
 
     echo "<!-- start snapshot summary observations -->
- <h2>Historical Observations for $this_day</h2>
- <h3><a title=\"Lowest [Highest] observations for the nominated day.\">Stats for the day : Min (Max), or Averages for Direction</a></h3>
+ <h2>$gettext("Historical Observations for") $this_day</h2>
+ <h3><a title=\"$gettext("Lowest [Highest] observations for the nominated day").\">$gettext("Stats for the day : Min (Max), or Averages for Direction")</a></h3>
  <table class=\"wxdata\">
   <thead>
   <tr>
-    <th class=\"wxheadr\" rowspan=\"2\"><a title=\"Date (in day-month-year format)\">Date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></th>
+    <th class=\"wxheadr\" rowspan=\"2\"><a title=\"$gettext("Date (in day-month-year format)")\">$gettext("Date")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></th>
     \n   $st_temp
    <th class=\"wxheadr\" rowspan=\"2\">$appLabel<br>$app_label</th>
    $st_dew \n   $st_rh \n   $st_wind \n   $st_baro
@@ -1032,7 +1007,7 @@ if ($debug =='1') {
     list ($st_wind, $st_spd, $st_gust) = theader($avflag);
 
     echo "<!-- start snapshot observations -->
- <h3><a title=\"Time stamped observations throughout the nominated day.\">Periodic Stats $iflag</a></h3>
+ <h3><a title=\"$gettext("Time stamped observations throughout the nominated day").\">$gettext("Periodic Stats") $iflag</a></h3>
  <table class=\"wxdata\">
  <thead>
   <tr>
@@ -1198,6 +1173,6 @@ if ($debug =='1') {
 
     $end = microtime(true);
     $creationtime = round(($end - $start), 2);
-    echo "<p class=\"footnote\">Time taken to generate page was $creationtime seconds.</p>";
+    echo "<p class=\"footnote\">$gettext("Time taken to generate page was") $creationtime $gettext("seconds").</p>";
  //echo "<b>display_type = $display_type <br>display_int = $disp_interval &amp; arch_int = $arch_interval</b>";
     ?>
