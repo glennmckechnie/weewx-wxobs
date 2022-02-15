@@ -614,7 +614,7 @@ if ($debug =='1') {
         $rain_start = $day_start;
         $rain_end = $time_now;
         $t_span = "($gettext("since") 12 a.m.)";
-        $td_rain = "<td title=\"$gettext("24 hour rain starting at")"."&#10;".$gettext("midnight on"): ".
+        $td_rain = "<td title=\""."$gettext("24 hour rain starting at")&#10;$gettext("midnight on"): ".
                    shDate($rain_start). "\">";
         if ($debug == 1) {
             echo "Latest: 24 hours ".hDate($day_start)." ($day_start day_start
@@ -1062,7 +1062,7 @@ if ($debug =='1') {
             $rain_start = $pick_start;
             $rain_end = $end_interval;
             $t_span = "($gettext("since") 12 a.m.)";
-            $td_rain = "<td title=\"Rain starting at&#10;midnight on: ".
+            $td_rain = "<td title=\""."$gettext("Rain starting at")&#10;$gettext("midnight on"): ".
                        shDate($rain_start). "\">";
         }
 
