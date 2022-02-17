@@ -9,11 +9,12 @@ _skins/wxobs/lang/en.conf_ now exists as a template for those who wish to person
 The weewx [localization documents](https://weewx.com/docs/customizing.htm#localization) provides more details.
 
 
-This gives the user the ability to have languages other than English. The files won't exist here until someone with the required language skill does them, and shares them. As always, if you have any queries then contact me and I'll help where possible / or if required.
+This gives the user the ability to have languages other than English. The files won't exist here until someone with the required language skill does them, and shares them.
 
-The english file exists, along with a test file (xx.conf) which can be renamed and used as a starting point. It's what I've used to catch all relevant strings (at least I assume that I've got them all!)
-If you go to the effort and translate a file for your locale, please consider contributing it back to this project for others to use.
+The english file exists (en.conf), along with a test file (xx.conf) which can be renamed and used as a starting point. It's what I've used to catch all relevant strings (or at least I assume that I've got them all!)
+If you go to the effort and translate a file for your locale, please consider contributing it back to this project for others to use. It will be appreciated.
 
+As always, if you have any queries then contact me and I'll help where possible.
 
 ----
 
