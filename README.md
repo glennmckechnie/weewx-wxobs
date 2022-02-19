@@ -3,6 +3,8 @@
 
 ***Internationalization.***
 
+****!! Argh - bug fix - now at v0.7.6 !!****
+
 With the release of weewx 4.6.0 comes the ability to add language translations.
 _skins/wxobs/lang/en.conf_ now exists as a template for those who wish to personalize it.
 
