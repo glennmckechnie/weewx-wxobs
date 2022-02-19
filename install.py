@@ -13,7 +13,7 @@ def loader():
 class wxobsInstaller(ExtensionInstaller):
     def __init__(self):
         super(wxobsInstaller, self).__init__(
-            version="0.7.4",
+            version="0.7.5",
             name='wxobs',
             description='Generates a php report to show daily summaries',
             author="Glenn McKechnie",
