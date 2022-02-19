@@ -16,6 +16,8 @@ If you go to the effort and translate a file for your locale, please consider co
 
 As always, if you have any queries then contact me and I'll help where possible.
 
+Available as [pre-release v0.7.5](https://github.com/glennmckechnie/weewx-wxobs/releases/tag/v0.7.5) or as master.zip from the master branch.
+
 ----
 
 The remote installation centers around rsyncing an sqlite database to the remote server. If you run an MySQL database then the required configuration for that is built in to mysql and should just require the correct variable names entering. This will vary with each setup so a single configuration example is not in my scope. If you have working notes and wish to share them, then raise them as an issue and we'll start from there.
