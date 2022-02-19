@@ -326,7 +326,6 @@ function deltaT($Tc, $RH, $P, $debug)
         if ($debug=='4') {
             echo "<p class=\"debug\">delta-T<br> assumed degF: Tc has become $Tc</p>";
         }
-**This release v0.7.5** adds the missing datepicker.js.tmpl files
     } else {
         if ($debug=='4') {
             echo "<p class=\"debug\">delta-T<br> assumed degC: Tc remains $Tc</p>";
