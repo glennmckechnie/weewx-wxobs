@@ -197,7 +197,7 @@ function MpstoMph($x, $wind_plc)
     return array($x, $dec_plc);
 }
 
-function MpstoKmh($x, $wind_plc)
+function MpstoKph($x, $wind_plc)
 {
     $x = $x * 3.6;
     $dec_plc = 0;
