@@ -1,32 +1,15 @@
 
-**Update: Feb 2022**
+**Update: March 2022**
 
-***Internationalization.***
-
-****!! Argh - bug fix - now at v0.7.6 !!****
-
-With the release of weewx 4.6.0 comes the ability to add language translations.
-_skins/wxobs/lang/en.conf_ now exists as a template for those who wish to personalize it.
-
-The weewx [localization documents](https://weewx.com/docs/customizing.htm#localization) provides more details.
-
-
-This gives the user the ability to have languages other than English. The files won't exist here until someone with the required language skill does them, and shares them.
-
-The english file exists (en.conf), along with a test file (xx.conf) which can be renamed and used as a starting point. It's what I've used to catch all relevant strings (or at least I assume that I've got them all!)
-If you go to the effort and translate a file for your locale, please consider contributing it back to this project for others to use. It will be appreciated.
-
-As always, if you have any queries then contact me and I'll help where possible.
-
-Available as [pre-release v0.7.6](https://github.com/glennmckechnie/weewx-wxobs/releases/tag/v0.7.6) or as master.zip from the master branch.
+Add instructions to generate "Daily Summaries (wxobs)" link in Seasons main page (See point 6 below) using the skin/wxobs/links.inc file
 
 ----
+
+For a local installation, this will "just work". You may need to relocate the include file (see skin.conf) but other than that either sqlite or mysql databases will work as they did before.
 
 The remote installation centers around rsyncing an sqlite database to the remote server. If you run an MySQL database then the required configuration for that is built in to mysql and should just require the correct variable names entering. This will vary with each setup so a single configuration example is not in my scope. If you have working notes and wish to share them, then raise them as an issue and we'll start from there.
 
 The weewx-user group is also a starting point for queries.
-
-For a local installation, it will "just work". You may need to relocate the include file (see skin.conf) but other than that either sqlite or mysql databases will work as they did before.
 
 Bugs reports, suggestions, feedback are always welcomed.
 
@@ -223,6 +206,27 @@ Nothing seems to have broken (for me). It fixed the problem but I'm not knowledg
 p.s. datepicker's origins are unknown but a search of github will turn up many versions. I'll find one that matches this one and give a link - [This one](https://github.com/chrishulbert/datepicker) is very close to it.
 
 # Previous Changes
+
+**Update: Feb 2022**
+
+***Internationalization.***
+
+****!! Argh - bug fix - now at v0.7.6 !!****
+
+With the release of weewx 4.6.0 comes the ability to add language translations.
+_skins/wxobs/lang/en.conf_ now exists as a template for those who wish to personalize it.
+
+The weewx [localization documents](https://weewx.com/docs/customizing.htm#localization) provides more details.
+
+
+This gives the user the ability to have languages other than English. The files won't exist here until someone with the required language skill does them, and shares them.
+
+The english file exists (en.conf), along with a test file (xx.conf) which can be renamed and used as a starting point. It's what I've used to catch all relevant strings (or at least I assume that I've got them all!)
+If you go to the effort and translate a file for your locale, please consider contributing it back to this project for others to use. It will be appreciated.
+
+As always, if you have any queries then contact me and I'll help where possible.
+
+Available as [pre-release v0.7.6](https://github.com/glennmckechnie/weewx-wxobs/releases/tag/v0.7.6) or as master.zip from the master branch.
 
 **Update: Sept 2020**  ---  A minor change to note that weewx.conf takes priority over any skin.conf entries. See [How options work](http://weewx.com/docs/customizing.htm#How_options_work) in the Customizing Guide for the full details.  This change is required for the label logic when manually changing units to something other than what is in the weewx database.  If you have an installation that is already displaying the labels as you want them, then this update is not required.
 
