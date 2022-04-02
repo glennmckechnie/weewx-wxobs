@@ -5,8 +5,15 @@
 ## Daily summary panel
 ##
 ## Links to a report page that can generates daily summaries
-## for the current day, or from a selected date. Called from
-## Seasons/index.html.tmpl
+## for the current day, or from a selected date.
+##
+## This file is called from Seasons/index.html.tmpl
+## See README point 6 for full instructions.
+##
+## N.B. this will open wxobs in a new page/tab.
+## If you want it in the same page/tab then change
+##  target="_blank" to target="_self"
+
 
 #errorCatcher Echo
 
