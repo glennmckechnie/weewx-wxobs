@@ -123,16 +123,67 @@ For the current debian installation here, the following remedied that...
    
    Hopefully one of those applies for your setup, or at least gives you some direction.
 
-6. If you use it with the default weewx skin, it will use the weewx.css file.
+6. If you use it with the default weewx skin (Standard), it will use the weewx.css file.
 
-If you run the seasons skin as your main skin ( weewx/seasons ) then the index.php file should pick up seasons.css and won't look so... ordinary?, it will also use the seasons.js so the __links.inc__ widget will work as intended.
+If you use the Seasons skin as your main skin ( weewx/Seasons ) then the index.php file will pick up seasons.css (as well as the seasons.js) and adapt to the Seasons theme.
+
+With a minor edit to Seasons/index.html.tmpl the __skins/wxobs/links.inc__ widget file can be used generate a link to the wxobs page.
 
 
-   The file wxobs.inc contains the core of the php and form data. If you have a blank template for your skin (everything above and below the &lt;body&gt; &lt;/body&gt; tags) then simply copy the contents of wxobs.inc (or simply add the line #include wxobs.inc so that cheetahGenerator will do all the work) between those tags and it should work and it will be able to use your skins style (you may have to fix a few paths in the headers of the new php file)
+That edit will consist of (after backing up the Seasons/index.html.tmpl file) adding the line...
+<pre>
+#include "../wxobs/links.inc"
+</pre>
+to the relevant section within Seasons/index.html.tmpl
+
+That is:- find the widget include lines in the widget section which appears (in 4.6.0) as...
+<pre>
+   <body onload="setup();">
+     #include "titlebar.inc"
+       <div id="contents">
+        <div id="widget_group">
+          #include "current.inc"
+          #include "sunmoon.inc"
+          #include "hilo.inc"
+          #include "sensors.inc"
+          #include "about.inc"
+          #include "radar.inc"
+          #include "satellite.inc"
+          #include "map.inc"
+        </div>
+</pre>
+inserting that new line (for example: directly after the about.inc line) will change it to appear as follows...
+<pre>
+   <body onload="setup();">
+     #include "titlebar.inc"
+       <div id="contents">
+        <div id="widget_group">
+          #include "current.inc"
+          #include "sunmoon.inc"
+          #include "hilo.inc"
+          #include "sensors.inc"
+          #include "about.inc"
+          #include "../wxobs/links.inc"
+          #include "radar.inc"
+          #include "satellite.inc"
+          #include "map.inc"
+        </div>
+</pre>
+and give you a working link (providing no other paths have been changed) once the next report run completes.
+
+You're adding one line only.
+It points to the wxobs/links.inc which once found will generate a link to the wxobs/index.html page.
+This change can be applied while weewx is running, check your logs for any introduced errors (typos, path changes).
+
+If you remove wxobs from your installation, this edit will need to be removed manually.
+
+7. wxobs.inc
+
+The file wxobs.inc contains the core of the php and form data. If you have a blank template for your skin (everything above and below the &lt;body&gt; &lt;/body&gt; tags) then simply copy the contents of wxobs.inc (or simply add the line #include wxobs.inc so that cheetahGenerator will do all the work) between those tags and it should work and it will be able to use your skins style (you may have to fix a few paths in the headers of the new php file)
    You'll also need to duplicate the datepicker.css, datepicker.js and wxobs.css stanzas into the new &lt;head&gt;.
 
 
-7. To uninstall
+8. To uninstall
 
    <pre>sudo wee_extension --uninstall wxobs</pre>
 
@@ -144,7 +195,7 @@ If you run the seasons skin as your main skin ( weewx/seasons ) then the index.p
    sudo /etc/init.d/weewx start
    </pre>
 
-8. Upgrading
+9. Upgrading
    
    You can use the steps from above:- step 7. to uninstall, followed by step 2. to install - to upgrade using a newly downloaded  file. 
    

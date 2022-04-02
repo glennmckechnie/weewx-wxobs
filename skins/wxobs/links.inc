@@ -14,12 +14,10 @@
 
 <div id='wxobs_widget' class="widget">
   <div class="widget_title">
-   <a class="widget_control_left"
-        onclick="toggle_widget('wxobs')">&diams;</a>
-        <a href="wxobs/index.php?datepicker=$day.dateTime.format('%d-%b-%Y')&submitDate=Show+records" target="_blank">Daily Summary</a> (wxobs)
-        &nbsp;
-   <a class="widget_control"
-     onclick="toggle_widget('wxobs')">&diams;</a>
+    <a href="wxobs/index.php?datepicker=$day.dateTime.format('%d-%b-%Y')&submitDate=Show+records" target="_blank">Daily Summary</a> (wxobs)
+    &nbsp;
+    <a class="widget_control"
+      onclick="toggle_widget('wxobs')">&diams;</a>
   </div>
   <div class="widget_contents">
   <center>
