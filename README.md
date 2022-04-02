@@ -123,7 +123,7 @@ That edit will consist of (after backing up the Seasons/index.html.tmpl file) ad
 to the relevant section within Seasons/index.html.tmpl
 
 That is:- find the widget include lines in the widget section which appears (in 4.6.0) as...
-<pre>
+```
    <body onload="setup();">
      #include "titlebar.inc"
        <div id="contents">
@@ -137,9 +137,9 @@ That is:- find the widget include lines in the widget section which appears (in 
           #include "satellite.inc"
           #include "map.inc"
         </div>
-</pre>
+```
 inserting that new line (for example: directly after the about.inc line) will change it to appear as follows...
-<pre>
+```
    <body onload="setup();">
      #include "titlebar.inc"
        <div id="contents">
@@ -154,7 +154,7 @@ inserting that new line (for example: directly after the about.inc line) will ch
           #include "satellite.inc"
           #include "map.inc"
         </div>
-</pre>
+```
 and give you a working link (providing no other paths have been changed) once the next report run completes.
 
 You're adding one line only.
