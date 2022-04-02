@@ -47,9 +47,10 @@
 ##             lang works for index.html.tmpl, wxobs.inc, datepicker.js
 ##             Available as release 0.7.4
 ## 20-02-2022 Added missing datepicker.js.tmpl AND removed errant paste! Working again.
+## 02-04-2022 Missing files from install.py, clean directory, add links.inc instructions.
 ##
 ##
-## Version 0.7.6
+## Version 0.7.7
 ##      /**<input type="submit" name="submitDate" placeholder="25-12-2017" value="$gettext("Show records")">**/
 
    <!-- wxobs version $wxobs_version -->

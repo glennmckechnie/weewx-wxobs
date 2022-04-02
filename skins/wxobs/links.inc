@@ -1,14 +1,12 @@
-## forecast module for standard skin
+## forecast module for Seasons skin
 ## Copyright Tom Keffer, Matthew Wall
 ## See LICENSE.txt for your rights
 ##
 ## Daily summary panel
 ##
 ## Links to a report page that can generates daily summaries
-## for the current day, or from a selected date
-
-
-#import dateutil.parser
+## for the current day, or from a selected date. Called from
+## Seasons/index.html.tmpl
 
 #errorCatcher Echo
 

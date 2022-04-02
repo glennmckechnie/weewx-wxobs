@@ -2,6 +2,9 @@
 **Update: March 2022**
 
 Add instructions to generate "Daily Summaries (wxobs)" link in Seasons main page (See point 6 below) using the skin/wxobs/links.inc file
+Clean up old files.
+
+Currently available as [pre-release v0.7.7](https://github.com/glennmckechnie/weewx-wxobs/releases/tag/v0.7.7) or as master.zip from the master branch.
 
 ----
 
