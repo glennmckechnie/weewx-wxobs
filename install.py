@@ -45,7 +45,6 @@ class wxobsInstaller(ExtensionInstaller):
                    ['skins/wxobs/skin.conf',
                     'skins/wxobs/datepicker.css',
                     'skins/wxobs/datepicker.js.tmpl',
-                    'skins/wxobs/standard.js',
                     'skins/wxobs/index.php.tmpl',
                     'skins/wxobs/links.inc',
                     'skins/wxobs/wxobs.css',
