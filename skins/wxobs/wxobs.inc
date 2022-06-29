@@ -293,7 +293,7 @@ function ordinalCompass($degr, $debug)
     // has weewx returned null wind? (zero_wind sets windDir as NULL)
     if (is_null($degr)) {
         //$compass = "'$degr' :: CALM";
-        $compass = $gettext("CALM");
+        $compass = '$gettext("CALM")';
         if ($debug == '5') {
             echo "so degree is '$degr': compass is $compass</p>";
         }
