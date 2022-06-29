@@ -13,7 +13,7 @@ def loader():
 class wxobsInstaller(ExtensionInstaller):
     def __init__(self):
         super(wxobsInstaller, self).__init__(
-            version="0.7.7",
+            version="0.7.8",
             name='wxobs',
             description='Generates a php report to show daily summaries',
             author="Glenn McKechnie",
@@ -58,6 +58,7 @@ class wxobsInstaller(ExtensionInstaller):
                     ]),
                    ('skins/wxobs/lang',
                    ['skins/wxobs/lang/en.conf',
+                    'skins/wxobs/lang/fr.conf',
                     'skins/wxobs/lang/xx.conf',
                     ])
                    ]

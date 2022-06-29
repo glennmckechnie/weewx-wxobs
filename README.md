@@ -1,10 +1,9 @@
 
-**Update: March 2022**
+**Update: June 2022**
 
-Add instructions to generate "Daily Summaries (wxobs)" link in Seasons main page (See point 6 below) using the skin/wxobs/links.inc file
-Clean up old files.
+Rémy L has contributed a french language file (lang/fr.conf) along with some language related bug fixes (missing lang fields).
 
-Currently available as the release: [Internationalization and point 6! - version 0.7.7](https://github.com/glennmckechnie/weewx-wxobs/releases/tag/v0.7.7)
+Currently available as: [Internationalization (English & French)  - version 0.7.8](https://github.com/glennmckechnie/weewx-wxobs/releases/tag/v0.7.8)
 
 ----
 
@@ -209,6 +208,14 @@ Nothing seems to have broken (for me). It fixed the problem but I'm not knowledg
 p.s. datepicker's origins are unknown but a search of github will turn up many versions. I'll find one that matches this one and give a link - [This one](https://github.com/chrishulbert/datepicker) is very close to it.
 
 # Previous Changes
+
+**Update: March 2022**
+
+Add instructions to generate "Daily Summaries (wxobs)" link in Seasons main page (See point 6 below) using the skin/wxobs/links.inc file
+Clean up old files.
+
+Currently available as the release: [Internationalization and point 6! - version 0.7.7](https://github.com/glennmckechnie/weewx-wxobs/releases/tag/v0.7.7)
+
 
 **Update: Feb 2022**
 

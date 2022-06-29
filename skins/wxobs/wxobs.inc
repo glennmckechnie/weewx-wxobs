@@ -48,9 +48,10 @@
 ##             Available as release 0.7.4
 ## 20-02-2022 Added missing datepicker.js.tmpl AND removed errant paste! Working again.
 ## 02-04-2022 Missing files from install.py, clean directory, add links.inc instructions.
+## 29-06-2022 Add fr.conf, missing fields and corrections to wxobs.inc all via Rémy L
 ##
 ##
-## Version 0.7.7
+## Version 0.7.8
 ##      /**<input type="submit" name="submitDate" placeholder="25-12-2017" value="$gettext("Show records")">**/
 
    <!-- wxobs version $wxobs_version -->
@@ -58,7 +59,7 @@
    <div class="wxobs">
      <div class="tooltip">
        $gettext("Use the following to select a date for archived records")
-       <span class="tooltiptext"> $gettext("Date style can be either 18-02-2022 (DD-MM-YYYY) or 18-Feb-2022 (DD-Mon-YYYY)")</span>
+       <span class="tooltiptext"> $gettext("Date style can be either 01-Feb-2018 or 01-02-2018 ( DD-MM-YYYY )")</span>
      </div>
       <!-- insert the javascript date picker -->
       <form name="form" method="POST" action="index.php">
@@ -424,7 +425,7 @@ if ($shift_rain) {
 } else {
     $st_rain = "<th class=\"wxheadr\" rowspan=\"2\"><a title=\"$gettext("Total rainfall for each interval starting from the nominated time").\">";
 }
-$st_comp = "<th class=\"wxheadr\"><a title=\"$gettext("Direction the wind comes from as cardinal (compass) values")\">$gettext("Direction")<br>compass</a></th>";
+$st_comp = "<th class=\"wxheadr\"><a title=\"$gettext("Direction the wind comes from as cardinal (compass) values")\">$gettext("Direction")<br>$gettext("compass")</a></th>";
 $st_degr = "<th class=\"wxheadr\"><a title=\"$gettext("Direction the wind comes from in degrees")\">$gettext("Direction")<br>$unit.label.windDir</a></th>";
 
 if ($php_dbase === 'mysql') {
@@ -615,7 +616,7 @@ if ($debug =='1') {
     } else {
         $rain_start = $day_start;
         $rain_end = $time_now;
-        $t_span = "($gettext("since") 12 a.m.)";
+        $t_span = "($gettext("since") $gettext("12 a.m."))";
         $td_rain = "<td title=\""."$gettext("24 hour rain starting at")&#10;$gettext("midnight on"): ".
                    shDate($rain_start). "\">";
         if ($debug == 1) {
@@ -688,7 +689,7 @@ if ($debug =='1') {
    $st_dew \n   $st_rh
    $delta_label
    $st_wind \n   $st_baro
-   $st_rain $tflag Rain<br>$t_span<br>$unit.label.rain</a></th>
+   $st_rain $tflag $gettext("Rain")<br>$t_span<br>$unit.label.rain</a></th>
   </tr>
   <tr>
    $st_comp \n   $st_spd \n   $st_gust \n   $st_degr
@@ -858,7 +859,7 @@ if ($debug =='1') {
     } else {
         $rain_start = $start_time;
         $rain_end = $day_end;
-        $t_span = "($gettext("since") 12 a.m.)";
+        $t_span = "($gettext("since") $gettext("12 a.m."))";
         $td_rain = "<td title=\"$gettext("24 hour rain starting at")&#10; $gettext("midnight on"): ".
                    hDate($rain_start). "\">";
     }
@@ -942,7 +943,7 @@ if ($debug =='1') {
     \n   $st_temp
    <th class=\"wxheadr\" rowspan=\"2\">$appLabel<br>$app_label</th>
    $st_dew \n   $st_rh \n   $st_wind \n   $st_baro
-   $st_rain $tflag Rain<br>$t_span<br>$unit.label.rain</a></th>
+   $st_rain $tflag $gettext("Rain")<br>$t_span<br>$unit.label.rain</a></th>
   </tr>
   <tr>
    $st_comp \n   $st_spd \n   $st_gust \n   $st_degr
@@ -1025,7 +1026,7 @@ if ($debug =='1') {
    $st_dew \n   $st_rh
    $delta_label
    $st_wind \n   $st_baro
-   $st_rain $tflag Rain<br>$t_span<br>$unit.label.rain</a></th>
+   $st_rain $tflag $gettext("Rain")<br>$t_span<br>$unit.label.rain</a></th>
   </tr>
   <tr>
    $st_comp \n   $st_spd \n   $st_gust \n   $st_degr
@@ -1063,7 +1064,7 @@ if ($debug =='1') {
         } else {
             $rain_start = $pick_start;
             $rain_end = $end_interval;
-            $t_span = "($gettext("since") 12 a.m.)";
+            $t_span = "($gettext("since") $gettext("12 a.m."))";
             $td_rain = "<td title=\""."$gettext("Rain starting at")&#10;$gettext("midnight on"): ".
                        shDate($rain_start). "\">";
         }
