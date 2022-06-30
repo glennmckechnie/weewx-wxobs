@@ -915,7 +915,7 @@ if ($debug =='1') {
         return;
     }
     /* Return day-month-year only */
-    $this_day = date('d-M-Y', $pick_start);
+    $this_day = date('Y-m-d', $pick_start);
 
     if ($debug == '1') {
         echo "Min Max:<br> latest date = ", hDate($latest_date), " : day_start = ",
