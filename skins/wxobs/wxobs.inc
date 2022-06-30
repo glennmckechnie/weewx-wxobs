@@ -391,15 +391,17 @@ $debug='$wxobs_debug';
 $tr_bgrnd="";
 
 // Attempt to get some meaningful table headings, dependent on xxx_interval options
-if ($disp_single) { //single
+if ($disp_single) { //single - bool from wxobs.py
     $tflag="";
     $avflag="";
-    $iflag=" (as $display_type $gettext("readings"))";
-} else { //average
+    $display_range = '$gettext("single")';
+    $iflag=" (as $display_range $gettext("readings"))";
+} else { //average - bool from wxobs.py
     $tflag="$gettext("Total")";
     //$avflag="(Average)";
     $avflag="";
-    $iflag=" ($display_type $gettext("over each interval"))";
+    $display_range = '$gettext("average")';
+    $iflag=" ($display_range $gettext("over each interval"))";
 }
 
 // then define a bunch of long strings for use in <th> @ 3 locations
