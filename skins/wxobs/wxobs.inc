@@ -29,8 +29,8 @@
 ## 11-03-2018 Merge with the master branch - bump Version v0.6.4
 ## 12-03-2018 Bug fix -  was missing the creation of the local database symlink when
 ##            using the remote feature. v0.6.5
-## 15-03-2018 Simplify logic, and explanation, for single and average capabilty of
-##            the displayed, Periodic Stats table values.
+## 15-03-2018 Simplify logic, and explanation, for measured (single) and average
+##            capabilty of the displayed, Periodic Stats table values.
 ## 17-03-2018 option to use [RSYNC] from weewx.conf. Option to add error reporting to
 ##            index.php. Use dest_dir as switch.
 ## 14-01-2020 Python3 tweaks. Work around missing /usr/share/php directory. Fix mode
@@ -394,7 +394,7 @@ $tr_bgrnd="";
 if ($disp_single) { //single - bool from wxobs.py
     $tflag="";
     $avflag="";
-    $iflag=" ($gettext("single values"))";
+    $iflag=" ($gettext("measured values"))";
 } else { //average - bool from wxobs.py
     $tflag="$gettext("Total")";
     //$avflag="(Average)";
