@@ -934,7 +934,7 @@ if ($debug =='1') {
     //$avflag=$tmp_flag;
 
     echo "<!-- start snapshot summary observations -->
- <h2>$gettext("Historical Observations for the day of") $this_day</h2>
+ <h2>$gettext("Historical Observations for the date of") $this_day</h2>
  <h3><a title=\"$gettext("Lowest [Highest] observations for the nominated day").\">$gettext("Stats for the day : Min (Max), or Averages for Direction")  </a></h3>
  <table class=\"wxdata\">
   <thead>
