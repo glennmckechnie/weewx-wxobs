@@ -1,9 +1,13 @@
 
-**Update: June 2022**
+**Update: Feb 2024**
 
-Rémy L has contributed a french language file (lang/fr.conf) along with some language related bug fixes (missing lang fields).
+Weewx is now at version 5.x
 
-Currently available as: [Internationalization (English & French)  - version 0.7.8](https://github.com/glennmckechnie/weewx-wxobs/releases/tag/v0.7.8)
+While weewx can still be run as the root user, a default install (deb package) now installs and sets up the application to run under the user weewx.
+
+This means that wxobs can no longer write to the /usr/share/php directory. The simplest fix is to change that directory to /var/tmp where weewx can write the file and the apache2 webserver can read it.
+
+That change has been enabled in the wxobs/skin.conf file.
 
 ----
 
@@ -50,11 +54,17 @@ Thanks to:
 
     <pre>wget -O weewx-wxobs.zip https://github.com/glennmckechnie/weewx-wxobs/archive/master.zip</pre>
 
-2. Change to that directory and run the wee_extension installer
+2. Change to that directory and run the weewx extension installer
+
+   for the newer 5.x weewx versions it is now...
+
+   <pre>sudo weectl extension install weewx-wxobs.zip</pre>
+   
+   or for the older 4.x weewx versions it remains...
 
    <pre>sudo wee_extension --install weewx-wxobs.zip</pre>
 
-3. Restart weewx
+4. Restart weewx
 
    <pre>
    sudo /etc/init.d/weewx stop
@@ -62,7 +72,7 @@ Thanks to:
    sudo /etc/init.d/weewx start
    </pre>
 
-4. This script no longer generates appTemp, nor delta-T values by default. They are selectable within the skin.conf file. This means everything should work after that restart above (and the report cycle has run to generate the page!). You will need to check and possibly configure the displayed units to match your preferences. Instructions are in the configuration file - skin.conf.
+5. This script no longer generates appTemp, nor delta-T values by default. They are selectable within the skin.conf file. This means everything should work after that restart above (and the report cycle has run to generate the page!). You will need to check and possibly configure the displayed units to match your preferences. Instructions are in the configuration file - skin.conf.
 If you select delta-T and your database and units satisfy delta_T's requirements then it will be usable without further tweaks. More likely though, is that the database or detected units will differ from delta-T's native units and some configuration will be required. This will start with a set of instructions being displayed on the report page, it should be un-missable!
 
 
@@ -208,6 +218,13 @@ Nothing seems to have broken (for me). It fixed the problem but I'm not knowledg
 p.s. datepicker's origins are unknown but a search of github will turn up many versions. I'll find one that matches this one and give a link - [This one](https://github.com/chrishulbert/datepicker) is very close to it.
 
 # Previous Changes
+
+**Update: June 2022**
+
+Rémy L has contributed a french language file (lang/fr.conf) along with some language related bug fixes (missing lang fields).
+
+Currently available as: [Internationalization (English & French)  - version 0.7.8](https://github.com/glennmckechnie/weewx-wxobs/releases/tag/v0.7.8)
+
 
 **Update: March 2022**
 
