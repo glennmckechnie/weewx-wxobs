@@ -22,7 +22,7 @@ import weewx.engine
 from weeutil.weeutil import to_bool
 from weewx.cheetahgenerator import SearchList
 
-wxobs_version = "0.7.8"
+wxobs_version = "0.8.0"
 
 try:
     # weewx4 logging
@@ -492,8 +492,10 @@ class wxobs(SearchList):
             self.sq_dbase = self.generator.config_dict['Databases'] \
                 [def_dbase].get('database_name')
             id_match = self.sq_dbase[:-4]
-            self.sq_root = self.generator.config_dict['DatabaseTypes'] \
-                ['SQLite'].get('SQLITE_ROOT')
+            # Required for later versions of weewx as paths became relative in weewx.conf
+            self.sq_root = os.path.join(self.generator.config_dict['WEEWX_ROOT'], self.generator.config_dict['DatabaseTypes'] \
+                ['SQLite'].get('SQLITE_ROOT'))
+
 
             self.sqlite_db = ("%s/%s" % (self.sq_root, self.sq_dbase))
             v_al = ["<?php\n $php_dbase = 'sqlite';\n $php_sqlite_db = '%s';\n" %
@@ -558,13 +560,26 @@ class wxobs(SearchList):
             #  cases - php7.3? Possibly installed with php-pear ?
             # FIXME: a quick and harmless fix is to create it.
             if not os.path.exists(self.inc_path):
-                os.makedirs(self.inc_path, mode=0o0755)
-                loginf("Created %s" % self.inc_path)
+                # Catch permission errors when running weewxV5 and onwards
+                try:
+                    os.makedirs(self.inc_path, mode=0o0755)
+                    loginf("Created %s" % self.inc_path)
+                except PermissionError as e:
+                    logerr("Failed to create %s with mode 0755 : %s" % (self.inc_path, e))
+                    logerr("See wxobs/skin.conf Section \"Include File issue\"")
             self.include_file = ("%s/%s" % (self.inc_path, inc_file))
 
         # if self.send_inc and self.dest_dir != '':
         if self.send_inc:
-            php_inc = open(self.include_file, 'w')
+            # Catch permission errors when running weewxV5 and onwards
+            try:
+                php_inc = open(self.include_file, 'w')
+            except (PermissionError, FileNotFoundError) as e:
+                logerr("Error when accessing %s : %s" % (self.include_file, e))
+                logerr("See wxobs/skin.conf Section \"Include File issue\"")
+                # Create the include file ready for moving to /usr/share/php
+                # with
+                php_inc = open(("/tmp/%s" % inc_file), 'w')
             php_inc.writelines(v_al)
             if self.php_zone != '':
                 t_z = ("\n ini_set(\"date.timezone\", \"%s\");" % self.php_zone)

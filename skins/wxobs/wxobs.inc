@@ -5,7 +5,7 @@
 ## in Latin-1, then you should replace the string "UTF-8" with "latin-1".  If
 ## you do this, you should also change the charset in 'Content-Type' as well.
 #encoding UTF-8
-## Copyright 2017-2020 Glenn McKechnie
+## Copyright 2017-2024 Glenn McKechnie
 ## php inclusion to create wxobs.php.tmpl by glenn.mckechnie@gmail.com
 ## available at https://github.com/glennmckechnie/weewx-wxobs
 ## 06-09-2017 initial release @0.01
@@ -49,9 +49,10 @@
 ## 20-02-2022 Added missing datepicker.js.tmpl AND removed errant paste! Working again.
 ## 02-04-2022 Missing files from install.py, clean directory, add links.inc instructions.
 ## 29-06-2022 Add fr.conf, missing fields and corrections to wxobs.inc all via Rémy L
+## 30-05-2024 Add try: except: to catch permission errors when running as unprivileged user
 ##
 ##
-## Version 0.7.8
+## Version 0.8.0
 ##      /**<input type="submit" name="submitDate" placeholder="25-12-2017" value="$gettext("Show records")">**/
 
    <!-- wxobs version $wxobs_version -->

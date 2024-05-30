@@ -1,13 +1,13 @@
 
-**Update: Feb 2024**
+**Update: May 2024**
+This repo has now been updated to (hopefully) deal with the ownership changes introduced Weewx 5.x
 
-Weewx is now at version 5.x
+While weewx can still be run as the root user, a default install (deb, pip package) now installs and sets up the application to run under a non-privileged user, either weewx or one of your choice.
 
-While weewx can still be run as the root user, a default install (deb package) now installs and sets up the application to run under the user weewx.
+This means that wxobs can no longer write to the /usr/share/php directory.
 
-This means that wxobs can no longer write to the /usr/share/php directory. The simplest fix is to change that directory to /var/tmp where weewx can write the file and the apache2 webserver can read it.
-
-That change has been enabled in the wxobs/skin.conf file.
+On the first run of wxobs; pay attention to the logging file. It will likely encounter an error with permissions and will log the error.
+Read the messages, go to skin.conf and follow the steps under the [Include File issue] Section and once that has been done. wxobs should then run as it did before.
 
 ----
 
@@ -58,7 +58,7 @@ Thanks to:
 
    for the newer 5.x weewx versions it is now...
 
-   <pre>sudo weectl extension install weewx-wxobs.zip</pre>
+   <pre>weectl extension install weewx-wxobs.zip</pre>
    
    or for the older 4.x weewx versions it remains...
 
@@ -218,6 +218,16 @@ Nothing seems to have broken (for me). It fixed the problem but I'm not knowledg
 p.s. datepicker's origins are unknown but a search of github will turn up many versions. I'll find one that matches this one and give a link - [This one](https://github.com/chrishulbert/datepicker) is very close to it.
 
 # Previous Changes
+
+**Update: Feb 2024**
+
+Weewx is now at version 5.x
+
+While weewx can still be run as the root user, a default install (deb package) now installs and sets up the application to run under the user weewx.
+
+This means that wxobs can no longer write to the /usr/share/php directory. The simplest fix is to change that directory to /var/tmp where weewx can write the file and the apache2 webserver can read it.
+
+That change has been enabled in the wxobs/skin.conf file.
 
 **Update: June 2022**
 
