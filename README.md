@@ -93,19 +93,21 @@ Thanks to:
     $php_sqlite_db = 'archive/weewx.sdb';
    </pre>
    That should be written as an absolute path, as in the following example (example only.)
-   <pre>
-      $ cat /usr/share/php/wxobs_weewx.inc
-      <?php
+
+   <pre>$ cat /usr/share/php/wxobs_weewx.inc
+      ?php
        $php_dbase = 'sqlite';
        $php_sqlite_db = '/home/graybeard/weewx-data/archive/weewx.sdb';
    </pre>
 
    This is further described under the section <b>[Include File issue]</b> in wxobs/skin.conf.
+   
 5. This script no longer generates appTemp, nor delta-T values by default. That field is selectable within the skin.conf file. This means everything should work after that restart above (and the report cycle has run to generate the page!). You will need to check and possibly configure the displayed units to match your preferences. Instructions are in the configuration file - skin.conf.
-If you select delta-T and your database and units satisfy delta_T's requirements then it will be usable without further tweaks. More likely though, is that the database or detected units will differ from delta-T's native units and some configuration will be required. This will start with a set of instructions being displayed on the report page, it should be un-missable!
+
+   If you select delta-T and your database and units satisfy delta_T's requirements then it will be usable without further tweaks. More likely though, is that the database or detected units will differ from delta-T's native units and some configuration will be required. This will start with a set of instructions being displayed on the report page, it should be un-missable!
 
 
-__DON'T PANIC!__  Read it, follow the directions, make the changes (if required) and when done, turn the message off from within the skin.conf file.
+   __DON'T PANIC!__  Read it, follow the directions, make the changes (if required) and when done, turn the message off from within the skin.conf file.
 
    The report will be available at weewx/wxobs/index.php
 
