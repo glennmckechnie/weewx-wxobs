@@ -1,17 +1,23 @@
 
 **Update: June 2024 Version 0.8.0**
+
 This repo has now been updated to (hopefully) deal with the ownership changes introduced in Weewx 5.x
 
 While WeeWX can still be run as the root user, a default install (deb, pip package) now installs and sets up the application to run under the control of a non-privileged user. This maybe the user weewx or a user of your choice.
 
 This means that wxobs can no longer write to the /usr/share/php directory (it's well outside its scope.)
 
-On the first run of wxobs; pay attention to the logging file. It will most likely encounter an error with permissions and will log the error in your logs - (that said , an upgrade of wxobs could work without any intervention.
-Read the log messages, go to wxobs/skin.conf and follow the steps outlined under the <i>[Include File issue]</i> Section and once that has been done wxobs should then run orrectly with no further issues. This is also covered under step <b>5.)</b> below.
+On the first run of wxobs; pay attention to the logging file. It will most likely encounter an error with permissions and will log the error in your logs - (that said , an upgrade of wxobs could work without any intervention.)
+
+Read the log messages, go to wxobs/skin.conf and follow the steps outlined under the <i>[Include File issue]</i> Section and once that has been done wxobs should then run orrectly with no further issues.
+
+This is also covered under step <b>4.</b> below.
 
 ----
 
-<b>N.B.</b>With the [changes made to WeeWX 5.0](https://www.weewx.com/docs/5.0/upgrade/#upgrading-to-v50) wxobs now requires a manual configuration step before it will run correctly (See step 5 below). Once that's done it should "just work" for a local installation (the sqlite database is local). For a remote installation, you may need to relocate the include file (see skin.conf) but other than that either sqlite or mysql databases will work as they did before.
+<b>N.B.</b>
+
+With the [changes made to WeeWX 5.0](https://www.weewx.com/docs/5.0/upgrade/#upgrading-to-v50) wxobs now requires a manual configuration step before it will run correctly (See step 5 below). Once that's done it should "just work" for a local installation (the sqlite database is local). For a remote installation, you may need to relocate the include file (see skin.conf) but other than that either sqlite or mysql databases will work as they did before.
 
 The remote installation centers around rsyncing an sqlite database to the remote server. If you run an MySQL database then the required configuration for that is built in to mysql and should just require the correct variable names entering. This will vary with each setup so a single configuration example is not in my scope. If you have working notes and wish to share them, then raise them as an issue and we'll start from there.
 
@@ -64,17 +70,23 @@ Thanks to:
 
    <pre>sudo wee_extension --install weewx-wxobs.zip</pre>
 
-4. Restart WeeWX
+3. Restart WeeWX
 
    <pre>
    sudo systemctl stop weewx  # ( sudo /etc/init.d/weewx stop)
    sudo systemctl start weewx  # ( sudo /etc/init.d/weewx start)
    </pre>
 
-5. Under WeeWX 5.x it will throw 2 errors upon it's first start.
+4. The essential Manual Configuration Step (as the privileged user)
+   
+   Under WeeWX 5.x it will throw 2 errors upon it's first start.
+   
    The logs will show you 2 of these (and those messages will disappear once the following fix is performed)
-   It's documented in the wxobs skin.conf file but because we no longer run as the privileged root user, we need to intervene and manually create the /usr/share/php (with permissions 0755) and copy the weewx_wxobs.inc file (that wxobs generated and wrote as /tmp/weewx_wxobs.inc) into that directory (with permissions 0644). If you do this as root, a straight mkdir and cp should be al that is required - the ownership and existing permissions should not need changing).
-In the unlikely event that those changes don't allow it to work, there is a small possibility that the path within the include file, that points to the database location is incorrect.
+   
+   It's documented in the wxobs skin.conf file but because we no longer run as the privileged root user, we need to intervene and manually create the directory /usr/share/php (with permissions 0755) and copy the weewx_wxobs.inc file (that wxobs generated and wrote as /tmp/weewx_wxobs.inc) into that directory (with its permissions of 0644). If you do this as root, a straight mkdir and cp should be all that is required - the ownership and existing permissions should not need changing).
+   
+   In the unlikely event that those changes don't allow it to work, there is a small possibility that the path within the include file, that points to the database location is incorrect.
+   
    WeeWx 5.x now writes a relative path and this is not suitable for the php script. The following snippet shows a relative path.
    <pre>
    [...]
@@ -89,8 +101,7 @@ In the unlikely event that those changes don't allow it to work, there is a smal
    </pre>
 
    This is further described under the section <b>[Include File issue]</b> in wxobs/skin.conf.
-
-6. This script no longer generates appTemp, nor delta-T values by default. That field is selectable within the skin.conf file. This means everything should work after that restart above (and the report cycle has run to generate the page!). You will need to check and possibly configure the displayed units to match your preferences. Instructions are in the configuration file - skin.conf.
+5. This script no longer generates appTemp, nor delta-T values by default. That field is selectable within the skin.conf file. This means everything should work after that restart above (and the report cycle has run to generate the page!). You will need to check and possibly configure the displayed units to match your preferences. Instructions are in the configuration file - skin.conf.
 If you select delta-T and your database and units satisfy delta_T's requirements then it will be usable without further tweaks. More likely though, is that the database or detected units will differ from delta-T's native units and some configuration will be required. This will start with a set of instructions being displayed on the report page, it should be un-missable!
 
 
@@ -100,7 +111,7 @@ __DON'T PANIC!__  Read it, follow the directions, make the changes (if required)
 
    Read and understand the options available in wxobs/skin.conf There are variables that you can set/unset and a suggestion on report timing.
 
-7. Problems?
+6. Problems?
    Hopefully none but if there are then look at your logs - syslog and apache2/error.log. If you view them in a terminal window then you will see what's happening, as it occurs.
 
    (I find multitail -f /var/log/syslog /var/log/apache2/error.log works for me {adjust to suit your install} -- apt-get install multi-tail if needed)
@@ -136,7 +147,7 @@ For the current debian installation here, the following remedied that...
    
    Hopefully one of those applies for your setup, or at least gives you some direction.
 
-8. If you use this with the default WeeWX skin (Standard), it will use the weewx.css file.
+7. If you use this with the default WeeWX skin (Standard), it will use the weewx.css file.
 
 If you use the Seasons skin as your main skin ( weewx/Seasons ) then the index.php file will pick up seasons.css (as well as the seasons.js) and adapt to the Seasons theme.
 
@@ -190,13 +201,13 @@ This change can be applied while WeeWX is running, check your logs for any intro
 
 If you remove wxobs from your installation, this edit will need to be removed manually.
 
-9. skins/wxobs/wxobs.inc
+8. skins/wxobs/wxobs.inc
 
 The file wxobs.inc contains the core of the php and form data. If you have a blank template for your skin (everything above and below the &lt;body&gt; &lt;/body&gt; tags) then simply copy the contents of wxobs.inc (or simply add the line #include wxobs.inc so that cheetahGenerator will do all the work) between those tags and it should work and it will be able to use your skins style (you may have to fix a few paths in the headers of the new php file)
    You'll also need to duplicate the datepicker.css, datepicker.js and wxobs.css stanzas into the new &lt;head&gt;.
 
 
-10. To uninstall
+9. To uninstall
 
    for the newer 5.x WeeWX versions it is now...
 
@@ -213,7 +224,7 @@ The file wxobs.inc contains the core of the php and form data. If you have a bla
    sudo systemctl start weewx  # (sudo /etc/init.d/weewx start)
    </pre>
 
-11. Upgrading
+10. Upgrading
    
    You can use the steps from above:- step 7. to uninstall, followed by step 2. to install - to upgrade using a newly downloaded  file. 
    
