@@ -79,21 +79,17 @@ $start = microtime(true);
 
 if ((@include '$include_file') === false) {
     echo "<div class=\"alert\">";
-    echo "<p>The database config file has gone missing! &nbsp;&nbsp;&nbsp; That shouldn't happen unless you've been changing your configuration files</p>";
-    echo "We initially use a php default for include files of /usr/share/php, but this doesn't seem to suit all webservers or installations.</p>";
-    echo "As of version 0.7.1,  /usr/share/php will be created if it's found to be missing. </p>";
-    echo "Check that the directory $inc_path does actually exist, if it doesn't then create it - and report this scripts failure.</p>";
-    echo "Check that its read | write permissions are suitable - 0755, owned by root <br><br>";
-    echo "The file should have been accessable as<br> <i>$include_file</i><br>";
-    echo "We can use <i>include_path</i> in <b>wxobs/skin.conf</b> to change that.<br>";
-    echo" The include file will be regenerated on weewx's next report run, (unless you're using the undocumented feature - ";
-    echo " view the source Luke.) Or when report_timing allows.</p>";
-    echo "<p>If the problem persists, consider changing";
-    echo " its location as <b>wxobs/skin.conf</b> will accept<br>";
-    echo "<i>include_path = /new_path/your_choice</i><br>";
-    echo "where the path and name can be anything allowable by php, readable by the webserver, and preferably secure.</p><p>";
-    echo "If you are using the [Remote] section - where the sqlite database and wxobs files are viewable from a remote server then the include file will be transferred into the dest_directory that is specified. Populating dest_directory allow the remote transfer to be considered.</p>";
-    echo "<p>If all else fails, report the problem as an issue";
+    echo "<p>The database config file is unavailable.</p><p>We use the php default location for include files of /usr/share/php .<br></p>";
+    echo "<p>Wxobs tests for the existence of the /usr/share/php directory; ";
+    echo "It also needs write permissions for /usr/share/php/wxobs_weewx.inc (the database configuration file) within that directory.</p>";
+    echo "<p>If either of these operations fail, and they will when running as a non-privileged user on this initial pass, then we need to put on our privileged hat and fix it, once and for all.<br><br>";
+    echo "The file skins/wxobs/skin.conf has a section at the start that outlines the changes required. Those are (briefly) as follows...</p>";
+    echo "1. ) Changing to the root user (or sudo) and creating the missing directory, <b>mkdir -p /usr/share/php</b> with mode 0755. If it is there and permissions are correct then go to the next step.<br>";
+    echo "2. ) Visiting /tmp and copying the /tmp/wxobs_weewx.inc that was written there on the ";
+    echo "last error, to the /usr/share/php directory and, if required, making it mode 0644.<br><br>";
+    echo "You can complete these steps while weewx is running. If they were successful then it will stop logging the ";
+    echo "ERROR messages and this index.php page will work as originally intended ie:- this message will disappear after the next report cycle<br>";
+    echo "<p>If you still have problems getting it to run after taking the steps above then report the problem as an issue";
     echo " - to <a href=\"https://github.com/glennmckechnie/weewx-wxobs/issues\">its github site, or contact me directly.</a><br>";
     echo "There are also <a href=\"https://github.com/glennmckechnie/weewx-wxobs/wiki/Remote-installation\">Wiki notes</a> that may help for this, and setting up remote servers.</p></div>";
 }

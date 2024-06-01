@@ -5,11 +5,11 @@ This repo has now been updated to (hopefully) deal with the ownership changes in
 
 While WeeWX can still be run as the root user, a default install (deb, pip package) now installs and sets up the application to run under the control of a non-privileged user. This maybe the user weewx or a user of your choice.
 
-This means that wxobs can no longer write to the /usr/share/php directory (it's well outside its scope.)
+The result is that wxobs can no longer write to the /usr/share/php directory (it's well outside its scope.)
 
-On the first run of wxobs; pay attention to the logging file. It will most likely encounter an error with permissions and will log the error in your logs - (that said , an upgrade of wxobs could work without any intervention.)
+On the first run of wxobs pay close attention to the logging file. It will most likely encounter an error with permissions and will log the error in your logs - that said , an upgrade of wxobs should just need an ownership change for the include file.
 
-Read the log messages, go to wxobs/skin.conf and follow the steps outlined under the <i>[Include File issue]</i> Section and once that has been done wxobs should then run orrectly with no further issues.
+Read the log messages, go to wxobs/skin.conf and follow the steps outlined under the <i>[Include File issue]</i> Section and once that has been done wxobs should then run correctly with no further issues.
 
 This is also covered under step <b>4.</b> below.
 
@@ -17,7 +17,7 @@ This is also covered under step <b>4.</b> below.
 
 <b>N.B.</b>
 
-With the [changes made to WeeWX 5.0](https://www.weewx.com/docs/5.0/upgrade/#upgrading-to-v50) wxobs now requires a manual configuration step before it will run correctly (See step 5 below). Once that's done it should "just work" for a local installation (the sqlite database is local). For a remote installation, you may need to relocate the include file (see skin.conf) but other than that either sqlite or mysql databases will work as they did before.
+With the [changes made to WeeWX 5.0](https://www.weewx.com/docs/5.0/upgrade/#upgrading-to-v50) wxobs now requires a manual configuration step before it will run correctly (See step 4 below). Once that's done it should "just work" for a local installation (the sqlite database is local). For a remote installation, you may need to relocate the include file (see skin.conf) but other than that either sqlite or mysql databases will work as they did before.
 
 The remote installation centers around rsyncing an sqlite database to the remote server. If you run an MySQL database then the required configuration for that is built in to mysql and should just require the correct variable names entering. This will vary with each setup so a single configuration example is not in my scope. If you have working notes and wish to share them, then raise them as an issue and we'll start from there.
 
@@ -79,11 +79,11 @@ Thanks to:
 
 4. The essential Manual Configuration Step (as the privileged user)
    
-   Under WeeWX 5.x it will throw 2 errors upon it's first start.
+   Under WeeWX 5.x it will throw 2 errors upon it's first start. These will be visible in the log. Those messages will disappear once the following fix is performed)
+
+   You will also see the error when you run wxobs/index.php from your web browser. It will report on the missing config file and repeat the required steps to fix it.
    
-   The logs will show you 2 of these (and those messages will disappear once the following fix is performed)
-   
-   It's documented in the wxobs skin.conf file but because we no longer run as the privileged root user, we need to intervene and manually create the directory /usr/share/php (with permissions 0755) and copy the weewx_wxobs.inc file (that wxobs generated and wrote as /tmp/weewx_wxobs.inc) into that directory (with its permissions of 0644). If you do this as root, a straight mkdir and cp should be all that is required - the ownership and existing permissions should not need changing).
+   It's documented in the wxobs/skin.conf file. Because we no longer run as the privileged root user, we need to intervene and manually create the directory /usr/share/php (with permissions 0755) and copy the weewx_wxobs.inc file (that wxobs generated and wrote as /tmp/weewx_wxobs.inc) into that directory (with its permissions of 0644). If you do this as root, a straight mkdir and cp should be all that is required - the ownership and existing permissions should not need changing).
    
    In the unlikely event that those changes don't allow it to work, there is a small possibility that the path within the include file, that points to the database location is incorrect.
    
