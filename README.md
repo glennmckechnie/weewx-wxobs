@@ -1,4 +1,9 @@
 
+**Update: 5th June 2024 Version 0.8.1**
+
+The ownership and permissions of the include file weren't being kept due to an assumption on my part!
+ <b>cp -p</b> is your friend. <b>man cp</b> for inquiring minds.
+
 **Update: June 2024 Version 0.8.0**
 
 This repo has now been updated to (hopefully) deal with the ownership changes introduced in Weewx 5.x
@@ -83,7 +88,11 @@ Thanks to:
 
    You will also see the error when you run wxobs/index.php from your web browser. It will report on the missing config file and repeat the required steps to fix it.
    
-   It's documented in the wxobs/skin.conf file. Because we no longer run as the privileged root user, we need to intervene and manually create the directory /usr/share/php (with permissions 0755) and copy the weewx_wxobs.inc file (that wxobs generated and wrote as /tmp/weewx_wxobs.inc) into that directory (with its permissions of 0644). If you do this as root, a straight mkdir and cp should be all that is required - the ownership and existing permissions should not need changing).
+   It's documented in the wxobs/skin.conf file. Because we no longer run as the privileged root user, we need to intervene and manually create the directory /usr/share/php (with permissions 0755)
+
+   The weewx_wxobs.inc file (that wxobs generated and wrote as /tmp/weewx_wxobs.inc) is written by the owner running weewx, with the permissions of 0644. It is to be copied into that directory with ownership and permissions preserved. To do this, use the <b>-p</b> switch with the <b>cp</b> command.
+
+     <pre>sudo cp -p /tmp/wxobs_weewx.inc /usr/share/php</pre>
    
    In the unlikely event that those changes don't allow it to work, there is a small possibility that the path within the include file, that points to the database location is incorrect.
    

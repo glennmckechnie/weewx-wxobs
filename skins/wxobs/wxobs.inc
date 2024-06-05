@@ -49,10 +49,11 @@
 ## 20-02-2022 Added missing datepicker.js.tmpl AND removed errant paste! Working again.
 ## 02-04-2022 Missing files from install.py, clean directory, add links.inc instructions.
 ## 29-06-2022 Add fr.conf, missing fields and corrections to wxobs.inc all via Rémy L
-## 30-05-2024 Add try: except: to catch permission errors when running as unprivileged user
+## 30-05-2024 version 0.8.0 Add try: except: to catch permission errors when running as unprivileged user
+## 06-06-2024 version 0.8.1 cp -p to preserve ownership and permissions !!
 ##
 ##
-## Version 0.8.0
+## Version 0.8.1
 ##      /**<input type="submit" name="submitDate" placeholder="25-12-2017" value="$gettext("Show records")">**/
 
    <!-- wxobs version $wxobs_version -->
@@ -86,7 +87,8 @@ if ((@include '$include_file') === false) {
     echo "The file skins/wxobs/skin.conf has a section at the start that outlines the changes required. Those are (briefly) as follows...</p>";
     echo "1. ) Changing to the root user (or sudo) and creating the missing directory, <b>mkdir -p /usr/share/php</b> with mode 0755. If it is there and permissions are correct then go to the next step.<br>";
     echo "2. ) Visiting /tmp and copying the /tmp/wxobs_weewx.inc that was written there on the ";
-    echo "last error, to the /usr/share/php directory and, if required, making it mode 0644.<br><br>";
+    echo "last error, to the /usr/share/php directory. Preserving the ownership and permissions in the process.<br><br>";
+    echo "<b>sudo cp -p /tmp/wxobs_weewx.inc /usr/share/php </b><br><br>";
     echo "You can complete these steps while weewx is running. If they were successful then it will stop logging the ";
     echo "ERROR messages and this index.php page will work as originally intended ie:- this message will disappear after the next report cycle<br>";
     echo "<p>If you still have problems getting it to run after taking the steps above then report the problem as an issue";

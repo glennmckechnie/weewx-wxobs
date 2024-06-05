@@ -22,7 +22,7 @@ import weewx.engine
 from weeutil.weeutil import to_bool
 from weewx.cheetahgenerator import SearchList
 
-wxobs_version = "0.8.0"
+wxobs_version = "0.8.1"
 
 try:
     # weewx4 logging
