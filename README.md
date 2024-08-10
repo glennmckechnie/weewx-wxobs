@@ -133,9 +133,11 @@ Thanks to:
 
 For the current debian installation here, the following remedied that...
    <pre>
-   apt-get install php-sqlite3 
-   (apt-get install php7.0-sqlite3) # or this one?
 
+   apt install php
+    
+   apt install php-sqlite3 
+   
    a2enmod php7.0
 
    phpenmod sqlite3
