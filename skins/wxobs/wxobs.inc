@@ -51,6 +51,7 @@
 ## 29-06-2022 Add fr.conf, missing fields and corrections to wxobs.inc all via Rémy L
 ## 30-05-2024 version 0.8.0 Add try: except: to catch permission errors when running as unprivileged user
 ## 06-06-2024 version 0.8.1 cp -p to preserve ownership and permissions !!
+## 10-08-2024 version 0.8.1 Fix int & null (round) Deprecations in php 8.1
 ##
 ##
 ## Version 0.8.1
@@ -73,9 +74,9 @@
 <?php
 /**
 *X
+*ini_set('display_errors', 1);
+*error_reporting(~0);
 */
-ini_set('display_errors', 1);
-error_reporting(~0);
 $start = microtime(true);
 
 if ((@include '$include_file') === false) {
@@ -999,7 +1000,13 @@ if ($debug =='1') {
     list($x, $dec_plc) = $speedConvert ($stats_row[12], $wind_plc);
     $maxGust = round($x, $dec_plc);
     echo "<td>$minGust ($maxGust)</td>";
-    $windDir = round($stats_row[13], 0);
+    // possibly because windSpeed is 0, or broken driver?
+    if (null === $stats_row[13]) {
+       $wDir = 0;
+    } else {
+       $wDir = $stats_row[13];
+    }
+    $windDir = round($wDir, 0);
     echo "<td>$windDir</td>"; //wind direction degrees
     list($x, $dec_plc) = $pressConvert ($stats_row[14], $press_plc);
     $minPress = round($x, $dec_plc);
@@ -1178,7 +1185,6 @@ if ($debug =='1') {
                $wDir = $row[7];
              }
             $windDir = round($wDir, 0);
-            //$windDir = round($row[7], 0);
             echo "<td>$windDir</td>"; //wind direction degrees
             list($x, $dec_plc) = $pressConvert ($row[8], $press_plc);
             $metPress = round($x, $dec_plc);
