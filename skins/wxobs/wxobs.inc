@@ -73,9 +73,9 @@
 <?php
 /**
 *X
-*ini_set('display_errors', 1);
-*error_reporting(~0);
 */
+ini_set('display_errors', 1);
+error_reporting(~0);
 $start = microtime(true);
 
 if ((@include '$include_file') === false) {
@@ -300,7 +300,7 @@ function ordinalCompass($degr, $debug)
     }
 
     $sector_size = 360/16;
-    $degree = ($degr + $sector_size/2.0) % 360.0;
+    $degree = (int)($degr + $sector_size/2.0) % 360.0;
     $sector = intval($degree / $sector_size);
     $compass = $default_ordinate_names[$sector];
     if ($debug == '5') {
@@ -737,7 +737,13 @@ if ($debug =='1') {
     list($x, $dec_plc) = $speedConvert ($latest_row[6], $wind_plc);
     $metGust = round($x, $dec_plc);
     echo "<td>$metGust</td>";
-    $windDir = round($latest_row[7], 0);
+    // possibly because windSpeed is 0, or broken driver?
+    if (null === $latest_row[7]) {
+       $wDir = 0;
+    } else {
+       $wDir = $latest_row[7];
+    }
+    $windDir = round($wDir, 0);
     echo "<td>$windDir</td>"; //wind direction degrees
     list($x, $dec_plc) = $pressConvert ($latest_row[8], $press_plc);
     $metPress = round($x, $dec_plc);
@@ -1165,7 +1171,14 @@ if ($debug =='1') {
             list($x, $dec_plc) = $speedConvert ($row[6], $wind_plc);
             $metGust = round($x, $dec_plc);
             echo "<td>$metGust</td>";
-            $windDir = round($row[7], 0);
+            // possibly because windSpeed is 0, or broken driver?
+            if (null === $row[7]) {
+               $wDir = 0;
+             } else {
+               $wDir = $row[7];
+             }
+            $windDir = round($wDir, 0);
+            //$windDir = round($row[7], 0);
             echo "<td>$windDir</td>"; //wind direction degrees
             list($x, $dec_plc) = $pressConvert ($row[8], $press_plc);
             $metPress = round($x, $dec_plc);
