@@ -41,7 +41,7 @@ The skin.conf file has the required configuration settings and a brief outline. 
 
 This is a skin that integrates with [WeeWX](http://weewx.com) (weather station software) and provides a php driven report page to extract archival data (Daily climatological summaries) from the weewx database. It then presents that information as a series of snapshots (default is half-hourly) averaged throughout the chosen day. There is an option to include appTemp, and delta-T ( used for agricultural purposes ) as well as optional configuration settings.
  
- There should be a working example available at Messmate Farms [wxobs page](http://203.213.243.61/weewx/wxobs/index.php) of which a screenshot is included below. ![alt text](https://github.com/glennmckechnie/rorpi-wiki/raw/master/weewx-wxobs-26nov2017.png "wxobs example screenshot")
+ There should be a working example available at Messmate Farms [wxobs page](http://weather.cgm.id.au/weewx/wxobs/index.php) of which a screenshot is included below. ![alt text](https://github.com/glennmckechnie/rorpi-wiki/raw/master/weewx-wxobs-26nov2017.png "wxobs example screenshot")
 If you are familiar with wview, this page would roughly equate with the **Archive Records** or **ARC** txt files that wview generated daily. In this case, it's a single page which directly queries the database and then returns the result to the user. It's a dynamic page rather than an archive of static pages.
 
 It is set out in the style of the _Latest Weather Observations_ pages that the Australian Weather Bureau - BOM provides. eg:- [Ballarat](http://www.bom.gov.au/products/IDV60801/IDV60801.94852.shtml)  I find those pages useful, that one especially when keeping an eye on the accuracy of my station.
