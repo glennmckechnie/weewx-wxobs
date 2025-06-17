@@ -84,15 +84,36 @@ Thanks to:
 
 4. The essential Manual Configuration Step (as the privileged user)
    
+   The first thing to do...
+   
+   You need a working installation of php - see section 6.0 below and install the appropriate modules. Once php is confirmed as working then proceed from here.
+
    Under WeeWX 5.x it will throw 2 errors upon it's first start. These will be visible in the log. Those messages will disappear once the following fix is performed)
 
    You will also see the error when you run wxobs/index.php from your web browser. It will report on the missing config file and repeat the required steps to fix it.
    
    It's documented in the wxobs/skin.conf file. Because we no longer run as the privileged root user, we need to intervene and manually create the directory /usr/share/php (with permissions 0755)
 
+   <pre> sudo mkdir /usr/share/php</pre>
+
+   Which should appear with the following permissions
+
+   <pre>ls -al /usr/share/ | grep php
+        drwxr-xr-x    2 root root   4096 Jun 17 14:11 php</pre>
+
    The weewx_wxobs.inc file (that wxobs generated and wrote as /tmp/weewx_wxobs.inc) is written by the owner running weewx, with the permissions of 0644. It is to be copied into that directory with ownership and permissions preserved. To do this, use the <b>-p</b> switch with the <b>cp</b> command.
 
-     <pre>sudo cp -p /tmp/wxobs_weewx.inc /usr/share/php</pre>
+   <pre>sudo cp -p /tmp/wxobs_weewx.inc /usr/share/php</pre>
+
+   and which should appear similar to the following...
+
+   <pre>ls -al /usr/share/php
+        drwxr-xr-x   2 root      root       4096 Jun 17 14:11 .
+        drwxr-xr-x 345 root      root      12288 Jun 17 14:26 ..
+        -rw-r--r--   1 graybeard graybeard    96 Jun 17 14:28 wxobs_weewx.inc
+   <pre>
+
+   The above is confirmed as working when using an apache2 web server.
    
    In the unlikely event that those changes don't allow it to work, there is a small possibility that the path within the include file, that points to the database location is incorrect.
    
@@ -136,9 +157,9 @@ For the current debian installation here, the following remedied that...
 
    apt install php
     
-   apt install php-sqlite3 
+   apt install php-sqlite3
    
-   a2enmod php7.0
+   a2enmod php8.0
 
    phpenmod sqlite3
 
@@ -148,9 +169,9 @@ For the current debian installation here, the following remedied that...
    For the raspberry pi here, running lighthttpd, it was a case of 
    
    
-   
    <pre>
    apt-get install php-sqlite3
+
    apt install php-cgi
    
    lighttpd-enable-mod fastcgi-php
@@ -159,6 +180,19 @@ For the current debian installation here, the following remedied that...
    </pre>
    
    Hopefully one of those applies for your setup, or at least gives you some direction.
+
+
+   To test your php installation. Create a file named test.php in the wxobs web directory and insert the following text into that file. Save it.
+
+   <pre>
+   <?php
+    phpinfo();
+   ?>
+   </pre>
+
+   Once installed, navigate to your wxobs web folder (weewx/wxobs?) and open it with your web browser. It should display loads of text related to your php installation. Searching that text should return multiple matches for SQLite3 (7 without being installed, 13 if it is installed)
+
+   Once you have confirmed it is installed and working, you can delete that file.
 
 7. If you use this with the default WeeWX skin (Standard), it will use the weewx.css file.
 
