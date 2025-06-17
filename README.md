@@ -157,17 +157,16 @@ For the current debian installation here, the following remedied that...
 
    apt install php
     
+   a2enmod php8.x
+    
    apt install php-sqlite3
    
-   a2enmod php8.0
-
    phpenmod sqlite3
 
    /etc/init.d/apache2 force-reload
    </pre> 
    
-   For the raspberry pi here, running lighthttpd, it was a case of 
-   
+   For the raspberry pi here, running lighthttpd, it was a case of    
    
    <pre>
    apt-get install php-sqlite3
@@ -181,16 +180,13 @@ For the current debian installation here, the following remedied that...
    
    Hopefully one of those applies for your setup, or at least gives you some direction.
 
-
    To test your php installation. Create a file named test.php in the wxobs web directory and insert the following text into that file. Save it.
-
    <pre>
-   <?php
+   &lt;?php
     phpinfo();
-   ?>
+   ?&gt;
    </pre>
-
-   Once installed, navigate to your wxobs web folder (weewx/wxobs?) and open it with your web browser. It should display loads of text related to your php installation. Searching that text should return multiple matches for SQLite3 (7 without being installed, 13 if it is installed)
+   Once installed, navigate to your wxobs web folder (weewx/wxobs?) and open it with your web browser. It should display loads of text related to your php installation. (That means that php has been successfully installed). Searching that text should return multiple matches for SQLite3 (7 without being installed, 13 if it is installed). That's your critical sqlite3 installation. You need both!
 
    Once you have confirmed it is installed and working, you can delete that file.
 
