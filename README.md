@@ -111,7 +111,7 @@ Thanks to:
         drwxr-xr-x   2 root      root       4096 Jun 17 14:11 .
         drwxr-xr-x 345 root      root      12288 Jun 17 14:26 ..
         -rw-r--r--   1 graybeard graybeard    96 Jun 17 14:28 wxobs_weewx.inc
-   <pre>
+   </pre>
 
    The above is confirmed as working when using an apache2 web server.
    
